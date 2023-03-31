@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeOpenGLProject", "TreeOpenGLProject\TreeOpenGLProject.vcxproj", "{749EF059-84D7-44A0-844D-3AFBF5BD837E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Debug|Win32.Build.0 = Debug|Win32
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Debug|x64.ActiveCfg = Debug|x64
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Debug|x64.Build.0 = Debug|x64
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Release|Win32.ActiveCfg = Release|Win32
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Release|Win32.Build.0 = Release|Win32
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Release|x64.ActiveCfg = Release|x64
+		{749EF059-84D7-44A0-844D-3AFBF5BD837E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E7A15F96-8C92-45DC-9F3A-BA3A9A062A00}
+	EndGlobalSection
+EndGlobal
