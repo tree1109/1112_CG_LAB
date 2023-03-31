@@ -1,5 +1,6 @@
-#include <iostream>
+Ôªø#include <iostream>
 #include <iomanip>
+#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myPopupMenu.h"
 #define M_PI 3.1415926535897932384626433832795f
@@ -14,14 +15,17 @@
 // 
 // arbitrary rotate:
 // [z], [x] : rotate by arbitrary axis
+// [c]      : input arbitrary axis and theta in console
 // 
 // translate:
-// [°Ù] : move up
-// [°ı] : move down
-// [°ˆ] : move left
-// [°˜] : move right
+// [‚Üë] : move up
+// [‚Üì] : move down
+// [‚Üê] : move left
+// [‚Üí] : move right
 // 
 // ~~~key map~~~
+
+using std::vector;
 
 // function prototypes
 void ChangeSize(int, int);
@@ -30,6 +34,7 @@ void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myUpdateMatrix(void);
+void myInputArbitraryAxis(void);
 void myArbitraryRotate(void);
 void myDebugInfo(void);
 
@@ -42,13 +47,9 @@ GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 
-GLfloat v1_x = 0.0;
-GLfloat v1_y = 0.0;
-GLfloat v1_z = 0.0;
-GLfloat v2_x = 0.0;
-GLfloat v2_y = 0.0;
-GLfloat v2_z = 0.0;
-GLfloat theta = 0.0;
+vector<GLfloat> V1 = { 0, 0, 0 };
+vector<GLfloat> V2 = { 0, 0, 0 };
+GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
@@ -56,28 +57,28 @@ const GLfloat deltaR = 4.5f;
 
 const GLfloat axisLength = 7.0f;
 
-GLfloat translateMatrix[] = {
+vector<GLfloat> translateMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 };
 
-GLfloat rotateXMatrix[] = {
+vector<GLfloat> rotateXMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 };
 
-GLfloat rotateYMatrix[] = {
+vector<GLfloat> rotateYMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 };
 
-GLfloat rotateZMatrix[] = {
+vector<GLfloat> rotateZMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
@@ -100,18 +101,6 @@ int main(int argc, char** argv)
     glutSpecialFunc(mySpecialKey);
 
     (new myPopupMenu())->SetupPopupMenu();
-
-    std::cout << "Please Input Arbitrary Axis and theta v1(x, y, z) and v2(x, y, z)" << std::endl;
-    //std::cin >> v1_x;
-    //std::cin >> v1_y;
-    //std::cin >> v1_z;
-    //std::cin >> v2_x;
-    //std::cin >> v2_y;
-    //std::cin >> v2_z;
-    v1_x = v1_y = v2_x = 1.0f;
-    v2_y = -1.0f;
-    v1_z = v2_z = 0;
-
 
     glutMainLoop();
     return 0;
@@ -158,12 +147,12 @@ void RenderScene(void)
     glLoadIdentity();
 
     // lab4
-    myArbitraryRotate();
+    //myArbitraryRotate();
 
-    glMultMatrixf(rotateXMatrix);
-    glMultMatrixf(rotateYMatrix);
-    glMultMatrixf(rotateZMatrix);
-    glMultMatrixf(translateMatrix);
+    glMultMatrixf(rotateXMatrix.data());
+    glMultMatrixf(rotateYMatrix.data());
+    glMultMatrixf(rotateZMatrix.data());
+    glMultMatrixf(translateMatrix.data());
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
@@ -230,12 +219,16 @@ void myKeyboard(unsigned char key, int x, int y)
     case 'f':
         // exit program
         exit(0);
-    case 'z':
-        theta += deltaR;
+    case 'c':
+        // input arbitrary axis and theta in console
+        myInputArbitraryAxis();
         break;
-    case 'x':
-        theta -= deltaR;
-        break;
+    //case 'z':
+    //    theta += deltaR;
+    //    break;
+    //case 'x':
+    //    theta -= deltaR;
+    //    break;
     default:
         break;
     }
@@ -301,89 +294,105 @@ void myUpdateMatrix() {
     rotateZMatrix[5] = rotateZCos;
 }
 
-void myArbitraryRotate() {
+void myInputArbitraryAxis(void) {
+    // move cursor to (1, 1) and clear the console
+    std::cout << "\033[1;1H\033[2J";
+
+    std::cout << "[info]Input Point 1's (x, y, z) ~" << std::endl;
+    std::cin >> V1[0] >> V1[1] >> V1[2];
+    std::cout << "[info]Point 1 is (" << std::setw(8) << V1[0] << ", " << std::setw(8) << V1[1] << ", " << std::setw(8) << V1[2] << ")" << std::endl;
+    std::cout << "[info]Input Point 2's (x, y, z) ~" << std::endl;
+    std::cin >> V2[0] >> V2[1] >> V2[2];
+    std::cout << "[info]Point 2 is (" << std::setw(8) << V2[0] << ", " << std::setw(8) << V2[1] << ", " << std::setw(8) << V2[2] << ")" << std::endl;
+    std::cout << "[info]Input the angle of rotation ~" << std::endl;
+    std::cin >> arbitraryTheta;
+}
+
+void myArbitraryRotate(vector<GLfloat> V1, vector<GLfloat> V2, GLfloat rotateTheta) {
     const GLfloat rad = M_PI / 180.0f;
-    GLfloat lenth = sqrt((v2_x - v1_x) * (v2_x - v1_x) + (v2_y - v1_y) * (v2_y - v1_y) + (v2_z - v1_z) * (v2_z - v1_z));
-    GLfloat a = (v2_x - v1_x) / lenth;
-    GLfloat b = (v2_y - v1_y) / lenth;
-    GLfloat c = (v2_z - v1_z) / lenth;
-    GLfloat rotateXSin = b / sqrt(b * b + c * c);
-    GLfloat rotateXCos = c / sqrt(b * b + c * c);
-    GLfloat rotateYSin = a / sqrt(a * a + c * c);
-    GLfloat rotateYCos = c / sqrt(a * a + c * c);
-    GLfloat rotateZSin = sin(theta * rad);
-    GLfloat rotateZCos = cos(theta * rad);
 
-    GLfloat rotateXMatrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, rotateXCos, rotateXSin, 0.0f,
-        0.0f, -rotateXSin, rotateXCos, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
+    // get unit vector
+    GLfloat length = sqrt((V2[0] - V1[0]) * (V2[0] - V1[0]) + (V2[1] - V1[1]) * (V2[1] - V1[1]) + (V2[2] - V1[2]) * (V2[2] - V1[2]));
+    vector<GLfloat> unitVector = { (V2[0] - V1[0]) / length, (V2[1] - V1[1]) / length, (V2[2] - V1[2]) / length };
 
-    GLfloat rotateYMatrix[] = {
-        rotateYCos, 0.0f, -rotateYSin, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        rotateYSin, 0.0f, rotateYCos, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
+    //GLfloat rotateXSin = b / sqrt(b * b + c * c);
+    //GLfloat rotateXCos = c / sqrt(b * b + c * c);
+    //GLfloat rotateYSin = a / sqrt(a * a + c * c);
+    //GLfloat rotateYCos = c / sqrt(a * a + c * c);
+    //GLfloat rotateZSin = sin(theta * rad);
+    //GLfloat rotateZCos = cos(theta * rad);
 
-    GLfloat rotateZMatrix[] = {
-        rotateZCos, rotateZSin, 0.0f, 0.0f,
-        -rotateZSin, rotateZCos, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
+    //GLfloat rotateXMatrix[] = {
+    //    1.0f, 0.0f, 0.0f, 0.0f,
+    //    0.0f, rotateXCos, rotateXSin, 0.0f,
+    //    0.0f, -rotateXSin, rotateXCos, 0.0f,
+    //    0.0f, 0.0f, 0.0f, 1.0f
+    //};
 
-    // inverse transform
-    GLfloat inverseTranslateMatrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        -tx, -ty, -tz, 1.0f
-    };
+    //GLfloat rotateYMatrix[] = {
+    //    rotateYCos, 0.0f, -rotateYSin, 0.0f,
+    //    0.0f, 1.0f, 0.0f, 0.0f,
+    //    rotateYSin, 0.0f, rotateYCos, 0.0f,
+    //    0.0f, 0.0f, 0.0f, 1.0f
+    //};
 
-    GLfloat inverseRotateXMatrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, rotateXCos, -rotateXSin, 0.0f,
-        0.0f, rotateXSin, rotateXCos, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
+    //GLfloat rotateZMatrix[] = {
+    //    rotateZCos, rotateZSin, 0.0f, 0.0f,
+    //    -rotateZSin, rotateZCos, 0.0f, 0.0f,
+    //    0.0f, 0.0f, 1.0f, 0.0f,
+    //    0.0f, 0.0f, 0.0f, 1.0f
+    //};
 
-    GLfloat inverseRotateYMatrix[] = {
-        rotateYCos, 0.0f, rotateYSin, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        -rotateYSin, 0.0f, rotateYCos, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
+    //// inverse transform
+    //GLfloat inverseTranslateMatrix[] = {
+    //    1.0f, 0.0f, 0.0f, 0.0f,
+    //    0.0f, 1.0f, 0.0f, 0.0f,
+    //    0.0f, 0.0f, 1.0f, 0.0f,
+    //    -tx, -ty, -tz, 1.0f
+    //};
 
-    // draw x-axis, y-axis, z-axis
-    glBegin(GL_LINES);
-    // red x-axis
-    glColor3f(0, 1, 1);
-    glVertex3f((v1_x + v2_x) / 2 + axisLength * a, (v1_y + v2_y) / 2 + axisLength * b, (v1_z + v2_z) / 2 + axisLength * c);
-    glVertex3f((v1_x + v2_x) / 2 - axisLength * a, (v1_y + v2_y) / 2 - axisLength * b, (v1_z + v2_z) / 2 - axisLength * c);
-    glEnd();
+    //GLfloat inverseRotateXMatrix[] = {
+    //    1.0f, 0.0f, 0.0f, 0.0f,
+    //    0.0f, rotateXCos, -rotateXSin, 0.0f,
+    //    0.0f, rotateXSin, rotateXCos, 0.0f,
+    //    0.0f, 0.0f, 0.0f, 1.0f
+    //};
 
-    // translate
-    glMultMatrixf(translateMatrix);
-    // rotate x alpha
-    glMultMatrixf(rotateXMatrix);
-    // rotate y beta
-    glMultMatrixf(rotateYMatrix);
-    // rotate z theta
-    glMultMatrixf(rotateZMatrix);
-    // inverse rotate y beta
-    glMultMatrixf(inverseRotateYMatrix);
-    // inverse rotate x alpha
-    glMultMatrixf(inverseRotateXMatrix);
-    // inverse translate
-    glMultMatrixf(inverseTranslateMatrix);
+    //GLfloat inverseRotateYMatrix[] = {
+    //    rotateYCos, 0.0f, rotateYSin, 0.0f,
+    //    0.0f, 1.0f, 0.0f, 0.0f,
+    //    -rotateYSin, 0.0f, rotateYCos, 0.0f,
+    //    0.0f, 0.0f, 0.0f, 1.0f
+    //};
+
+    //// draw x-axis, y-axis, z-axis
+    //glBegin(GL_LINES);
+    //// red x-axis
+    //glColor3f(0, 1, 1);
+    //glVertex3f((v1_x + v2_x) / 2 + axisLength * a, (v1_y + v2_y) / 2 + axisLength * b, (v1_z + v2_z) / 2 + axisLength * c);
+    //glVertex3f((v1_x + v2_x) / 2 - axisLength * a, (v1_y + v2_y) / 2 - axisLength * b, (v1_z + v2_z) / 2 - axisLength * c);
+    //glEnd();
+
+    //// translate
+    //glMultMatrixf(translateMatrix);
+    //// rotate x alpha
+    //glMultMatrixf(rotateXMatrix);
+    //// rotate y beta
+    //glMultMatrixf(rotateYMatrix);
+    //// rotate z theta
+    //glMultMatrixf(rotateZMatrix);
+    //// inverse rotate y beta
+    //glMultMatrixf(inverseRotateYMatrix);
+    //// inverse rotate x alpha
+    //glMultMatrixf(inverseRotateXMatrix);
+    //// inverse translate
+    //glMultMatrixf(inverseTranslateMatrix);
 }
 
 void myDebugInfo() {
-    // clear console
-    std::cout << "\033[1;1H";
+    // move cursor to (1, 1)
+    std::cout << "\033[1;1H\033[2J";
+
 
     // set precision
     std::cout << std::fixed << std::setprecision(1);
@@ -399,14 +408,4 @@ void myDebugInfo() {
         << std::setw(8) << thetaX << ", "
         << std::setw(8) << thetaY << ", "
         << std::setw(8) << thetaZ << ")" << std::endl;
-
-    // print v1 and v2
-    std::cout << "[debug] (v1_x, v1_y, v1_z)       : ("
-        << std::setw(8) << v1_x << ", "
-        << std::setw(8) << v1_y << ", "
-        << std::setw(8) << v1_z << ")" << std::endl;
-    std::cout << "[debug] (v2_x, v2_y, v2_z)       : ("
-        << std::setw(8) << v2_x << ", "
-        << std::setw(8) << v2_y << ", "
-        << std::setw(8) << v2_z << ")" << std::endl;
 }
