@@ -33,7 +33,6 @@ void RenderScene(void);
 void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
-void myUpdateMatrix(void);
 void myInputArbitraryAxis(void);
 void myResetMatrix(void);
 void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
@@ -65,34 +64,6 @@ vector<GLfloat> commonMatrix = {
     0,1,0,0,
     0,0,1,0,
     0,0,0,1
-};
-
-vector<GLfloat> translateMatrix = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
-
-vector<GLfloat> rotateXMatrix = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
-
-vector<GLfloat> rotateYMatrix = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
-
-vector<GLfloat> rotateZMatrix = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
 };
 
 myPopupMenu* myMenu;
@@ -154,12 +125,11 @@ void RenderScene(void)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     // basic transformation
-    myUpdateMatrix();
     myMatrixInfo();
-    glMultMatrixf(rotateXMatrix.data());
-    glMultMatrixf(rotateYMatrix.data());
-    glMultMatrixf(rotateZMatrix.data());
-    glMultMatrixf(translateMatrix.data());
+    myRotateMatrix(thetaX, 1, 0, 0);
+    myRotateMatrix(thetaY, 0, 1, 0);
+    myRotateMatrix(thetaZ, 0, 0, 1);
+    myTranslateMatrix(tx, ty, tz);
     // special transformation
     myArbitraryRotate(V1, V2, arbitraryTheta);
 
@@ -271,38 +241,6 @@ void mySpecialKey(int key, int x, int y)
     glutPostRedisplay();
 }
 
-void myUpdateMatrix() {
-    GLfloat rotateXSin = sin(thetaX * deg2rad);
-    GLfloat rotateXCos = cos(thetaX * deg2rad);
-    GLfloat rotateYSin = sin(thetaY * deg2rad);
-    GLfloat rotateYCos = cos(thetaY * deg2rad);
-    GLfloat rotateZSin = sin(thetaZ * deg2rad);
-    GLfloat rotateZCos = cos(thetaZ * deg2rad);
-
-    // update translate matrix
-    translateMatrix[12] = tx;
-    translateMatrix[13] = ty;
-    translateMatrix[14] = tz;
-
-    // update rotate x-axis matrix
-    rotateXMatrix[5] = rotateXCos;
-    rotateXMatrix[6] = rotateXSin;
-    rotateXMatrix[9] = -rotateXSin;
-    rotateXMatrix[10] = rotateXCos;
-
-    // update rotate y-axis matrix
-    rotateYMatrix[0] = rotateYCos;
-    rotateYMatrix[2] = -rotateYSin;
-    rotateYMatrix[8] = rotateYSin;
-    rotateYMatrix[10] = rotateYCos;
-
-    // update rotate z-axis matrix
-    rotateZMatrix[0] = rotateZCos;
-    rotateZMatrix[1] = rotateZSin;
-    rotateZMatrix[4] = -rotateZSin;
-    rotateZMatrix[5] = rotateZCos;
-}
-
 void myInputArbitraryAxis(void) {
     // move cursor to (1, 1) and clear the console
     std::cout << "\033[1;1H\033[2J";
@@ -322,22 +260,22 @@ void myResetMatrix(void) {
     }
 }
 
-void myRotateMatrix(GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
+void myRotateMatrix(GLfloat angle, GLfloat uX, GLfloat uY, GLfloat uZ) {
     GLfloat RaCos = cos(angle * deg2rad);
     GLfloat RaSin = sin(angle * deg2rad);
 
     myResetMatrix();
 
-    commonMatrix[0] = RaCos + (1 - RaCos) * x * x;
-    commonMatrix[1] = (1 - RaCos) * x * y + RaSin * z;
-    commonMatrix[2] = (1 - RaCos) * x * z - RaSin * y;
-    commonMatrix[4] = (1 - RaCos) * x * y - RaSin * z;
-    commonMatrix[5] = RaCos + (1 - RaCos) * y * y;
-    commonMatrix[6] = (1 - RaCos) * y * z + RaSin * x;
-    commonMatrix[8] = (1 - RaCos) * x * z + RaSin * y;
-    commonMatrix[9] = (1 - RaCos) * y * z - RaSin * x;
-    commonMatrix[10] = RaCos + (1 - RaCos) * z * z;
-
+    commonMatrix[0] = RaCos + (1 - RaCos) * uX * uX;
+    commonMatrix[1] = (1 - RaCos) * uX * uY + RaSin * uZ;
+    commonMatrix[2] = (1 - RaCos) * uX * uZ - RaSin * uY;
+    commonMatrix[4] = (1 - RaCos) * uX * uY - RaSin * uZ;
+    commonMatrix[5] = RaCos + (1 - RaCos) * uY * uY;
+    commonMatrix[6] = (1 - RaCos) * uY * uZ + RaSin * uX;
+    commonMatrix[8] = (1 - RaCos) * uX * uZ + RaSin * uY;
+    commonMatrix[9] = (1 - RaCos) * uY * uZ - RaSin * uX;
+    commonMatrix[10] = RaCos + (1 - RaCos) * uZ * uZ;
+   
     glMultMatrixf(commonMatrix.data());
 }
 
