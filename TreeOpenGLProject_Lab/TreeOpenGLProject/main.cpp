@@ -23,11 +23,12 @@
 // function prototypes
 void ChangeSize(int, int);
 void RenderScene(void);
-void SetupRC();
+void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
-void myUpdateMatrix();
-void myDebugInfo();
+void myUpdateMatrix(void);
+void myArbitraryRotate(void);
+void myDebugInfo(void);
 
 // These are variable that you will need
 // to move your cube
@@ -37,6 +38,14 @@ GLfloat tz = 0.0;
 GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
+
+GLfloat v1_x = 0.0;
+GLfloat v1_y = 0.0;
+GLfloat v1_z = 0.0;
+GLfloat v2_x = 0.0;
+GLfloat v2_y = 0.0;
+GLfloat v2_z = 0.0;
+GLfloat theta = 0.0;
 
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
@@ -89,6 +98,18 @@ int main(int argc, char** argv)
 
     (new myPopupMenu())->SetupPopupMenu();
 
+    std::cout << "Please Input Arbitrary Axis and theta v1(x, y, z) and v2(x, y, z)" << std::endl;
+    //std::cin >> v1_x;
+    //std::cin >> v1_y;
+    //std::cin >> v1_z;
+    //std::cin >> v2_x;
+    //std::cin >> v2_y;
+    //std::cin >> v2_z;
+    v1_x = v1_y = v2_x = 1.0f;
+    v2_y = -1.0f;
+    v1_z = v2_z = 0;
+
+
     glutMainLoop();
     return 0;
 }
@@ -132,6 +153,10 @@ void RenderScene(void)
     myUpdateMatrix();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // lab4
+    myArbitraryRotate();
+
     glMultMatrixf(rotateXMatrix);
     glMultMatrixf(rotateYMatrix);
     glMultMatrixf(rotateZMatrix);
@@ -202,6 +227,12 @@ void myKeyboard(unsigned char key, int x, int y)
     case 'f':
         // exit program
         exit(0);
+    case 'z':
+        theta += deltaR;
+        break;
+    case 'x':
+        theta -= deltaR;
+        break;
     default:
         break;
     }
@@ -267,6 +298,86 @@ void myUpdateMatrix() {
     rotateZMatrix[5] = rotateZCos;
 }
 
+void myArbitraryRotate() {
+    const GLfloat rad = M_PI / 180.0f;
+    GLfloat lenth = sqrt((v2_x - v1_x) * (v2_x - v1_x) + (v2_y - v1_y) * (v2_y - v1_y) + (v2_z - v1_z) * (v2_z - v1_z));
+    GLfloat a = (v2_x - v1_x) / lenth;
+    GLfloat b = (v2_y - v1_y) / lenth;
+    GLfloat c = (v2_z - v1_z) / lenth;
+    GLfloat rotateXSin = b / sqrt(b * b + c * c);
+    GLfloat rotateXCos = c / sqrt(b * b + c * c);
+    GLfloat rotateYSin = a / sqrt(a * a + c * c);
+    GLfloat rotateYCos = c / sqrt(a * a + c * c);
+    GLfloat rotateZSin = sin(theta * rad);
+    GLfloat rotateZCos = cos(theta * rad);
+
+    GLfloat rotateXMatrix[] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, rotateXCos, rotateXSin, 0.0f,
+        0.0f, -rotateXSin, rotateXCos, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    GLfloat rotateYMatrix[] = {
+        rotateYCos, 0.0f, -rotateYSin, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        rotateYSin, 0.0f, rotateYCos, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    GLfloat rotateZMatrix[] = {
+        rotateZCos, rotateZSin, 0.0f, 0.0f,
+        -rotateZSin, rotateZCos, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    // inverse transform
+    GLfloat inverseTranslateMatrix[] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        -tx, -ty, -tz, 1.0f
+    };
+
+    GLfloat inverseRotateXMatrix[] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, rotateXCos, -rotateXSin, 0.0f,
+        0.0f, rotateXSin, rotateXCos, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    GLfloat inverseRotateYMatrix[] = {
+        rotateYCos, 0.0f, rotateYSin, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        -rotateYSin, 0.0f, rotateYCos, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    // draw x-axis, y-axis, z-axis
+    glBegin(GL_LINES);
+    // red x-axis
+    glColor3f(0, 1, 1);
+    glVertex3f((v1_x + v2_x) / 2 + axisLength * a, (v1_y + v2_y) / 2 + axisLength * b, (v1_z + v2_z) / 2 + axisLength * c);
+    glVertex3f((v1_x + v2_x) / 2 - axisLength * a, (v1_y + v2_y) / 2 - axisLength * b, (v1_z + v2_z) / 2 - axisLength * c);
+    glEnd();
+
+    // translate
+    glMultMatrixf(translateMatrix);
+    // rotate x alpha
+    glMultMatrixf(rotateXMatrix);
+    // rotate y beta
+    glMultMatrixf(rotateYMatrix);
+    // rotate z theta
+    glMultMatrixf(rotateZMatrix);
+    // inverse rotate y beta
+    glMultMatrixf(inverseRotateYMatrix);
+    // inverse rotate x alpha
+    glMultMatrixf(inverseRotateXMatrix);
+    // inverse translate
+    glMultMatrixf(inverseTranslateMatrix);
+}
+
 void myDebugInfo() {
     // clear console
     std::cout << "\033[1;1H";
@@ -285,4 +396,14 @@ void myDebugInfo() {
         << std::setw(8) << thetaX << ", "
         << std::setw(8) << thetaY << ", "
         << std::setw(8) << thetaZ << ")" << std::endl;
+
+    // print v1 and v2
+    std::cout << "[debug] (v1_x, v1_y, v1_z)       : ("
+        << std::setw(8) << v1_x << ", "
+        << std::setw(8) << v1_y << ", "
+        << std::setw(8) << v1_z << ")" << std::endl;
+    std::cout << "[debug] (v2_x, v2_y, v2_z)       : ("
+        << std::setw(8) << v2_x << ", "
+        << std::setw(8) << v2_y << ", "
+        << std::setw(8) << v2_z << ")" << std::endl;
 }
