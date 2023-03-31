@@ -12,6 +12,9 @@
 // [a], [d] : rotate by y-axis
 // [q], [e] : rotate by z-axis
 // 
+// arbitrary rotate:
+// [z], [x] : rotate by arbitrary axis
+// 
 // translate:
 // [¡ô] : move up
 // [¡õ] : move down
