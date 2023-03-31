@@ -37,7 +37,7 @@ void myInputArbitraryAxis(void);
 void myResetMatrix(void);
 void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
 void myTranslateMatrix(GLfloat, GLfloat, GLfloat);
-void myArbitraryRotate(vector<GLfloat>, vector<GLfloat>, GLfloat angle);
+void myArbitraryRotate(GLfloat, vector<GLfloat>, vector<GLfloat>);
 void myMatrixInfo(void);
 
 // These are variable that you will need
@@ -131,7 +131,7 @@ void RenderScene(void)
     myRotateMatrix(thetaZ, 0, 0, 1);
     myTranslateMatrix(tx, ty, tz);
     // special transformation
-    myArbitraryRotate(V1, V2, arbitraryTheta);
+    myArbitraryRotate(arbitraryTheta, V1, V2);
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
@@ -289,22 +289,22 @@ void myTranslateMatrix(GLfloat x, GLfloat y, GLfloat z) {
     glMultMatrixf(commonMatrix.data());
 }
 
-void myArbitraryRotate(vector<GLfloat> p1, vector<GLfloat> p2, GLfloat angle) {
+void myArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2) {
     // get unit vector
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
     GLfloat x = (p2[0] - p1[0]) / length;
     GLfloat y = (p2[1] - p1[1]) / length;
     GLfloat z = (p2[2] - p1[2]) / length;
 
-    myTranslateMatrix(-p1[0], -p1[1], -p1[2]);
-    myRotateMatrix(angle, x, y, z);
     myTranslateMatrix(p1[0], p1[1], p1[2]);
+    myRotateMatrix(angle, x, y, z);
+    myTranslateMatrix(-p1[0], -p1[1], -p1[2]);
 
     // draw arbitrary axis
     glBegin(GL_LINES);
     glColor3f(1, 1, 0);
-    glVertex3f(V1[0], V1[1], V1[2]);
-    glVertex3f(V2[0], V2[1], V2[2]);
+    glVertex3f(p1[0], p1[1], p1[2]);
+    glVertex3f(p2[0], p2[1], p2[2]);
     glEnd();
 }
 
@@ -317,13 +317,26 @@ void myMatrixInfo() {
 
     // print translation
     std::cout << "[debug] (tx, ty, tz)             : ("
-        << std::setw(8) << tx << ", "
-        << std::setw(8) << ty << ", "
-        << std::setw(8) << tz << ")" << std::endl;
+        << std::setw(6) << tx << ", "
+        << std::setw(6) << ty << ", "
+        << std::setw(6) << tz << ")" << std::endl;
 
     // print rotation angle
     std::cout << "[debug] (thetaX, thetaY, thetaZ) : ("
-        << std::setw(8) << thetaX << ", "
-        << std::setw(8) << thetaY << ", "
-        << std::setw(8) << thetaZ << ")" << std::endl;
+        << std::setw(6) << thetaX << ", "
+        << std::setw(6) << thetaY << ", "
+        << std::setw(6) << thetaZ << ")" << std::endl;
+
+    // print arbitrary axis
+    std::cout << "[debug] (V1, V2)                 : ("
+        << std::setw(6) << V1[0] << ", "
+        << std::setw(6) << V1[1] << ", "
+        << std::setw(6) << V1[2] << "), ("
+        << std::setw(6) << V2[0] << ", "
+        << std::setw(6) << V2[1] << ", "
+        << std::setw(6) << V2[2] << ")" << std::endl;
+
+    // print arbitrary rotation angle
+    std::cout << "[debug] (arbitraryTheta)         : ("
+        << std::setw(6) << arbitraryTheta << ")" << std::endl;
 }
