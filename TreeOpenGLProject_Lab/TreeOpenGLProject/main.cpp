@@ -35,8 +35,11 @@ void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myUpdateMatrix(void);
 void myInputArbitraryAxis(void);
-void myArbitraryRotate(vector<GLfloat>, vector<GLfloat>, GLfloat);
-void myDebugInfo(void);
+void myResetMatrix(void);
+void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
+void myTranslateMatrix(GLfloat, GLfloat, GLfloat);
+void myArbitraryRotate(vector<GLfloat>, vector<GLfloat>, GLfloat angle);
+void myMatrixInfo(void);
 
 // These are variable that you will need
 // to move your cube
@@ -47,15 +50,22 @@ GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 
-vector<GLfloat> V1 = { 0, 0, 0 };
-vector<GLfloat> V2 = { 0, 0, 0 };
+vector<GLfloat> V1 = { 3, -5, 0 };
+vector<GLfloat> V2 = { 3, 5, 0 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
-
 const GLfloat axisLength = 7.0f;
+constexpr GLfloat deg2rad = M_PI / 180.0f;
+
+vector<GLfloat> commonMatrix = {
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1
+};
 
 vector<GLfloat> translateMatrix = {
     1.0f, 0.0f, 0.0f, 0.0f,
@@ -120,7 +130,7 @@ void RenderScene(void)
 {
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW); // load the modelview matrix
+    glMatrixMode(GL_MODELVIEW); // load the model view matrix
     glLoadIdentity();
     gluLookAt(0, 0, 10.0f, 0, 0, 0, 0, 1, 0);
 
@@ -140,19 +150,18 @@ void RenderScene(void)
     glVertex3f(0, 0, axisLength);
     glEnd();
 
-    myDebugInfo();
     // perform transformation for the cube
-    myUpdateMatrix();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    // lab4
-    myArbitraryRotate(V1, V2, arbitraryTheta);
-
+    // basic transformation
+    myUpdateMatrix();
+    myMatrixInfo();
     glMultMatrixf(rotateXMatrix.data());
     glMultMatrixf(rotateYMatrix.data());
     glMultMatrixf(rotateZMatrix.data());
     glMultMatrixf(translateMatrix.data());
+    // special transformation
+    myArbitraryRotate(V1, V2, arbitraryTheta);
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
@@ -191,6 +200,7 @@ void myKeyboard(unsigned char key, int x, int y)
         thetaX = 0;
         thetaY = 0;
         thetaZ = 0;
+        arbitraryTheta = 0;
         break;
     case 'a':
         // change the rotation angle thetaY along y-axis
@@ -224,10 +234,10 @@ void myKeyboard(unsigned char key, int x, int y)
         myInputArbitraryAxis();
         break;
     case 'z':
-        arbitraryTheta += arbitraryTheta;
+        arbitraryTheta += deltaR;
         break;
     case 'x':
-        arbitraryTheta -= arbitraryTheta;
+        arbitraryTheta -= deltaR;
         break;
     default:
         break;
@@ -262,13 +272,12 @@ void mySpecialKey(int key, int x, int y)
 }
 
 void myUpdateMatrix() {
-    const GLfloat rad = M_PI / 180.0f;
-    GLfloat rotateXSin = sin(thetaX * rad);
-    GLfloat rotateXCos = cos(thetaX * rad);
-    GLfloat rotateYSin = sin(thetaY * rad);
-    GLfloat rotateYCos = cos(thetaY * rad);
-    GLfloat rotateZSin = sin(thetaZ * rad);
-    GLfloat rotateZCos = cos(thetaZ * rad);
+    GLfloat rotateXSin = sin(thetaX * deg2rad);
+    GLfloat rotateXCos = cos(thetaX * deg2rad);
+    GLfloat rotateYSin = sin(thetaY * deg2rad);
+    GLfloat rotateYCos = cos(thetaY * deg2rad);
+    GLfloat rotateZSin = sin(thetaZ * deg2rad);
+    GLfloat rotateZCos = cos(thetaZ * deg2rad);
 
     // update translate matrix
     translateMatrix[12] = tx;
@@ -304,73 +313,54 @@ void myInputArbitraryAxis(void) {
     std::cin >> V2[0] >> V2[1] >> V2[2];
 }
 
-void myArbitraryRotate(vector<GLfloat> V1, vector<GLfloat> V2, GLfloat rotateTheta) {
-    const GLfloat rad = M_PI / 180.0f;
+void myResetMatrix(void) {
+    for (int i = 0; i < 4; i++) {
+        commonMatrix[4 * i] = i == 0 ? 1.0f : 0.0f;
+        commonMatrix[4 * i + 1] = i == 1 ? 1.0f : 0.0f;
+        commonMatrix[4 * i + 2] = i == 2 ? 1.0f : 0.0f;
+        commonMatrix[4 * i + 3] = i == 3 ? 1.0f : 0.0f;
+    }
+}
 
+void myRotateMatrix(GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
+    GLfloat RaCos = cos(angle * deg2rad);
+    GLfloat RaSin = sin(angle * deg2rad);
+
+    myResetMatrix();
+
+    commonMatrix[0] = RaCos + (1 - RaCos) * x * x;
+    commonMatrix[1] = (1 - RaCos) * x * y + RaSin * z;
+    commonMatrix[2] = (1 - RaCos) * x * z - RaSin * y;
+    commonMatrix[4] = (1 - RaCos) * x * y - RaSin * z;
+    commonMatrix[5] = RaCos + (1 - RaCos) * y * y;
+    commonMatrix[6] = (1 - RaCos) * y * z + RaSin * x;
+    commonMatrix[8] = (1 - RaCos) * x * z + RaSin * y;
+    commonMatrix[9] = (1 - RaCos) * y * z - RaSin * x;
+    commonMatrix[10] = RaCos + (1 - RaCos) * z * z;
+
+    glMultMatrixf(commonMatrix.data());
+}
+
+void myTranslateMatrix(GLfloat x, GLfloat y, GLfloat z) {
+    myResetMatrix();
+
+    commonMatrix[12] = x;
+    commonMatrix[13] = y;
+    commonMatrix[14] = z;
+
+    glMultMatrixf(commonMatrix.data());
+}
+
+void myArbitraryRotate(vector<GLfloat> p1, vector<GLfloat> p2, GLfloat angle) {
     // get unit vector
-    GLfloat length = sqrt((V2[0] - V1[0]) * (V2[0] - V1[0]) + (V2[1] - V1[1]) * (V2[1] - V1[1]) + (V2[2] - V1[2]) * (V2[2] - V1[2]));
-    vector<GLfloat> unitVector = { (V2[0] - V1[0]) / length, (V2[1] - V1[1]) / length, (V2[2] - V1[2]) / length };
+    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
+    GLfloat x = (p2[0] - p1[0]) / length;
+    GLfloat y = (p2[1] - p1[1]) / length;
+    GLfloat z = (p2[2] - p1[2]) / length;
 
-    // calculate sin cos
-    GLfloat RxSin = unitVector[1] / sqrt(unitVector[1] * unitVector[1] + unitVector[2] * unitVector[2]);
-    GLfloat RxCos = unitVector[2] / sqrt(unitVector[1] * unitVector[1] + unitVector[2] * unitVector[2]);
-    GLfloat RySin = unitVector[0] / sqrt(unitVector[0] * unitVector[0] + unitVector[2] * unitVector[2]);
-    GLfloat RyCos = unitVector[2] / sqrt(unitVector[0] * unitVector[0] + unitVector[2] * unitVector[2]);
-    GLfloat RzSin = sin(rotateTheta * rad);
-    GLfloat RzCos = cos(rotateTheta * rad);
-
-    // Ra = T^T * Rx^T(alpha) * Ry^T(beta) * Rz(theta) * Ry(beta) * Rx(alpha) * T
-    // 
-    // T : translate matrix
-    // make the unit vector's orign as same as the origin of the world
-    vector<GLfloat> T = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        -V1[0], -V1[1], -V1[2], 1
-    };
-    // T^T : translate matrix's transpose
-    vector<GLfloat> T_T = {
-        1, 0, 0, -V1[0],
-        0, 1, 0, -V1[1],
-        0, 0, 1, -V1[2],
-        0, 0, 0, 1
-    };
-    // Rx(alpha) : rotate vector to xz-plane about x-axis
-    vector<GLfloat> Rx = {
-        1, 0, 0, 0,
-        0, RxCos, RxSin, 0,
-        0, -RxSin, RxCos, 0,
-        0, 0, 0, 1
-    };
-    // Rx^T(alpha) : reverse rotate about x-axis
-    vector<GLfloat> Rx_T = {
-        1, 0, 0, 0,
-        0, RxCos, -RxSin, 0,
-        0, RxSin, RxCos, 0,
-        0, 0, 0, 1
-    };
-    // Ry(beta) : rotate vector to z-axis on xz-plane about y-axis
-    vector<GLfloat> Ry = {
-        RyCos, 0, -RySin, 0,
-        0, 1, 0, 0,
-        RySin, 0, RyCos, 0,
-        0, 0, 0, 1
-    };
-    // Ry^T(beta) : reverse rotate about y-axis
-    vector<GLfloat> Ry_T = {
-        RyCos, 0, RySin, 0,
-        0, 1, 0, 0,
-        -RySin, 0, RyCos, 0,
-        0, 0, 0, 1
-    };
-    // Rz(theta) : rotate vector on z-axis about z-axis
-    vector<GLfloat> Rz = {
-        RzCos, RzSin, 0, 0,
-        -RzSin, RzCos, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    };
+    myTranslateMatrix(-p1[0], -p1[1], -p1[2]);
+    myRotateMatrix(angle, x, y, z);
+    myTranslateMatrix(p1[0], p1[1], p1[2]);
 
     // draw arbitrary axis
     glBegin(GL_LINES);
@@ -378,21 +368,11 @@ void myArbitraryRotate(vector<GLfloat> V1, vector<GLfloat> V2, GLfloat rotateThe
     glVertex3f(V1[0], V1[1], V1[2]);
     glVertex3f(V2[0], V2[1], V2[2]);
     glEnd();
-
-    // rotate arbitrary axis in theta
-    // Ra = T^T * Rx^T(alpha) * Ry^T(beta) * Rz(theta) * Ry(beta) * Rx(alpha) * T
-    glMultMatrixf(T.data());
-    glMultMatrixf(Rx.data());
-    glMultMatrixf(Ry.data());
-    glMultMatrixf(Rz.data());
-    glMultMatrixf(Ry_T.data());
-    glMultMatrixf(Rx_T.data());
-    glMultMatrixf(T_T.data());
 }
 
-void myDebugInfo() {
+void myMatrixInfo() {
     // move cursor to (1, 1)
-    std::cout << "\033[1;1H\033[2J";
+    std::cout << "\033[1;1H\033[0J";
 
     // set precision
     std::cout << std::fixed << std::setprecision(1);
@@ -408,6 +388,4 @@ void myDebugInfo() {
         << std::setw(8) << thetaX << ", "
         << std::setw(8) << thetaY << ", "
         << std::setw(8) << thetaZ << ")" << std::endl;
-
-    // print 
 }
