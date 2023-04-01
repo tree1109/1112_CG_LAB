@@ -6,8 +6,8 @@ class myPopupMenu
 public:
     typedef enum MenuOption
     {
-        UWU,
-        BOCCHI
+        OPT_1,
+        OPT_2
     } MENU_OPTION;
 
     void SetupPopupMenu(void);

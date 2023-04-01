@@ -16,11 +16,11 @@ void myPopupMenu::PopupMenu(int option)
 
     switch (option)
     {
-    case MENU_OPTION::UWU:
-        MessagePrinter("UwU is cutest");
+    case MENU_OPTION::OPT_1:
+        MessagePrinter("cat is cutest");
         break;
-    case MENU_OPTION::BOCCHI:
-        MessagePrinter("Bocchi chan is say hello to you~");
+    case MENU_OPTION::OPT_2:
+        MessagePrinter("bocchi");
         break;
     default:
         break;
@@ -30,14 +30,14 @@ void myPopupMenu::PopupMenu(int option)
 int myPopupMenu::BuildPopupMenu(void)
 {
     int myMenu = glutCreateMenu(PopupMenu);
-    glutAddMenuEntry("OwO", MENU_OPTION::UWU);
-    glutAddMenuEntry("Bocchi is kawaii", MENU_OPTION::BOCCHI);
+    glutAddMenuEntry("owo", MENU_OPTION::OPT_1);
+    glutAddMenuEntry("bocchi", MENU_OPTION::OPT_2);
     return myMenu;
 }
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
-    std::cout << "\033[3;0H\033[0K";
+    std::cout << "\033[5;0H\033[0K";
     std::cout << "[info] : \033[32m" << message << "\033[0m" << std::endl;
 }
 

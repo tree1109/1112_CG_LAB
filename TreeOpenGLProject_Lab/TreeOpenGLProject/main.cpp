@@ -15,7 +15,7 @@
 // 
 // arbitrary rotate:
 // [z], [x] : rotate by arbitrary axis
-// [c]      : input arbitrary axis and theta in console
+// [c]      : input v1 and v2 coordinates with "x y z" format then press [Enter] input
 // 
 // translate:
 // [↑] : move up
@@ -38,25 +38,30 @@ void myResetMatrix(void);
 void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
 void myTranslateMatrix(GLfloat, GLfloat, GLfloat);
 void myArbitraryRotate(GLfloat, vector<GLfloat>, vector<GLfloat>);
+void myDrawArrow(vector<GLfloat>, vector<GLfloat>);
+void myDrawAxis(GLfloat);
 void myMatrixInfo(void);
 
 // These are variable that you will need
 // to move your cube
+// basic
 GLfloat tx = 0.0;
 GLfloat ty = 0.0;
 GLfloat tz = 0.0;
 GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
-
-vector<GLfloat> V1 = { 3, -5, 0 };
-vector<GLfloat> V2 = { 3, 5, 0 };
+// arbitrary
+vector<GLfloat> V1 = { 5, 5, 5 };
+vector<GLfloat> V2 = { -5, -5, -5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
 const GLfloat axisLength = 7.0f;
+
+// convert degree to radian
 constexpr GLfloat deg2rad = M_PI / 180.0f;
 
 vector<GLfloat> commonMatrix = {
@@ -105,31 +110,20 @@ void RenderScene(void)
     glLoadIdentity();
     gluLookAt(0, 0, 10.0f, 0, 0, 0, 0, 1, 0);
 
-    // draw x-axis, y-axis, z-axis
-    glBegin(GL_LINES);
-    // red x-axis
-    glColor3f(1, 0, 0);
-    glVertex3f(-axisLength, 0, 0);
-    glVertex3f(axisLength, 0, 0);
-    // green y-axis
-    glColor3f(0, 1, 0);
-    glVertex3f(0, -axisLength, 0);
-    glVertex3f(0, axisLength, 0);
-    // blue z-axis
-    glColor3f(0, 0, 1);
-    glVertex3f(0, 0, -axisLength);
-    glVertex3f(0, 0, axisLength);
-    glEnd();
-
     // perform transformation for the cube
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    // draw x-axis, y-axis, z-axis
+    myDrawAxis(axisLength);
     // basic transformation
     myMatrixInfo();
     myRotateMatrix(thetaX, 1, 0, 0);
     myRotateMatrix(thetaY, 0, 1, 0);
     myRotateMatrix(thetaZ, 0, 0, 1);
     myTranslateMatrix(tx, ty, tz);
+
+    // draw arbitrary axis
+    myDrawArrow(V1, V2);
     // special transformation
     myArbitraryRotate(arbitraryTheta, V1, V2);
 
@@ -245,10 +239,8 @@ void myInputArbitraryAxis(void) {
     // move cursor to (1, 1) and clear the console
     std::cout << "\033[1;1H\033[2J";
 
-    std::cout << "[info]Input Point 1's (x, y, z) ~" << std::endl;
-    std::cin >> V1[0] >> V1[1] >> V1[2];
-    std::cout << "[info]Input Point 2's (x, y, z) ~" << std::endl;
-    std::cin >> V2[0] >> V2[1] >> V2[2];
+    std::cout << "[info]Input v1 and v2 coordinate with \"x y z x y z\" format~" << std::endl;
+    std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
 }
 
 void myResetMatrix(void) {
@@ -296,15 +288,41 @@ void myArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2) {
     GLfloat y = (p2[1] - p1[1]) / length;
     GLfloat z = (p2[2] - p1[2]) / length;
 
-    myTranslateMatrix(p1[0], p1[1], p1[2]);
-    myRotateMatrix(angle, x, y, z);
-    myTranslateMatrix(-p1[0], -p1[1], -p1[2]);
+    myTranslateMatrix(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
+    myRotateMatrix(angle, x, y, z);            // rotate at origin of unit vector
+    myTranslateMatrix(-p1[0], -p1[1], -p1[2]); // reverse move
+    myDrawArrow(p1, p2);
+}
 
-    // draw arbitrary axis
+void myDrawArrow(vector<GLfloat> p1, vector<GLfloat> p2) {
+    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
+    GLfloat x = (p2[0] - p1[0]) / length;
+    GLfloat y = (p2[1] - p1[1]) / length;
+    GLfloat z = (p2[2] - p1[2]) / length;
+
     glBegin(GL_LINES);
+    // yellow
     glColor3f(1, 1, 0);
     glVertex3f(p1[0], p1[1], p1[2]);
     glVertex3f(p2[0], p2[1], p2[2]);
+    glEnd();
+}
+
+void myDrawAxis(GLfloat length) {
+    // draw x-axis, y-axis, z-axis
+    glBegin(GL_LINES);
+    // red x-axis
+    glColor3f(1, 0, 0);
+    glVertex3f(-length, 0, 0);
+    glVertex3f(length, 0, 0);
+    // green y-axis
+    glColor3f(0, 1, 0);
+    glVertex3f(0, -length, 0);
+    glVertex3f(0, length, 0);
+    // blue z-axis
+    glColor3f(0, 0, 1);
+    glVertex3f(0, 0, -length);
+    glVertex3f(0, 0, length);
     glEnd();
 }
 
