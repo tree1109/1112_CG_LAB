@@ -11,16 +11,13 @@ void myPopupMenu::SetupPopupMenu(void)
 
 void myPopupMenu::PopupMenu(int option)
 {
-    // erase the previous text
-    std::cout << "\033[3;0H\033[0K";
-
     switch (option)
     {
     case MENU_OPTION::OPT_1:
         MessagePrinter("cat is cutest");
         break;
     case MENU_OPTION::OPT_2:
-        MessagePrinter("bocchi");
+        MessagePrinter("bocchi kawaii~~");
         break;
     default:
         break;
@@ -37,6 +34,7 @@ int myPopupMenu::BuildPopupMenu(void)
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
+    // clear the previous text
     std::cout << "\033[5;0H\033[0K";
     std::cout << "[info] : \033[32m" << message << "\033[0m" << std::endl;
 }

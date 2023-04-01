@@ -38,7 +38,7 @@ void myResetMatrix(void);
 void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
 void myTranslateMatrix(GLfloat, GLfloat, GLfloat);
 void myArbitraryRotate(GLfloat, vector<GLfloat>, vector<GLfloat>);
-void myDrawArrow(vector<GLfloat>, vector<GLfloat>);
+void myDrawArbitraryAxis(vector<GLfloat>, vector<GLfloat>);
 void myDrawAxis(GLfloat);
 void myMatrixInfo(void);
 
@@ -52,8 +52,8 @@ GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 // arbitrary
-vector<GLfloat> V1 = { 5, 5, 5 };
-vector<GLfloat> V2 = { -5, -5, -5 };
+vector<GLfloat> V1 = { -5, -5, -5 };
+vector<GLfloat> V2 = { 5, 5, 5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
@@ -123,7 +123,7 @@ void RenderScene(void)
     myTranslateMatrix(tx, ty, tz);
 
     // draw arbitrary axis
-    myDrawArrow(V1, V2);
+    myDrawArbitraryAxis(V1, V2);
     // special transformation
     myArbitraryRotate(arbitraryTheta, V1, V2);
 
@@ -291,10 +291,9 @@ void myArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2) {
     myTranslateMatrix(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
     myRotateMatrix(angle, x, y, z);            // rotate at origin of unit vector
     myTranslateMatrix(-p1[0], -p1[1], -p1[2]); // reverse move
-    myDrawArrow(p1, p2);
 }
 
-void myDrawArrow(vector<GLfloat> p1, vector<GLfloat> p2) {
+void myDrawArbitraryAxis(vector<GLfloat> p1, vector<GLfloat> p2) {
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
     GLfloat x = (p2[0] - p1[0]) / length;
     GLfloat y = (p2[1] - p1[1]) / length;
@@ -305,6 +304,18 @@ void myDrawArrow(vector<GLfloat> p1, vector<GLfloat> p2) {
     glColor3f(1, 1, 0);
     glVertex3f(p1[0], p1[1], p1[2]);
     glVertex3f(p2[0], p2[1], p2[2]);
+    // red mark
+    glColor3f(1, 0, 0);
+    glVertex3f(p1[0] - 1, p1[1], p1[2]);
+    glVertex3f(p1[0] + 1, p1[1], p1[2]);
+    // green mark
+    glColor3f(0, 1, 0);
+    glVertex3f(p1[0], p1[1] - 1, p1[2]);
+    glVertex3f(p1[0], p1[1] + 1, p1[2]);
+    // blue mark
+    glColor3f(0, 0, 1);
+    glVertex3f(p1[0], p1[1], p1[2] - 1);
+    glVertex3f(p1[0], p1[1], p1[2] + 1);
     glEnd();
 }
 
