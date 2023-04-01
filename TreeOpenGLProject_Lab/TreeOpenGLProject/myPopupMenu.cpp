@@ -13,10 +13,10 @@ void myPopupMenu::PopupMenu(int option)
 {
     switch (option)
     {
-    case MENU_OPTION::OPT_1:
+    case MenuOption::OPT_1:
         MessagePrinter("cat is cutest");
         break;
-    case MENU_OPTION::OPT_2:
+    case MenuOption::OPT_2:
         MessagePrinter("bocchi kawaii~~");
         break;
     default:
@@ -27,8 +27,8 @@ void myPopupMenu::PopupMenu(int option)
 int myPopupMenu::BuildPopupMenu(void)
 {
     int myMenu = glutCreateMenu(PopupMenu);
-    glutAddMenuEntry("owo", MENU_OPTION::OPT_1);
-    glutAddMenuEntry("bocchi", MENU_OPTION::OPT_2);
+    glutAddMenuEntry("owo", MenuOption::OPT_1);
+    glutAddMenuEntry("bocchi", MenuOption::OPT_2);
     return myMenu;
 }
 

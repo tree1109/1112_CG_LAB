@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <vector>
 #include "GL\freeglut.h" // freeglut
-//#include "myPopupMenu.h"
+#include "myPopupMenu.h"
 #include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
 
@@ -63,8 +63,6 @@ constexpr GLfloat deg2rad = M_PI / 180.0f;
 
 myMatrix TransformMatrix;
 
-//myPopupMenu* myMenu;
-
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -78,7 +76,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(myKeyboard);
     glutSpecialFunc(mySpecialKey);
 
-    //(new myPopupMenu())->SetupPopupMenu();
+    myPopupMenu::SetupPopupMenu();
 
     glutMainLoop();
     return 0;
