@@ -2,7 +2,8 @@
 #include <iomanip>
 #include <vector>
 #include "GL\freeglut.h" // freeglut
-#include "myPopupMenu.h"
+//#include "myPopupMenu.h"
+#include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
 
 // ~~~key map~~~
@@ -34,10 +35,6 @@ void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myInputArbitraryAxis(void);
-void myResetMatrix(void);
-void myRotateMatrix(GLfloat, GLfloat, GLfloat, GLfloat);
-void myTranslateMatrix(GLfloat, GLfloat, GLfloat);
-void myArbitraryRotate(GLfloat, vector<GLfloat>, vector<GLfloat>);
 void myDrawArbitraryAxis(vector<GLfloat>, vector<GLfloat>);
 void myDrawAxis(GLfloat);
 void myMatrixInfo(void);
@@ -64,14 +61,9 @@ const GLfloat axisLength = 7.0f;
 // convert degree to radian
 constexpr GLfloat deg2rad = M_PI / 180.0f;
 
-vector<GLfloat> commonMatrix = {
-    1,0,0,0,
-    0,1,0,0,
-    0,0,1,0,
-    0,0,0,1
-};
+myMatrix TransformMatrix;
 
-myPopupMenu* myMenu;
+//myPopupMenu* myMenu;
 
 int main(int argc, char** argv)
 {
@@ -86,7 +78,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(myKeyboard);
     glutSpecialFunc(mySpecialKey);
 
-    (new myPopupMenu())->SetupPopupMenu();
+    //(new myPopupMenu())->SetupPopupMenu();
 
     glutMainLoop();
     return 0;
@@ -117,15 +109,15 @@ void RenderScene(void)
     myDrawAxis(axisLength);
     // basic transformation
     myMatrixInfo();
-    myRotateMatrix(thetaX, 1, 0, 0);
-    myRotateMatrix(thetaY, 0, 1, 0);
-    myRotateMatrix(thetaZ, 0, 0, 1);
-    myTranslateMatrix(tx, ty, tz);
+    TransformMatrix.RotateMatrix(thetaX, 1, 0, 0);
+    TransformMatrix.RotateMatrix(thetaY, 0, 1, 0);
+    TransformMatrix.RotateMatrix(thetaZ, 0, 0, 1);
+    TransformMatrix.TranslateMatrix(tx, ty, tz);
 
     // draw arbitrary axis
     myDrawArbitraryAxis(V1, V2);
     // special transformation
-    myArbitraryRotate(arbitraryTheta, V1, V2);
+    TransformMatrix.ArbitraryRotate(arbitraryTheta, V1, V2);
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
@@ -241,56 +233,6 @@ void myInputArbitraryAxis(void) {
 
     std::cout << "[info]Input v1 and v2 coordinate with \"x y z x y z\" format~" << std::endl;
     std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
-}
-
-void myResetMatrix(void) {
-    for (int i = 0; i < 4; i++) {
-        commonMatrix[4 * i] = i == 0 ? 1.0f : 0.0f;
-        commonMatrix[4 * i + 1] = i == 1 ? 1.0f : 0.0f;
-        commonMatrix[4 * i + 2] = i == 2 ? 1.0f : 0.0f;
-        commonMatrix[4 * i + 3] = i == 3 ? 1.0f : 0.0f;
-    }
-}
-
-void myRotateMatrix(GLfloat angle, GLfloat uX, GLfloat uY, GLfloat uZ) {
-    GLfloat RaCos = cos(angle * deg2rad);
-    GLfloat RaSin = sin(angle * deg2rad);
-
-    myResetMatrix();
-
-    commonMatrix[0] = RaCos + (1 - RaCos) * uX * uX;
-    commonMatrix[1] = (1 - RaCos) * uX * uY + RaSin * uZ;
-    commonMatrix[2] = (1 - RaCos) * uX * uZ - RaSin * uY;
-    commonMatrix[4] = (1 - RaCos) * uX * uY - RaSin * uZ;
-    commonMatrix[5] = RaCos + (1 - RaCos) * uY * uY;
-    commonMatrix[6] = (1 - RaCos) * uY * uZ + RaSin * uX;
-    commonMatrix[8] = (1 - RaCos) * uX * uZ + RaSin * uY;
-    commonMatrix[9] = (1 - RaCos) * uY * uZ - RaSin * uX;
-    commonMatrix[10] = RaCos + (1 - RaCos) * uZ * uZ;
-   
-    glMultMatrixf(commonMatrix.data());
-}
-
-void myTranslateMatrix(GLfloat x, GLfloat y, GLfloat z) {
-    myResetMatrix();
-
-    commonMatrix[12] = x;
-    commonMatrix[13] = y;
-    commonMatrix[14] = z;
-
-    glMultMatrixf(commonMatrix.data());
-}
-
-void myArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2) {
-    // get unit vector
-    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
-    GLfloat x = (p2[0] - p1[0]) / length;
-    GLfloat y = (p2[1] - p1[1]) / length;
-    GLfloat z = (p2[2] - p1[2]) / length;
-
-    myTranslateMatrix(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
-    myRotateMatrix(angle, x, y, z);            // rotate at origin of unit vector
-    myTranslateMatrix(-p1[0], -p1[1], -p1[2]); // reverse move
 }
 
 void myDrawArbitraryAxis(vector<GLfloat> p1, vector<GLfloat> p2) {
