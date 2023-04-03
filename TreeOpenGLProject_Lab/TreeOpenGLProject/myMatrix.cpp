@@ -1,14 +1,10 @@
 #include <iostream>
-#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
 
-using std::vector;
-
 myMatrix::myMatrix(void):
-    deg2rad(M_PI / 180.0f),
-    matrix(16)
+    deg2rad(M_PI / 180.0f)
 {
     ResetMatrix();
 }
@@ -35,7 +31,7 @@ void myMatrix::TranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
     matrix[13] = y;
     matrix[14] = z;
 
-    glMultMatrixf(matrix.data());
+    glMultMatrixf(matrix);
 }
 
 void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
@@ -56,10 +52,10 @@ void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     matrix[9] = (1 - RaCos) * uy * uz - RaSin * ux;
     matrix[10] = RaCos + (1 - RaCos) * uz * uz;
 
-    glMultMatrixf(matrix.data());
+    glMultMatrixf(matrix);
 }
 
-void myMatrix::ArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2)
+void myMatrix::ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
 {
     // get unit vector
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));

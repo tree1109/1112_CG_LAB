@@ -1,6 +1,4 @@
 #pragma once
-using std::vector;
-
 class myMatrix
 {
     public:
@@ -9,11 +7,11 @@ class myMatrix
     void ResetMatrix(void);
     void TranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
     void RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
-    void ArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2);
+    void ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[]);
 
 private:
     // convert degree to radian
     const GLfloat deg2rad;
-    vector<GLfloat> matrix;
+    GLfloat matrix[16];
 };
 

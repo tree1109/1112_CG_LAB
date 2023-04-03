@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <iomanip>
-#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myPopupMenu.h"
 #include "myMatrix.h"
@@ -26,8 +25,6 @@
 // 
 // ~~~key map~~~
 
-using std::vector;
-
 // function prototypes
 void ChangeSize(int, int);
 void RenderScene(void);
@@ -35,7 +32,7 @@ void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myInputArbitraryAxis(void);
-void myDrawArbitraryAxis(vector<GLfloat>, vector<GLfloat>);
+void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
 void myMatrixInfo(void);
 
@@ -49,8 +46,8 @@ GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 // arbitrary
-vector<GLfloat> V1 = { -5, -5, -5 };
-vector<GLfloat> V2 = { 5, 5, 5 };
+GLfloat V1[] = { -5, -5, -5 };
+GLfloat V2[] = { 5, 5, 5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
@@ -233,7 +230,7 @@ void myInputArbitraryAxis(void) {
     std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
 }
 
-void myDrawArbitraryAxis(vector<GLfloat> p1, vector<GLfloat> p2) {
+void myDrawArbitraryAxis(GLfloat p1[], GLfloat p2[]) {
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
     GLfloat x = (p2[0] - p1[0]) / length;
     GLfloat y = (p2[1] - p1[1]) / length;
