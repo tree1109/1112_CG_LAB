@@ -4,6 +4,7 @@
 #include "myPopupMenu.h"
 #include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
+#define DEBUG_INFO false
 
 // ~~~key map~~~
 // [r] : reset to origin
@@ -31,6 +32,7 @@ void RenderScene(void);
 void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
+void myMouse(int, int, int, int);
 void myInputArbitraryAxis(void);
 void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
@@ -72,6 +74,7 @@ int main(int argc, char** argv)
     glutDisplayFunc(RenderScene);
     glutKeyboardFunc(myKeyboard);
     glutSpecialFunc(mySpecialKey);
+    glutMouseFunc(myMouse);
 
     myPopupMenu::SetupPopupMenu();
 
@@ -103,7 +106,8 @@ void RenderScene(void)
     // draw x-axis, y-axis, z-axis
     myDrawAxis(axisLength);
     // basic transformation
-    myMatrixInfo();
+    if (DEBUG_INFO)
+        myMatrixInfo();
     TransformMatrix.RotateMatrix(thetaX, 1, 0, 0);
     TransformMatrix.RotateMatrix(thetaY, 0, 1, 0);
     TransformMatrix.RotateMatrix(thetaZ, 0, 0, 1);
@@ -218,6 +222,23 @@ void mySpecialKey(int key, int x, int y)
         break;
     default:
         break;
+    }
+    glutPostRedisplay();
+}
+
+void myMouse(int button, int state, int x, int y)
+{
+    std::cout << "Mouse button " << button << " is ";
+    std::cout << (state == GLUT_DOWN ? "down" : "up") << std::endl;
+    std::cout << "Mouse position is (" << x << ", " << y << ")" << std::endl;
+
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+
+    }
+    else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+
     }
     glutPostRedisplay();
 }
