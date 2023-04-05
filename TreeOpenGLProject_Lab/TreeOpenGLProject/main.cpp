@@ -3,8 +3,8 @@
 #include "GL\freeglut.h" // freeglut
 #include "myPopupMenu.h"
 #include "myMatrix.h"
-#define M_PI 3.1415926535897932384626433832795f
-#define DEBUG_INFO false
+
+#define SHOW_DEBUG_INFO false
 
 // ~~~key map~~~
 // [r] : reset to origin
@@ -36,7 +36,7 @@ void myMouse(int, int, int, int);
 void myInputArbitraryAxis(void);
 void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
-void myMatrixInfo(void);
+void myDebugInfo(void);
 
 // These are variable that you will need
 // to move your cube
@@ -56,9 +56,6 @@ GLfloat arbitraryTheta = 0.0f;
 const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
 const GLfloat axisLength = 7.0f;
-
-// convert degree to radian
-constexpr GLfloat deg2rad = M_PI / 180.0f;
 
 myMatrix TransformMatrix;
 
@@ -106,8 +103,8 @@ void RenderScene(void)
     // draw x-axis, y-axis, z-axis
     myDrawAxis(axisLength);
     // basic transformation
-    if (DEBUG_INFO)
-        myMatrixInfo();
+    if (SHOW_DEBUG_INFO)
+        myDebugInfo();
     TransformMatrix.RotateMatrix(thetaX, 1, 0, 0);
     TransformMatrix.RotateMatrix(thetaY, 0, 1, 0);
     TransformMatrix.RotateMatrix(thetaZ, 0, 0, 1);
@@ -228,17 +225,34 @@ void mySpecialKey(int key, int x, int y)
 
 void myMouse(int button, int state, int x, int y)
 {
-    std::cout << "Mouse button " << button << " is ";
-    std::cout << (state == GLUT_DOWN ? "down" : "up") << std::endl;
-    std::cout << "Mouse position is (" << x << ", " << y << ")" << std::endl;
+    // screen space:
+    // o---→ x
+    // |
+    // ↓ y
+    // 
+    // world space:
+    // ↑ y
+    // |
+    // o--→ x
+    // 
+    // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
+    // 
+    // transform screen coordinate to world coordinate
+    GLfloat worldX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 20 - 10;
+    GLfloat worldY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 20 - 10;
+    const GLfloat depth = 0.0f;
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-
+        V1[0] = worldX;
+        V1[1] = worldY;
+        V1[2] = depth;
     }
     else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
-
+        V2[0] = worldX;
+        V2[1] = worldY;
+        V2[2] = depth;
     }
     glutPostRedisplay();
 }
@@ -295,7 +309,7 @@ void myDrawAxis(GLfloat length) {
     glEnd();
 }
 
-void myMatrixInfo() {
+void myDebugInfo() {
     // move cursor to (1, 1)
     std::cout << "\033[1;1H\033[0J";
 

@@ -10,8 +10,6 @@ class myMatrix
     void ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[]);
 
 private:
-    // convert degree to radian
-    const GLfloat deg2rad;
     GLfloat matrix[16];
 };
 

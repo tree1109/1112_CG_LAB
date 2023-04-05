@@ -3,8 +3,7 @@
 #include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
 
-myMatrix::myMatrix(void):
-    deg2rad(M_PI / 180.0f)
+myMatrix::myMatrix(void)
 {
     ResetMatrix();
 }
@@ -36,6 +35,7 @@ void myMatrix::TranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
 
 void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
 {
+    constexpr GLfloat deg2rad(M_PI / 180.0f);
     GLfloat RaCos = cos(angle * deg2rad);
     GLfloat RaSin = sin(angle * deg2rad);
 

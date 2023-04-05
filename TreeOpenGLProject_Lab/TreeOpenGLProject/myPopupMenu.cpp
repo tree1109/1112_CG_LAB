@@ -34,8 +34,6 @@ int myPopupMenu::BuildPopupMenu(void)
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
-    // clear the previous text
-    std::cout << "\033[5;0H\033[0K";
     std::cout << "[info] : \033[32m" << message << "\033[0m" << std::endl;
 }
 
