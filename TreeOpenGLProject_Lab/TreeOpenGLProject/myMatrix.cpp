@@ -22,18 +22,16 @@ void myMatrix::ResetMatrix(void)
     }
 }
 
-void myMatrix::TranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
+void myMatrix::setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
 {
     ResetMatrix();
 
     matrix[12] = x;
     matrix[13] = y;
     matrix[14] = z;
-
-    glMultMatrixf(matrix);
 }
 
-void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
+void myMatrix::setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
 {
     constexpr GLfloat deg2rad(M_PI / 180.0f);
     GLfloat RaCos = cos(angle * deg2rad);
@@ -51,11 +49,21 @@ void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     matrix[8] = (1 - RaCos) * ux * uz + RaSin * uy;
     matrix[9] = (1 - RaCos) * uy * uz - RaSin * ux;
     matrix[10] = RaCos + (1 - RaCos) * uz * uz;
+}
 
+void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)
+{
+    setTranslateMatrix(x, y, z);
     glMultMatrixf(matrix);
 }
 
-void myMatrix::ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
+void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
+{
+    setRotateMatrix(angle, ux, uy, uz);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
 {
     // get unit vector
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
@@ -63,7 +71,7 @@ void myMatrix::ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
     GLfloat y = (p2[1] - p1[1]) / length;
     GLfloat z = (p2[2] - p1[2]) / length;
 
-    TranslateMatrix(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
-    RotateMatrix(angle, x, y, z);            // rotate at origin of unit vector
-    TranslateMatrix(-p1[0], -p1[1], -p1[2]); // reverse move
+    doTranslate(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
+    doRotate(angle, x, y, z);            // rotate at origin of unit vector
+    doTranslate(-p1[0], -p1[1], -p1[2]); // reverse move
 }

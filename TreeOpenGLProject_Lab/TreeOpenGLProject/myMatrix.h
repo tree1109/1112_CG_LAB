@@ -5,9 +5,11 @@ class myMatrix
     myMatrix(void);
     ~myMatrix(void);
     void ResetMatrix(void);
-    void TranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
-    void RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
-    void ArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[]);
+    void setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
+    void setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
+    void doTranslate(GLfloat x, GLfloat y, GLfloat z);
+    void doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
+    void doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[]);
 
 private:
     GLfloat matrix[16];

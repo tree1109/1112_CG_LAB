@@ -105,15 +105,15 @@ void RenderScene(void)
     // basic transformation
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
-    TransformMatrix.RotateMatrix(thetaX, 1, 0, 0);
-    TransformMatrix.RotateMatrix(thetaY, 0, 1, 0);
-    TransformMatrix.RotateMatrix(thetaZ, 0, 0, 1);
-    TransformMatrix.TranslateMatrix(tx, ty, tz);
+    TransformMatrix.doRotate(thetaX, 1, 0, 0);
+    TransformMatrix.doRotate(thetaY, 0, 1, 0);
+    TransformMatrix.doRotate(thetaZ, 0, 0, 1);
+    TransformMatrix.doTranslate(tx, ty, tz);
 
     // draw arbitrary axis
     myDrawArbitraryAxis(V1, V2);
     // special transformation
-    TransformMatrix.ArbitraryRotate(arbitraryTheta, V1, V2);
+    TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
