@@ -39,6 +39,7 @@ void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
 void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
+void drawDot(GLfloat[]);
 
 // These are variable that you will need
 // to move your cube
@@ -282,19 +283,11 @@ void myDrawArbitraryAxis(GLfloat p1[], GLfloat p2[]) {
     glColor3f(1, 1, 0);
     glVertex3f(p1[0], p1[1], p1[2]);
     glVertex3f(p2[0], p2[1], p2[2]);
-    // red mark
-    glColor3f(1, 0, 0);
-    glVertex3f(p1[0] - 1, p1[1], p1[2]);
-    glVertex3f(p1[0] + 1, p1[1], p1[2]);
-    // green mark
-    glColor3f(0, 1, 0);
-    glVertex3f(p1[0], p1[1] - 1, p1[2]);
-    glVertex3f(p1[0], p1[1] + 1, p1[2]);
-    // blue mark
-    glColor3f(0, 0, 1);
-    glVertex3f(p1[0], p1[1], p1[2] - 1);
-    glVertex3f(p1[0], p1[1], p1[2] + 1);
     glEnd();
+
+    // draw p1 and p2
+    drawDot(p1);
+    drawDot(p2);
 }
 
 void myDrawAxis(GLfloat length) {
@@ -354,4 +347,21 @@ void printMouseWindowCoordinate(int x, int y, bool isDown) {
 	} else {
 		std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
 	}
+}
+
+void drawDot(GLfloat p[]) {
+    glBegin(GL_LINES);
+    // red mark
+    glColor3f(1, 0, 0);
+    glVertex3f(p[0] - 1, p[1], p[2]);
+    glVertex3f(p[0] + 1, p[1], p[2]);
+    // green mark
+    glColor3f(0, 1, 0);
+    glVertex3f(p[0], p[1] - 1, p[2]);
+    glVertex3f(p[0], p[1] + 1, p[2]);
+    // blue mark
+    glColor3f(0, 0, 1);
+    glVertex3f(p[0], p[1], p[2] - 1);
+    glVertex3f(p[0], p[1], p[2] + 1);
+    glEnd();
 }
