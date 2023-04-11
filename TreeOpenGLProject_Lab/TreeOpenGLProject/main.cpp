@@ -17,6 +17,7 @@
 // arbitrary rotate:
 // [z], [x] : rotate by arbitrary axis
 // [c]      : input v1 and v2 coordinates with "x y z x y z" format then press [Enter] to input
+// [Mouse Left] : press down to set v1, press up to set v2
 // 
 // translate:
 // [↑] : move up
