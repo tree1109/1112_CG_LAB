@@ -67,6 +67,8 @@ int main(int argc, char** argv)
     glutInitWindowPosition(600, 80);
     glutCreateWindow("kyubu!?");
     SetupRC();
+
+    // Register callbacks for GLUT
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
     glutKeyboardFunc(myKeyboard);
