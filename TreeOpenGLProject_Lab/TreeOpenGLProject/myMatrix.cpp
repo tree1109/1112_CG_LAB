@@ -1,20 +1,11 @@
 #include <iostream>
-#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myMatrix.h"
 #define M_PI 3.1415926535897932384626433832795f
 
-using std::vector;
-
-myMatrix::myMatrix(void):
-    deg2rad(M_PI / 180.0f),
-    matrix(16)
+myMatrix::myMatrix(void)
 {
     ResetMatrix();
-}
-
-myMatrix::~myMatrix(void)
-{
 }
 
 void myMatrix::ResetMatrix(void)
@@ -27,19 +18,52 @@ void myMatrix::ResetMatrix(void)
     }
 }
 
-void myMatrix::TranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
+myMatrix myMatrix::Mult(const myMatrix& rightM) const
+{
+    myMatrix resultM;
+
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+            GLfloat sum = 0.0f;
+            sum += matrix[4 * row] * rightM.matrix[col];
+            sum += matrix[4 * row + 1] * rightM.matrix[4 + col];
+            sum += matrix[4 * row + 2] * rightM.matrix[8 + col];
+            sum += matrix[4 * row + 3] * rightM.matrix[12 + col];
+            resultM.matrix[4 * row + col] = sum;
+        }
+    }
+
+    return resultM;
+}
+
+std::vector<GLfloat> myMatrix::Mult(const std::vector<GLfloat>& rightV) const
+{
+    std::vector<GLfloat> resultV(4);
+
+    for (int row = 0; row < 4; row++) {
+        GLfloat sum = 0.0f;
+        sum += matrix[4 * row] * rightV[0];
+        sum += matrix[4 * row + 1] * rightV[1];
+        sum += matrix[4 * row + 2] * rightV[2];
+        sum += matrix[4 * row + 3] * rightV[3];
+        resultV[row] = sum;
+    }
+
+    return resultV;
+}
+
+void myMatrix::setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z)
 {
     ResetMatrix();
 
     matrix[12] = x;
     matrix[13] = y;
     matrix[14] = z;
-
-    glMultMatrixf(matrix.data());
 }
 
-void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
+void myMatrix::setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
 {
+    constexpr GLfloat deg2rad(M_PI / 180.0f);
     GLfloat RaCos = cos(angle * deg2rad);
     GLfloat RaSin = sin(angle * deg2rad);
 
@@ -55,11 +79,21 @@ void myMatrix::RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     matrix[8] = (1 - RaCos) * ux * uz + RaSin * uy;
     matrix[9] = (1 - RaCos) * uy * uz - RaSin * ux;
     matrix[10] = RaCos + (1 - RaCos) * uz * uz;
-
-    glMultMatrixf(matrix.data());
 }
 
-void myMatrix::ArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2)
+void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)
+{
+    setTranslateMatrix(x, y, z);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
+{
+    setRotateMatrix(angle, ux, uy, uz);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
 {
     // get unit vector
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
@@ -67,7 +101,16 @@ void myMatrix::ArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat
     GLfloat y = (p2[1] - p1[1]) / length;
     GLfloat z = (p2[2] - p1[2]) / length;
 
-    TranslateMatrix(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
-    RotateMatrix(angle, x, y, z);            // rotate at origin of unit vector
-    TranslateMatrix(-p1[0], -p1[1], -p1[2]); // reverse move
+    doTranslate(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
+    doRotate(angle, x, y, z);            // rotate at origin of unit vector
+    doTranslate(-p1[0], -p1[1], -p1[2]); // reverse move
+
+    // TEST
+    //myMatrix t;
+    //myMatrix r;
+    //myMatrix t_t;
+    //t.setTranslateMatrix(p1[0], p1[1], p1[2]);
+    //r.setRotateMatrix(angle, x, y, z);
+    //t_t.setTranslateMatrix(-p1[0], -p1[1], -p1[2]);
+    //glMultMatrixf(t_t.Mult(r).Mult(t).matrix);
 }

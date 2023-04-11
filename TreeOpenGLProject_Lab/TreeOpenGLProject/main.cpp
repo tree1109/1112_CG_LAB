@@ -1,10 +1,10 @@
 ﻿#include <iostream>
 #include <iomanip>
-#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myPopupMenu.h"
 #include "myMatrix.h"
-#define M_PI 3.1415926535897932384626433832795f
+
+#define SHOW_DEBUG_INFO false
 
 // ~~~key map~~~
 // [r] : reset to origin
@@ -17,6 +17,7 @@
 // arbitrary rotate:
 // [z], [x] : rotate by arbitrary axis
 // [c]      : input v1 and v2 coordinates with "x y z x y z" format then press [Enter] to input
+// [Mouse Left] : press down to set v1, press up to set v2
 // 
 // translate:
 // [↑] : move up
@@ -26,18 +27,19 @@
 // 
 // ~~~key map~~~
 
-using std::vector;
-
 // function prototypes
 void ChangeSize(int, int);
 void RenderScene(void);
 void SetupRC(void);
 void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
+void myMouse(int, int, int, int);
 void myInputArbitraryAxis(void);
-void myDrawArbitraryAxis(vector<GLfloat>, vector<GLfloat>);
+void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
-void myMatrixInfo(void);
+void myDebugInfo(void);
+void printMouseWindowCoordinate(int, int, bool);
+void drawDot(GLfloat[]);
 
 // These are variable that you will need
 // to move your cube
@@ -49,17 +51,14 @@ GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 // arbitrary
-vector<GLfloat> V1 = { -5, -5, -5 };
-vector<GLfloat> V2 = { 5, 5, 5 };
+GLfloat V1[] = { -5, -5, -5 };
+GLfloat V2[] = { 5, 5, 5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
 const GLfloat axisLength = 7.0f;
-
-// convert degree to radian
-constexpr GLfloat deg2rad = M_PI / 180.0f;
 
 myMatrix TransformMatrix;
 
@@ -71,10 +70,13 @@ int main(int argc, char** argv)
     glutInitWindowPosition(600, 80);
     glutCreateWindow("kyubu!?");
     SetupRC();
+
+    // Register callbacks for GLUT
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
     glutKeyboardFunc(myKeyboard);
     glutSpecialFunc(mySpecialKey);
+    glutMouseFunc(myMouse);
 
     myPopupMenu::SetupPopupMenu();
 
@@ -106,16 +108,17 @@ void RenderScene(void)
     // draw x-axis, y-axis, z-axis
     myDrawAxis(axisLength);
     // basic transformation
-    myMatrixInfo();
-    TransformMatrix.RotateMatrix(thetaX, 1, 0, 0);
-    TransformMatrix.RotateMatrix(thetaY, 0, 1, 0);
-    TransformMatrix.RotateMatrix(thetaZ, 0, 0, 1);
-    TransformMatrix.TranslateMatrix(tx, ty, tz);
+    if (SHOW_DEBUG_INFO)
+        myDebugInfo();
+    TransformMatrix.doRotate(thetaX, 1, 0, 0);
+    TransformMatrix.doRotate(thetaY, 0, 1, 0);
+    TransformMatrix.doRotate(thetaZ, 0, 0, 1);
+    TransformMatrix.doTranslate(tx, ty, tz);
 
     // draw arbitrary axis
     myDrawArbitraryAxis(V1, V2);
     // special transformation
-    TransformMatrix.ArbitraryRotate(arbitraryTheta, V1, V2);
+    TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
 
     // cube
     glColor3f(0.9f, 0.21f, 0.45f);
@@ -225,6 +228,42 @@ void mySpecialKey(int key, int x, int y)
     glutPostRedisplay();
 }
 
+void myMouse(int button, int state, int x, int y)
+{
+    // screen space:
+    // o---→ x
+    // |
+    // ↓ y
+    // 
+    // world space:
+    // ↑ y
+    // |
+    // o--→ x
+    // 
+    // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
+    // 
+    // transform screen coordinate to world coordinate
+    GLfloat worldX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 20 - 10;
+    GLfloat worldY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 20 - 10;
+    const GLfloat depth = 0.0f;
+
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        V1[0] = worldX;
+        V1[1] = worldY;
+        V1[2] = depth;
+        printMouseWindowCoordinate(x, y, true);
+    }
+    else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        V2[0] = worldX;
+        V2[1] = worldY;
+        V2[2] = depth;
+        printMouseWindowCoordinate(x, y, false);
+    }
+    glutPostRedisplay();
+}
+
 void myInputArbitraryAxis(void) {
     // move cursor to (1, 1) and clear the console
     std::cout << "\033[1;1H\033[2J";
@@ -233,7 +272,7 @@ void myInputArbitraryAxis(void) {
     std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
 }
 
-void myDrawArbitraryAxis(vector<GLfloat> p1, vector<GLfloat> p2) {
+void myDrawArbitraryAxis(GLfloat p1[], GLfloat p2[]) {
     GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
     GLfloat x = (p2[0] - p1[0]) / length;
     GLfloat y = (p2[1] - p1[1]) / length;
@@ -244,19 +283,11 @@ void myDrawArbitraryAxis(vector<GLfloat> p1, vector<GLfloat> p2) {
     glColor3f(1, 1, 0);
     glVertex3f(p1[0], p1[1], p1[2]);
     glVertex3f(p2[0], p2[1], p2[2]);
-    // red mark
-    glColor3f(1, 0, 0);
-    glVertex3f(p1[0] - 1, p1[1], p1[2]);
-    glVertex3f(p1[0] + 1, p1[1], p1[2]);
-    // green mark
-    glColor3f(0, 1, 0);
-    glVertex3f(p1[0], p1[1] - 1, p1[2]);
-    glVertex3f(p1[0], p1[1] + 1, p1[2]);
-    // blue mark
-    glColor3f(0, 0, 1);
-    glVertex3f(p1[0], p1[1], p1[2] - 1);
-    glVertex3f(p1[0], p1[1], p1[2] + 1);
     glEnd();
+
+    // draw p1 and p2
+    drawDot(p1);
+    drawDot(p2);
 }
 
 void myDrawAxis(GLfloat length) {
@@ -277,7 +308,7 @@ void myDrawAxis(GLfloat length) {
     glEnd();
 }
 
-void myMatrixInfo() {
+void myDebugInfo() {
     // move cursor to (1, 1)
     std::cout << "\033[1;1H\033[0J";
 
@@ -308,4 +339,29 @@ void myMatrixInfo() {
     // print arbitrary rotation angle
     std::cout << "[debug] (arbitraryTheta)         : ("
         << std::setw(6) << arbitraryTheta << ")" << std::endl;
+}
+
+void printMouseWindowCoordinate(int x, int y, bool isDown) {
+    if (isDown) {
+		std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
+	} else {
+		std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
+	}
+}
+
+void drawDot(GLfloat p[]) {
+    glBegin(GL_LINES);
+    // red mark
+    glColor3f(1, 0, 0);
+    glVertex3f(p[0] - 1, p[1], p[2]);
+    glVertex3f(p[0] + 1, p[1], p[2]);
+    // green mark
+    glColor3f(0, 1, 0);
+    glVertex3f(p[0], p[1] - 1, p[2]);
+    glVertex3f(p[0], p[1] + 1, p[2]);
+    // blue mark
+    glColor3f(0, 0, 1);
+    glVertex3f(p[0], p[1], p[2] - 1);
+    glVertex3f(p[0], p[1], p[2] + 1);
+    glEnd();
 }

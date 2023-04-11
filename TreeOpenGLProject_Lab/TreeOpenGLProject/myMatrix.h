@@ -1,19 +1,18 @@
 #pragma once
-using std::vector;
-
+#include <vector>
 class myMatrix
 {
     public:
     myMatrix(void);
-    ~myMatrix(void);
     void ResetMatrix(void);
-    void TranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
-    void RotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
-    void ArbitraryRotate(GLfloat angle, vector<GLfloat> p1, vector<GLfloat> p2);
+    myMatrix Mult(const myMatrix &rightM) const;
+    std::vector<GLfloat> Mult(const std::vector<GLfloat> &rightV) const;
+    void setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
+    void setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
+    void doTranslate(GLfloat x, GLfloat y, GLfloat z);
+    void doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
+    void doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[]);
 
 private:
-    // convert degree to radian
-    const GLfloat deg2rad;
-    vector<GLfloat> matrix;
+    GLfloat matrix[16];
 };
-
