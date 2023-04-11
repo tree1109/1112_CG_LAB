@@ -37,6 +37,7 @@ void myInputArbitraryAxis(void);
 void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
 void myDebugInfo(void);
+void printMouseWindowCoordinate(int, int, bool);
 
 // These are variable that you will need
 // to move your cube
@@ -249,12 +250,14 @@ void myMouse(int button, int state, int x, int y)
         V1[0] = worldX;
         V1[1] = worldY;
         V1[2] = depth;
+        printMouseWindowCoordinate(x, y, true);
     }
     else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
         V2[0] = worldX;
         V2[1] = worldY;
         V2[2] = depth;
+        printMouseWindowCoordinate(x, y, false);
     }
     glutPostRedisplay();
 }
@@ -342,4 +345,12 @@ void myDebugInfo() {
     // print arbitrary rotation angle
     std::cout << "[debug] (arbitraryTheta)         : ("
         << std::setw(6) << arbitraryTheta << ")" << std::endl;
+}
+
+void printMouseWindowCoordinate(int x, int y, bool isDown) {
+    if (isDown) {
+		std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
+	} else {
+		std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
+	}
 }
