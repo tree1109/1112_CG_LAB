@@ -24,6 +24,9 @@
     <ClCompile Include="myMatrix.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="myObject.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myPopupMenu.h">
@@ -32,5 +35,22 @@
     <ClInclude Include="myMatrix.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="myObject.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\gourd.obj">
+      <Filter>資源檔</Filter>
+    </Object>
+    <Object Include="models\octahedron.obj">
+      <Filter>資源檔</Filter>
+    </Object>
+    <Object Include="models\teapot.obj">
+      <Filter>資源檔</Filter>
+    </Object>
+    <Object Include="models\teddy.obj">
+      <Filter>資源檔</Filter>
+    </Object>
   </ItemGroup>
 </Project>

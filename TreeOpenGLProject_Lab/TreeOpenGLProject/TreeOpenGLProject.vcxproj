@@ -21,11 +21,19 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="myMatrix.cpp" />
+    <ClCompile Include="myObject.cpp" />
     <ClCompile Include="myPopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myMatrix.h" />
+    <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\gourd.obj" />
+    <Object Include="models\octahedron.obj" />
+    <Object Include="models\teapot.obj" />
+    <Object Include="models\teddy.obj" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
