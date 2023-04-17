@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+#include <string>
 #include <vector>
 #include "GL\freeglut.h" // freeglut
 
@@ -24,6 +24,7 @@ public:
 	void loadObjectFile(std::string filename);
 
 private:
+	vec3 origin;
 	std::vector<vec3> vertices;
 	std::vector<face3> faces;
 };

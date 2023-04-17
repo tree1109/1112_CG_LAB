@@ -29,12 +29,6 @@
     <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\gourd.obj" />
-    <Object Include="models\octahedron.obj" />
-    <Object Include="models\teapot.obj" />
-    <Object Include="models\teddy.obj" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

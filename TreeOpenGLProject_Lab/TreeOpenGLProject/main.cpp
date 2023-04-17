@@ -3,6 +3,7 @@
 #include "GL\freeglut.h" // freeglut
 #include "myPopupMenu.h"
 #include "myMatrix.h"
+#include "myObject.h"
 
 #define SHOW_DEBUG_INFO false
 
@@ -41,6 +42,11 @@ void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
 void drawDot(GLfloat[]);
 
+// object file path
+std::string teapotObjPath("D:\\OneDrive\\學校\\2023-1112-Spring\\電腦圖學\\MidtermProject\\teapot.obj");
+
+myObject teapot;
+
 // These are variable that you will need
 // to move your cube
 // basic
@@ -68,7 +74,7 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(400, 400);
     glutInitWindowPosition(600, 80);
-    glutCreateWindow("kyubu!?");
+    glutCreateWindow("model viewer!?");
     SetupRC();
 
     // Register callbacks for GLUT
@@ -79,6 +85,9 @@ int main(int argc, char** argv)
     glutMouseFunc(myMouse);
 
     myPopupMenu::SetupPopupMenu();
+
+    // load object file
+    teapot.loadObjectFile(teapotObjPath);
 
     glutMainLoop();
     return 0;
