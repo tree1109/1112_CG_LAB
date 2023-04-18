@@ -29,5 +29,6 @@ private:
 	std::vector<face3> _faces;
 	int _numVertices;
 	int _numFaces;
+
 };
 
