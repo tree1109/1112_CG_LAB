@@ -53,28 +53,22 @@ void myObject::loadObjectFile(std::string filePath)
         std::cout << "[info]: File opened successfully: " << filePath << std::endl;
 
         // read each line of the file
-        std::string lineBuffer;
-        std::string token;
-        std::istringstream lineSS;
-        while (std::getline(objFile, lineBuffer)) {
-            lineSS.str(lineBuffer);
-            
-            // read the first token of the line to determine the type of data
-            lineSS >> token;
+        std::string line;
+        std::stringstream iss;
+        while (std::getline(objFile, line)) {
+            iss.str(line);
+            // [TODO]: behavior of stringstream is weird, need to figure out why it's not working as expected
 
-            // print token
-            std::cout << token << std::endl;
-
-            if (token == "v") {
-                vec3 vertex = {};
-                lineSS >> vertex.x >> vertex.y >> vertex.z;
-                vertices.push_back(vertex);
-            }
-            else if (token == "f") {
-                face3 face = {};
-                lineSS >> face.v1 >> face.v2 >> face.v3;
-                faces.push_back(face);
-            }
+            //if (iss.peek() == 'v') {
+            //    vec3 vertex = {};
+            //    iss >> vertex.x >> vertex.y >> vertex.z;
+            //    vertices.push_back(vertex);
+            //}
+            //else if (iss.peek() == 'f') {
+            //    face3 face = {};
+            //    iss >> face.v1 >> face.v2 >> face.v3;
+            //    faces.push_back(face);
+            //}
 
         }
         objFile.close();
