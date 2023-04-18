@@ -24,8 +24,10 @@ public:
 	void loadObjectFile(std::string filename);
 
 private:
-	vec3 origin;
-	std::vector<vec3> vertices;
-	std::vector<face3> faces;
+	vec3 _origin;
+	std::vector<vec3> _vertices;
+	std::vector<face3> _faces;
+	int _numVertices;
+	int _numFaces;
 };
 

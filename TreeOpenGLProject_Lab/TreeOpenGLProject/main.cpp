@@ -129,9 +129,12 @@ void RenderScene(void)
     // special transformation
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
 
+    // draw object
+    teapot.drawObject();
+
     // cube
-    glColor3f(0.9f, 0.21f, 0.45f);
-    glutSolidCube(6);
+    // glColor3f(0.9f, 0.21f, 0.45f);
+    // glutSolidCube(6);
     glutSwapBuffers();
 }
 
