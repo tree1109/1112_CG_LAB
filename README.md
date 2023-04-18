@@ -10,9 +10,9 @@ Read Obj file and render
   - [ ] Use Popup menu to select the mode
 - [ ] Color mode: single color, random colors (10%)
   - [ ] Popup menu to select
-- [ ] Object transformation: (10%)
-  - [ ] Rotation (arbitrary axis, x, y, z) & Translation
-  - [ ] Keyboard control
+- [X] Object transformation: (10%)
+  - [X] Rotation (arbitrary axis, x, y, z) & Translation
+  - [X] Keyboard control
 - [ ] Adjustable Camera (10%)
   - [ ] Keyboard control (where the camera is, and where it look at)
 - [ ] Adjust the object to fit into the screen. (20%)
