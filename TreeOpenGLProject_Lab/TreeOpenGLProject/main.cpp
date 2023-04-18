@@ -130,6 +130,7 @@ void RenderScene(void)
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
 
     // draw object
+    teapot.setRenderMode(RENDER_MODE::LINES);
     teapot.drawObject();
 
     // cube
