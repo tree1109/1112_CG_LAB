@@ -1,7 +1,7 @@
 #pragma once
 class myMatrix
 {
-    public:
+public:
     myMatrix(void);
     void ResetMatrix(void);
     myMatrix Mult(const myMatrix &rightM) const;
