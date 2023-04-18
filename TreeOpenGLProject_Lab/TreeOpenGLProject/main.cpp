@@ -123,27 +123,26 @@ void RenderScene(void)
     glLoadIdentity();
     // draw x-axis, y-axis, z-axis
     myDrawAxis(axisLength);
-    // basic transformation
+
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
+    // ~~~object transform~~~
+    // [OPTIONAL] : let myObjects can do transform individually
+    // matrix setup:
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity(); // reset model matrix
     TransformMatrix.doScale(scale);
     TransformMatrix.doRotate(thetaX, 1, 0, 0);
     TransformMatrix.doRotate(thetaY, 0, 1, 0);
     TransformMatrix.doRotate(thetaZ, 0, 0, 1);
     TransformMatrix.doTranslate(tx, ty, tz);
-
-    // draw arbitrary axis
-    myDrawArbitraryAxis(V1, V2);
-    // special transformation
+    myDrawArbitraryAxis(V1, V2); // draw arbitrary axis
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
-
-    // draw object
+    // render object:
     teapot.setRenderMode(RENDER_MODE::LINES);
     teapot.drawObject();
-
-    // cube
-    // glColor3f(0.9f, 0.21f, 0.45f);
-    // glutSolidCube(6);
+    // ~~~object transform~~~
+    
     glutSwapBuffers();
 }
 

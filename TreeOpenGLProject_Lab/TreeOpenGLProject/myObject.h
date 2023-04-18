@@ -27,7 +27,6 @@ enum class COLOR_MODE
     RANDOM
 };
 
-
 class myObject
 {
 public:
