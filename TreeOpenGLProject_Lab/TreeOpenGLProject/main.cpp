@@ -26,6 +26,10 @@
 // [←] : move left
 // [→] : move right
 // 
+// scale:
+// [f] : scale up
+// [v] : scale down
+// 
 // ~~~key map~~~
 
 // function prototypes
@@ -56,6 +60,7 @@ GLfloat tz = 0.0;
 GLfloat thetaX = 0.0;
 GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
+GLfloat scale = 1.0f;
 // arbitrary
 GLfloat V1[] = { -5, -5, -5 };
 GLfloat V2[] = { 5, 5, 5 };
@@ -64,6 +69,7 @@ GLfloat arbitraryTheta = 0.0f;
 // change rate of Translate and Rotate
 const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
+const GLfloat deltaS = 1.1f;
 const GLfloat axisLength = 7.0f;
 
 myMatrix TransformMatrix;
@@ -98,7 +104,8 @@ void ChangeSize(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION); // load the projection matrix
     glLoadIdentity();
-    glOrtho(-10, 10, -10, 10, -10, 20);
+    //glOrtho(-10, 10, -10, 10, -10, 20);
+    glOrtho(-100, 100, -100, 100, -100, 200); // for debug
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -119,6 +126,7 @@ void RenderScene(void)
     // basic transformation
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
+    TransformMatrix.doScale(scale);
     TransformMatrix.doRotate(thetaX, 1, 0, 0);
     TransformMatrix.doRotate(thetaY, 0, 1, 0);
     TransformMatrix.doRotate(thetaZ, 0, 0, 1);
@@ -170,6 +178,7 @@ void myKeyboard(unsigned char key, int x, int y)
         thetaX = 0;
         thetaY = 0;
         thetaZ = 0;
+        scale = 1;
         arbitraryTheta = 0;
         break;
     case 'a':
@@ -197,8 +206,13 @@ void myKeyboard(unsigned char key, int x, int y)
         thetaZ += deltaR;
         break;
     case 'f':
-        // exit program
-        exit(0);
+        // change the scale
+		scale *= deltaS;
+		break;
+    case 'v':
+        // change the scale
+        scale /= deltaS;
+        break;
     case 'c':
         // input arbitrary axis and theta in console
         myInputArbitraryAxis();

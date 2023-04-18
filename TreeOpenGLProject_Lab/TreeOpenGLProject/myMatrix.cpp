@@ -65,6 +65,14 @@ void myMatrix::setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz
     matrix[10] = RaCos + (1 - RaCos) * uz * uz;
 }
 
+void myMatrix::setScaleMatrix(GLfloat sx, GLfloat sy, GLfloat sz)
+{
+    ResetMatrix();
+	matrix[0] = sx;
+	matrix[5] = sy;
+	matrix[10] = sz;
+}
+
 void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)
 {
     setTranslateMatrix(x, y, z);
@@ -88,4 +96,16 @@ void myMatrix::doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
     doTranslate(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
     doRotate(angle, x, y, z);            // rotate at origin of unit vector
     doTranslate(-p1[0], -p1[1], -p1[2]); // reverse move
+}
+
+void myMatrix::doScale(GLfloat scale)
+{
+    setScaleMatrix(scale, scale, scale);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doScale(GLfloat sx, GLfloat sy, GLfloat sz)
+{
+    setScaleMatrix(sx, sy, sz);
+    glMultMatrixf(matrix);
 }
