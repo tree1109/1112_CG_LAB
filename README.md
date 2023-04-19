@@ -5,9 +5,9 @@
 Read Obj file and render
 - [ ] Obj input files are selectable from your popup menu (20%)
   - [ ] Command line input for other files
-  - [ ] Popup menu to select among the given 4 files
-- [ ] Render Mode: Point、Line、Face (20%)
-  - [ ] Use Popup menu to select the mode
+  - [X] Popup menu to select among the given 4 files
+- [X] Render Mode: Point、Line、Face (20%)
+  - [X] Use Popup menu to select the mode
 - [ ] Color mode: single color, random colors (10%)
   - [ ] Popup menu to select
 - [X] Object transformation: (10%)

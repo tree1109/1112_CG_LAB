@@ -25,9 +25,13 @@
     <ClCompile Include="myPopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="main.h" />
     <ClInclude Include="myMatrix.h" />
     <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

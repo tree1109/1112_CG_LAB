@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include "GL\freeglut.h" // freeglut
+#include "main.h"
 #include "myPopupMenu.h"
 #include "myMatrix.h"
 #include "myObject.h"
@@ -57,6 +58,11 @@ myObject teapot;
 myObject teddy;
 myObject octahedron;
 myObject gourd;
+
+// show obj, render mode, color mode status
+OBJECT currentObject = OBJECT::TEAPOT;
+RENDER_MODE currentRenderMode = RENDER_MODE::FACES;
+COLOR_MODE currentColorMode = COLOR_MODE::SINGLE;
 
 // These are variable that you will need
 // to move your cube
@@ -137,7 +143,6 @@ void RenderScene(void)
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
     // ~~~object transform~~~
-    // [OPTIONAL] : let myObjects can do transform individually
     // matrix setup:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
@@ -149,14 +154,30 @@ void RenderScene(void)
     myDrawArbitraryAxis(V1, V2); // draw arbitrary axis
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
     // render object:
-    teapot.setRenderMode(RENDER_MODE::LINES);
-    teapot.drawObject();
-    //teddy.setRenderMode(RENDER_MODE::LINES);
-    //teddy.drawObject();
-    //octahedron.setRenderMode(RENDER_MODE::LINES);
-    //octahedron.drawObject();
-    //gourd.setRenderMode(RENDER_MODE::LINES);
-    //gourd.drawObject();
+    switch (currentObject)
+    {
+    case OBJECT::TEAPOT:
+        teapot.setRenderMode(currentRenderMode);
+        teapot.drawObject();
+        break;
+    case OBJECT::TEDDY:
+        teddy.setRenderMode(currentRenderMode);
+        teddy.drawObject();
+        break;
+    case OBJECT::OCTAHEDRON:
+        octahedron.setRenderMode(currentRenderMode);
+        octahedron.drawObject();
+        break;
+    case OBJECT::GOURD:
+        gourd.setRenderMode(currentRenderMode);
+        gourd.drawObject();
+        break;
+    default:
+        break;
+    }
+
+
+
     // ~~~object transform~~~
     
     glutSwapBuffers();

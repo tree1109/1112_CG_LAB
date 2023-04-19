@@ -6,9 +6,9 @@ class myPopupMenu
 public:
     static void CreatePopupMenu(void);
     static void MainMenu(int option);
-    static void LoadObjectMenu(int option);
-    static void RenderModeMenu(int option);
-    static void ColorModeMenu(int option);
+    static void LoadObjectSubMenu(int option);
+    static void RenderModeSubMenu(int option);
+    static void ColorModeSubMenu(int option);
 
 private:
     enum MainMenuOpt {

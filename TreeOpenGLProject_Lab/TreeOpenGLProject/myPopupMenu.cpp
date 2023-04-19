@@ -1,6 +1,7 @@
-#include "myPopupMenu.h"
-#include "GL\freeglut.h"
 #include <iostream>
+#include "GL\freeglut.h"
+#include "myPopupMenu.h"
+#include "main.h"
 
 void myPopupMenu::CreatePopupMenu(void)
 {
@@ -24,7 +25,7 @@ void myPopupMenu::MainMenu(int option)
     }
 }
 
-void myPopupMenu::LoadObjectMenu(int option)
+void myPopupMenu::LoadObjectSubMenu(int option)
 {
     switch (option)
     {
@@ -32,41 +33,50 @@ void myPopupMenu::LoadObjectMenu(int option)
         MessagePrinter("Import user OBJ");
         break;
     case LoadObjectOpt::OBJ_TEAPOT:
+        currentObject = OBJECT::TEAPOT;
         MessagePrinter("Load object [Teapot]");
         break;
     case LoadObjectOpt::OBJ_TEDDY:
+        currentObject = OBJECT::TEDDY;
         MessagePrinter("Load object [Teddy]");
         break;
     case LoadObjectOpt::OBJ_OCTAHEDRON:
+        currentObject = OBJECT::OCTAHEDRON;
         MessagePrinter("Load object [Octahedron]");
         break;
     case LoadObjectOpt::OBJ_GOURD:
+        currentObject = OBJECT::GOURD;
         MessagePrinter("Load object [Gourd]");
         break;
     default:
         break;
     }
+    glutPostRedisplay();
 }
 
-void myPopupMenu::RenderModeMenu(int option)
+void myPopupMenu::RenderModeSubMenu(int option)
 {
     switch (option)
     {
     case RenderModeOpt::POINT:
+        currentRenderMode = RENDER_MODE::POINTS;
         MessagePrinter("Set render mode to [Point]");
         break;
     case RenderModeOpt::LINE:
+        currentRenderMode = RENDER_MODE::LINES;
         MessagePrinter("Set render mode to [Line]");
         break;
     case RenderModeOpt::FACE:
+        currentRenderMode = RENDER_MODE::FACES;
         MessagePrinter("Set render mode to [Face]");
         break;
     default:
         break;
     }
+    glutPostRedisplay();
 }
 
-void myPopupMenu::ColorModeMenu(int option)
+void myPopupMenu::ColorModeSubMenu(int option)
 {
     switch (option)
     {
@@ -79,12 +89,13 @@ void myPopupMenu::ColorModeMenu(int option)
     default:
         break;
     }
+    glutPostRedisplay();
 }
 
 void myPopupMenu::ConfigMenu(void)
 {
     // load object sub menu
-    int loadObjectSubMenu = glutCreateMenu(LoadObjectMenu);
+    int loadObjectSubMenu = glutCreateMenu(LoadObjectSubMenu);
     glutAddMenuEntry("Import OBJ", LoadObjectOpt::IMPORT_OBJ);
     glutAddMenuEntry("Teapot", LoadObjectOpt::OBJ_TEAPOT);
     glutAddMenuEntry("Teddy", LoadObjectOpt::OBJ_TEDDY);
@@ -92,13 +103,13 @@ void myPopupMenu::ConfigMenu(void)
     glutAddMenuEntry("Gourd", LoadObjectOpt::OBJ_GOURD);
 
     // render mode sub menu
-    int renderModeSubMenu = glutCreateMenu(RenderModeMenu);
+    int renderModeSubMenu = glutCreateMenu(RenderModeSubMenu);
     glutAddMenuEntry("Point", RenderModeOpt::POINT);
     glutAddMenuEntry("Line", RenderModeOpt::LINE);
     glutAddMenuEntry("Face", RenderModeOpt::FACE);
 
     // color mode sub menu
-    int colorModeSubMenu = glutCreateMenu(ColorModeMenu);
+    int colorModeSubMenu = glutCreateMenu(ColorModeSubMenu);
     glutAddMenuEntry("Single", ColorModeOpt::SINGLE);
     glutAddMenuEntry("Random", ColorModeOpt::RANDOM);
 
