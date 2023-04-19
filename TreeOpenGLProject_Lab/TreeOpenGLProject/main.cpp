@@ -206,8 +206,8 @@ void myKeyboard(unsigned char key, int x, int y)
         break;
     case 'f':
         // change the scale
-		scale *= deltaS;
-		break;
+        scale *= deltaS;
+        break;
     case 'v':
         // change the scale
         scale /= deltaS;
@@ -369,10 +369,10 @@ void myDebugInfo() {
 
 void printMouseWindowCoordinate(int x, int y, bool isDown) {
     if (isDown) {
-		std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
-	} else {
-		std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
-	}
+        std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
+    } else {
+        std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
+    }
 }
 
 void drawDot(GLfloat p[]) {

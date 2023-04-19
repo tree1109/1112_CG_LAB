@@ -51,4 +51,3 @@ private:
     void drawFaces();
     void fillColor();
 };
-

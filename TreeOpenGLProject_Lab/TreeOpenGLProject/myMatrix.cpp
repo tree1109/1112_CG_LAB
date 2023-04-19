@@ -68,9 +68,9 @@ void myMatrix::setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz
 void myMatrix::setScaleMatrix(GLfloat sx, GLfloat sy, GLfloat sz)
 {
     ResetMatrix();
-	matrix[0] = sx;
-	matrix[5] = sy;
-	matrix[10] = sz;
+    matrix[0] = sx;
+    matrix[5] = sy;
+    matrix[10] = sz;
 }
 
 void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)

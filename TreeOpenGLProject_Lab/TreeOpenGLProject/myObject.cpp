@@ -142,7 +142,7 @@ void myObject::drawFaces()
 void myObject::fillColor()
 {
     // set the color of the object
-	glColor3f(_color.x, _color.y, _color.z);
+    glColor3f(_color.x, _color.y, _color.z);
 
     // [TODO] : according color mode, use random or single color
 }
