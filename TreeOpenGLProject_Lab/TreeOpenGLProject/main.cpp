@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     glutSpecialFunc(mySpecialKey);
     glutMouseFunc(myMouse);
 
-    myPopupMenu::SetupPopupMenu();
+    myPopupMenu::CreatePopupMenu();
 
     // load object file
     teapot.loadObjectFile(teapotObjPath);
