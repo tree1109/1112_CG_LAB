@@ -46,10 +46,17 @@ void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
 void drawDot(GLfloat[]);
 
-// object file path
-std::string teapotObjPath("D:\\OneDrive\\學校\\2023-1112-Spring\\電腦圖學\\MidtermProject\\teapot.obj");
-
+// demo object file path
+std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
+std::string teapotObjPath = modelsDirPath + "teapot.obj";
+std::string teddyObjPath = modelsDirPath + "teddy.obj";
+std::string octahedronObjPath = modelsDirPath + "octahedron.obj";
+std::string gourdObjPath = modelsDirPath + "gourd.obj";
+// demo object
 myObject teapot;
+myObject teddy;
+myObject octahedron;
+myObject gourd;
 
 // These are variable that you will need
 // to move your cube
@@ -92,8 +99,11 @@ int main(int argc, char** argv)
 
     myPopupMenu::CreatePopupMenu();
 
-    // load object file
+    // preload demo object file
     teapot.loadObjectFile(teapotObjPath);
+    teddy.loadObjectFile(teddyObjPath);
+    octahedron.loadObjectFile(octahedronObjPath);
+    gourd.loadObjectFile(gourdObjPath);
 
     glutMainLoop();
     return 0;
@@ -141,6 +151,12 @@ void RenderScene(void)
     // render object:
     teapot.setRenderMode(RENDER_MODE::LINES);
     teapot.drawObject();
+    //teddy.setRenderMode(RENDER_MODE::LINES);
+    //teddy.drawObject();
+    //octahedron.setRenderMode(RENDER_MODE::LINES);
+    //octahedron.drawObject();
+    //gourd.setRenderMode(RENDER_MODE::LINES);
+    //gourd.drawObject();
     // ~~~object transform~~~
     
     glutSwapBuffers();
