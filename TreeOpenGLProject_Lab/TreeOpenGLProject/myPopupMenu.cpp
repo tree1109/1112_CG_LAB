@@ -81,9 +81,11 @@ void myPopupMenu::ColorModeSubMenu(int option)
     switch (option)
     {
     case ColorModeOpt::SINGLE:
+        currentColorMode = COLOR_MODE::SINGLE;
         MessagePrinter("Set color mode to [Single]");
         break;
     case ColorModeOpt::RANDOM:
+        currentColorMode = COLOR_MODE::RANDOM;
         MessagePrinter("Set color mode to [Random]");
         break;
     default:

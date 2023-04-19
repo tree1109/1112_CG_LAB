@@ -17,6 +17,9 @@ myObject::myObject() :
 
 void myObject::drawObject()
 {
+    glPointSize(_pointSize);
+    glLineWidth(_lineWidth);
+
     switch (_renderMode)
     {
     case RENDER_MODE::POINTS:
@@ -29,9 +32,13 @@ void myObject::drawObject()
         drawFaces();
         break;
     default:
-        std::cout << "[error] : Invalid draw mode." << std::endl;
+        std::cout << "[error] : Invalid render mode." << std::endl;
         break;
     }
+
+    // reset
+    glPointSize(1.0f);
+    glLineWidth(1.0f);
 }
 
 void myObject::loadObjectFile(std::string filePath)
@@ -95,8 +102,6 @@ void myObject::setColor(GLfloat r, GLfloat g, GLfloat b)
 
 void myObject::drawPoints()
 {
-    glPointSize(_pointSize);
-
     glBegin(GL_POINTS);
     for (auto v = _vertices.begin(); v != _vertices.end(); ++v) {
         fillColor();
@@ -107,8 +112,6 @@ void myObject::drawPoints()
 
 void myObject::drawLines()
 {
-    glLineWidth(_lineWidth);
-
     for (auto face = _faces.begin(); face != _faces.end(); ++face) {
         vec3 v1 = _vertices[face->v1];
         vec3 v2 = _vertices[face->v2];
@@ -141,8 +144,22 @@ void myObject::drawFaces()
 
 void myObject::fillColor()
 {
-    // set the color of the object
-    glColor3f(_color.x, _color.y, _color.z);
+    // random number generator
+    // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
+    static std::random_device randomDevice;
+    static std::mt19937 generator(randomDevice());
+    static std::normal_distribution<GLfloat> normal(0.7, 0.4);
 
-    // [TODO] : according color mode, use random or single color
+    switch (_colorMode)
+    {
+    case COLOR_MODE::SINGLE:
+        glColor3f(_color.x, _color.y, _color.z);
+        break;
+    case COLOR_MODE::RANDOM:
+        glColor3f(normal(generator), normal(generator), normal(generator));
+        break;
+    default:
+        std::cout << "[error] : Invalid color mode." << std::endl;
+        break;
+    }
 }

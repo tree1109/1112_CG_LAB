@@ -142,8 +142,8 @@ void RenderScene(void)
 
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
-    // ~~~object transform~~~
-    // matrix setup:
+    // ~~~object~~~
+    // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
     TransformMatrix.doScale(scale);
@@ -153,33 +153,34 @@ void RenderScene(void)
     TransformMatrix.doTranslate(tx, ty, tz);
     myDrawArbitraryAxis(V1, V2); // draw arbitrary axis
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
-    // render object:
+    // Rendering
     switch (currentObject)
     {
     case OBJECT::TEAPOT:
         teapot.setRenderMode(currentRenderMode);
+        teapot.setColorMode(currentColorMode);
         teapot.drawObject();
         break;
     case OBJECT::TEDDY:
         teddy.setRenderMode(currentRenderMode);
+        teddy.setColorMode(currentColorMode);
         teddy.drawObject();
         break;
     case OBJECT::OCTAHEDRON:
         octahedron.setRenderMode(currentRenderMode);
+        octahedron.setColorMode(currentColorMode);
         octahedron.drawObject();
         break;
     case OBJECT::GOURD:
         gourd.setRenderMode(currentRenderMode);
+        gourd.setColorMode(currentColorMode);
         gourd.drawObject();
         break;
     default:
         break;
     }
+    // ~~~object~~~
 
-
-
-    // ~~~object transform~~~
-    
     glutSwapBuffers();
 }
 
