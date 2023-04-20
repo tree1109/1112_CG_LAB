@@ -12,7 +12,14 @@ myObject::myObject() :
     _pointSize(2.0f),
     _lineWidth(1.0f),
     _color{ 0.9f, 0.21f, 0.45f },
-    _boundingBox{}
+    _boundingBox{},
+    _position{ 0.0f, 0.0f, 0.0f },
+    _rotation{ 0.0f, 0.0f, 0.0f },
+    _scaling(1.0f),
+    _transformationMatrix(),
+    _arbitraryTheta(0.0f),
+    _v1{ -5, -5, -5 },
+    _v2{ 5, 5, 5 }
 {
 }
 
@@ -92,6 +99,29 @@ void myObject::loadObjectFile(std::string filePath)
     createBoundingBox();
 }
 
+void myObject::doTransformation()
+{
+    fixPostionVector();
+    _transformationMatrix.doScale(_scaling);
+    _transformationMatrix.doRotate(_rotation.x, 1, 0, 0);
+    _transformationMatrix.doRotate(_rotation.y, 0, 1, 0);
+    _transformationMatrix.doRotate(_rotation.z, 0, 0, 1);
+    _transformationMatrix.doTranslate(_position.x, _position.y, _position.z);
+
+    drawArbitraryAxis();
+    // temp
+    GLfloat cv1[] = { _v1.x, _v1.y, _v1.z };
+    GLfloat cv2[] = { _v2.x, _v2.y, _v2.z };
+    _transformationMatrix.doArbitraryRotate(_arbitraryTheta, cv1, cv2);
+}
+
+void myObject::setTransformation(vec3 position, vec3 rotation, GLfloat scaling = 1.0f)
+{
+    _position = position;
+    _rotation = rotation;
+    _scaling = scaling;
+}
+
 void myObject::setRenderMode(RENDER_MODE renderMode)
 {
     _renderMode = renderMode;
@@ -126,6 +156,18 @@ GLfloat myObject::getScalingCoefficient()
     result = result < zScalingCoefficient ? result : zScalingCoefficient;
 
     return result;
+}
+
+void myObject::fitToWindow()
+{
+    _scaling = getScalingCoefficient();
+}
+
+void myObject::setArbitraryRotate(GLfloat theta, vec3 v1, vec3 v2)
+{
+    _arbitraryTheta = theta;
+    _v1 = v1;
+    _v2 = v2;
 }
 
 void myObject::drawPoints()
@@ -240,4 +282,49 @@ void myObject::drawBoundingBox()
     glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMin);
     glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMax);
     glEnd();
+}
+
+void myObject::drawArbitraryAxis()
+{
+    GLfloat length = sqrt(pow(_v2.x - _v1.x, 2) + pow(_v2.y - _v1.y, 2) + pow(_v2.z - _v1.z, 2));
+    GLfloat x = (_v2.x - _v1.x) / length;
+    GLfloat y = (_v2.y - _v1.y) / length;
+    GLfloat z = (_v2.z - _v1.z) / length;
+
+    glBegin(GL_LINES);
+    // yellow
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(_v1.x, _v1.y, _v1.z);
+    glVertex3f(_v2.x, _v2.y, _v2.z);
+    glEnd();
+
+    drawCross(_v1);
+    drawCross(_v2);
+}
+
+void myObject::drawCross(vec3 v)
+{
+    GLfloat length = 1 / _scaling; // cross length
+
+    glBegin(GL_LINES);
+    // red mark
+    glColor3f(1, 0, 0);
+    glVertex3f(v.x - length, v.y, v.z);
+    glVertex3f(v.x + length, v.y, v.z);
+    // green mark
+    glColor3f(0, 1, 0);
+    glVertex3f(v.x, v.y - length, v.z);
+    glVertex3f(v.x, v.y + length, v.z);
+    // blue mark
+    glColor3f(0, 0, 1);
+    glVertex3f(v.x, v.y, v.z - length);
+    glVertex3f(v.x, v.y, v.z + length);
+    glEnd();
+}
+
+void myObject::fixPostionVector()
+{
+    _position = { _position.x / _scaling, _position.y / _scaling, _position.z / _scaling };
+    _v1 = { _v1.x / _scaling, _v1.y / _scaling, _v1.z / _scaling };
+    _v2 = { _v2.x / _scaling, _v2.y / _scaling, _v2.z / _scaling };
 }

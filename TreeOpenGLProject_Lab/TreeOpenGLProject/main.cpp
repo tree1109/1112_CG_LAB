@@ -41,12 +41,9 @@ void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myMouse(int, int, int, int);
 void myInputArbitraryAxis(void);
-void myDrawArbitraryAxis(GLfloat[], GLfloat[]);
 void myDrawAxis(GLfloat);
 void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
-void drawDot(GLfloat[]);
-void adjustObjectScale();
 
 // demo object file path
 std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
@@ -150,16 +147,10 @@ void RenderScene(void)
     // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
-    adjustObjectScale(); // justify object scale
-    TransformMatrix.doScale(scale);
-    TransformMatrix.doRotate(thetaX, 1, 0, 0);
-    TransformMatrix.doRotate(thetaY, 0, 1, 0);
-    TransformMatrix.doRotate(thetaZ, 0, 0, 1);
-    TransformMatrix.doTranslate(tx, ty, tz);
-    GLfloat newV1[] = { V1[0]/justifyScale, V1[1]/justifyScale, V1[2]/justifyScale };
-    GLfloat newV2[] = { V2[0]/justifyScale, V2[1]/justifyScale, V2[2]/justifyScale };
-    myDrawArbitraryAxis(newV1, newV2); // draw arbitrary axis
-    TransformMatrix.doArbitraryRotate(arbitraryTheta, newV1, newV2);
+    teapot.setTransformation({tx, ty, tz}, {thetaX, thetaY, thetaZ}, scale);
+    teapot.fitToWindow(); // justify object scale
+    teapot.setArbitraryRotate(arbitraryTheta, { V1[0], V1[1], V1[2] }, { V2[0], V2[1], V2[2] });
+    teapot.doTransformation();
     // Rendering
     switch (currentObject)
     {
@@ -349,24 +340,6 @@ void myInputArbitraryAxis(void) {
     std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
 }
 
-void myDrawArbitraryAxis(GLfloat p1[], GLfloat p2[]) {
-    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
-    GLfloat x = (p2[0] - p1[0]) / length;
-    GLfloat y = (p2[1] - p1[1]) / length;
-    GLfloat z = (p2[2] - p1[2]) / length;
-
-    glBegin(GL_LINES);
-    // yellow
-    glColor3f(1, 1, 0);
-    glVertex3f(p1[0], p1[1], p1[2]);
-    glVertex3f(p2[0], p2[1], p2[2]);
-    glEnd();
-
-    // draw p1 and p2
-    drawDot(p1);
-    drawDot(p2);
-}
-
 void myDrawAxis(GLfloat length) {
     // draw x-axis, y-axis, z-axis
     glBegin(GL_LINES);
@@ -424,44 +397,4 @@ void printMouseWindowCoordinate(int x, int y, bool isDown) {
     } else {
         std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
     }
-}
-
-void drawDot(GLfloat p[]) {
-    glBegin(GL_LINES);
-    // red mark
-    glColor3f(1, 0, 0);
-    glVertex3f(p[0] - 1/justifyScale, p[1], p[2]);
-    glVertex3f(p[0] + 1/justifyScale, p[1], p[2]);
-    // green mark
-    glColor3f(0, 1, 0);
-    glVertex3f(p[0], p[1] - 1/justifyScale, p[2]);
-    glVertex3f(p[0], p[1] + 1/justifyScale, p[2]);
-    // blue mark
-    glColor3f(0, 0, 1);
-    glVertex3f(p[0], p[1], p[2] - 1/justifyScale);
-    glVertex3f(p[0], p[1], p[2] + 1/justifyScale);
-    glEnd();
-}
-
-void adjustObjectScale()
-{
-    switch (currentObject)
-    {
-    case OBJECT::TEAPOT:
-        justifyScale = teapot.getScalingCoefficient();
-        break;
-    case OBJECT::TEDDY:
-        justifyScale = teddy.getScalingCoefficient();
-        break;
-    case OBJECT::OCTAHEDRON:
-        justifyScale = octahedron.getScalingCoefficient();
-        break;
-    case OBJECT::GOURD:
-        justifyScale = gourd.getScalingCoefficient();
-        break;
-    default:
-        break;
-    }
-
-    TransformMatrix.doScale(justifyScale);
 }
