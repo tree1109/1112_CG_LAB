@@ -218,7 +218,7 @@ void myObject::fillColor()
     // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
     static std::random_device randomDevice;
     static std::mt19937 generator(randomDevice());
-    static std::normal_distribution<GLfloat> normal(0.7, 0.4);
+    static std::normal_distribution<double> normal(0.7, 0.4);
 
     switch (_colorMode)
     {
@@ -226,7 +226,7 @@ void myObject::fillColor()
         glColor3f(_color.x, _color.y, _color.z);
         break;
     case COLOR_MODE::RANDOM:
-        glColor3f(normal(generator), normal(generator), normal(generator));
+        glColor3f((GLfloat)normal(generator), (GLfloat)normal(generator), (GLfloat)normal(generator));
         break;
     default:
         std::cout << "[error] : Invalid color mode." << std::endl;
@@ -286,7 +286,7 @@ void myObject::drawBoundingBox()
 
 void myObject::drawArbitraryAxis()
 {
-    GLfloat length = sqrt(pow(_v2.x - _v1.x, 2) + pow(_v2.y - _v1.y, 2) + pow(_v2.z - _v1.z, 2));
+    GLfloat length = (GLfloat)sqrt(pow(_v2.x - _v1.x, 2) + pow(_v2.y - _v1.y, 2) + pow(_v2.z - _v1.z, 2));
     GLfloat x = (_v2.x - _v1.x) / length;
     GLfloat y = (_v2.y - _v1.y) / length;
     GLfloat z = (_v2.z - _v1.z) / length;
