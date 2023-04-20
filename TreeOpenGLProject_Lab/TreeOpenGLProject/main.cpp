@@ -28,8 +28,8 @@
 // [→] : move right
 // 
 // scale:
-// [f] : scale up
-// [v] : scale down
+// [Scroll up]   : scale up
+// [Scroll down] : scale down
 // 
 // ~~~key map~~~
 
@@ -242,14 +242,6 @@ void myKeyboard(unsigned char key, int x, int y)
         // change the rotation angle thetaZ along z-axis
         thetaZ += deltaR;
         break;
-    case 'f':
-        // change the scale
-        scale *= deltaS;
-        break;
-    case 'v':
-        // change the scale
-        scale /= deltaS;
-        break;
     case 'c':
         // input arbitrary axis and theta in console
         myInputArbitraryAxis();
@@ -311,19 +303,33 @@ void myMouse(int button, int state, int x, int y)
     GLfloat worldY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 20 - 10;
     const GLfloat depth = 0.0f;
 
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    switch (button)
     {
-        V1[0] = worldX;
-        V1[1] = worldY;
-        V1[2] = depth;
-        printMouseWindowCoordinate(x, y, true);
-    }
-    else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
-        V2[0] = worldX;
-        V2[1] = worldY;
-        V2[2] = depth;
-        printMouseWindowCoordinate(x, y, false);
+    case GLUT_LEFT_BUTTON:
+        if (state == GLUT_DOWN) {
+            V1[0] = worldX;
+            V1[1] = worldY;
+            V1[2] = depth;
+            printMouseWindowCoordinate(x, y, true);
+        } else if (state == GLUT_UP) {
+            V2[0] = worldX;
+            V2[1] = worldY;
+            V2[2] = depth;
+            printMouseWindowCoordinate(x, y, false);
+        }
+        break;
+    case 3: // scroll up
+        // change the scale
+        if (state == GLUT_DOWN)
+            scale *= deltaS;
+        break;
+    case 4: // scroll down
+        // change the scale
+        if (state == GLUT_DOWN)
+            scale /= deltaS;
+        break;
+    default:
+        break;
     }
     glutPostRedisplay();
 }
