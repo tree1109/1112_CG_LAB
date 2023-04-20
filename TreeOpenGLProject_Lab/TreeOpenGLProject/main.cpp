@@ -46,6 +46,7 @@ void myDrawAxis(GLfloat);
 void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
 void drawDot(GLfloat[]);
+void adjustObjectScale();
 
 // demo object file path
 std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
@@ -120,8 +121,7 @@ void ChangeSize(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION); // load the projection matrix
     glLoadIdentity();
-    //glOrtho(-10, 10, -10, 10, -10, 20);
-    glOrtho(-100, 100, -100, 100, -100, 200); // for debug
+    glOrtho(-10, 10, -10, 10, -10, 20);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -142,15 +142,18 @@ void RenderScene(void)
 
     if (SHOW_DEBUG_INFO)
         myDebugInfo();
+
     // ~~~object~~~
     // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
+    adjustObjectScale(); // justify object scale
     TransformMatrix.doScale(scale);
     TransformMatrix.doRotate(thetaX, 1, 0, 0);
     TransformMatrix.doRotate(thetaY, 0, 1, 0);
     TransformMatrix.doRotate(thetaZ, 0, 0, 1);
     TransformMatrix.doTranslate(tx, ty, tz);
+    // [TODO] need to fix arbitrary axis
     myDrawArbitraryAxis(V1, V2); // draw arbitrary axis
     TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
     // Rendering
@@ -434,4 +437,28 @@ void drawDot(GLfloat p[]) {
     glVertex3f(p[0], p[1], p[2] - 1);
     glVertex3f(p[0], p[1], p[2] + 1);
     glEnd();
+}
+
+void adjustObjectScale() {
+    GLfloat justifyScale = 1.0f;
+
+    switch (currentObject)
+    {
+    case OBJECT::TEAPOT:
+        justifyScale = teapot.getScalingCoefficient();
+        break;
+    case OBJECT::TEDDY:
+        justifyScale = teddy.getScalingCoefficient();
+        break;
+    case OBJECT::OCTAHEDRON:
+        justifyScale = octahedron.getScalingCoefficient();
+        break;
+    case OBJECT::GOURD:
+        justifyScale = gourd.getScalingCoefficient();
+        break;
+    default:
+        break;
+    }
+
+    TransformMatrix.doScale(justifyScale);
 }

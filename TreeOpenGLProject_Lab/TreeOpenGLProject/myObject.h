@@ -31,11 +31,12 @@ class myObject
 {
 public:
     myObject();
-    void drawObject();
+    void drawObject(bool showBoundingBox = false);
     void loadObjectFile(std::string filename);
     void setRenderMode(RENDER_MODE renderMode);
     void setColorMode(COLOR_MODE colorMode);
     void setColor(GLfloat r, GLfloat g, GLfloat b);
+    GLfloat getScalingCoefficient();
 
 private:
     std::vector<vec3> _vertices;
@@ -45,9 +46,22 @@ private:
     COLOR_MODE _colorMode;
     GLfloat _pointSize;
     GLfloat _lineWidth;
+    
+    struct BoundingBox
+    {
+        GLfloat xMin;
+        GLfloat xMax;
+        GLfloat yMin;
+        GLfloat yMax;
+        GLfloat zMin;
+        GLfloat zMax;
+    };
+    BoundingBox _boundingBox;
 
     void drawPoints();
     void drawLines();
     void drawFaces();
     void fillColor();
+    void createBoundingBox();
+    void drawBoundingBox();
 };

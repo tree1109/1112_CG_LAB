@@ -15,4 +15,4 @@ Read Obj file and render
   - [X] Keyboard control
 - [ ] Adjustable Camera (10%)
   - [ ] Keyboard control (where the camera is, and where it look at)
-- [ ] Adjust the object to fit into the screen. (20%)
+- [X] Adjust the object to fit into the screen. (20%)

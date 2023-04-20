@@ -11,14 +11,18 @@ myObject::myObject() :
     _colorMode(COLOR_MODE::SINGLE),
     _pointSize(2.0f),
     _lineWidth(1.0f),
-    _color{ 0.9f, 0.21f, 0.45f }
+    _color{ 0.9f, 0.21f, 0.45f },
+    _boundingBox{}
 {
 }
 
-void myObject::drawObject()
+void myObject::drawObject(bool showBoundingBox)
 {
     glPointSize(_pointSize);
     glLineWidth(_lineWidth);
+
+    if (showBoundingBox)
+        drawBoundingBox();
 
     switch (_renderMode)
     {
@@ -83,6 +87,9 @@ void myObject::loadObjectFile(std::string filePath)
     // copy data to member variables
     _vertices = vertices;
     _faces = faces;
+
+    // calculate the bounding box
+    createBoundingBox();
 }
 
 void myObject::setRenderMode(RENDER_MODE renderMode)
@@ -98,6 +105,27 @@ void myObject::setColorMode(COLOR_MODE colorMode)
 void myObject::setColor(GLfloat r, GLfloat g, GLfloat b)
 {
     _color = { r, g, b };
+}
+
+GLfloat myObject::getScalingCoefficient()
+{
+    // view space is 20x20x30
+    static const GLfloat factor = 0.8f;
+
+    // get the max and min values for each axis
+    GLfloat xSize = _boundingBox.xMax - _boundingBox.xMin;
+    GLfloat ySize = _boundingBox.yMax - _boundingBox.yMin;
+    GLfloat zSize = _boundingBox.zMax - _boundingBox.zMin;
+    GLfloat xScalingCoefficient = factor * 20 / xSize;
+    GLfloat yScalingCoefficient = factor * 20 / ySize;
+    GLfloat zScalingCoefficient = factor * 30 / zSize;
+    GLfloat result = 1;
+
+    // return the smallest scaling coefficient
+    result = xScalingCoefficient < yScalingCoefficient ? xScalingCoefficient : yScalingCoefficient;
+    result = result < zScalingCoefficient ? result : zScalingCoefficient;
+
+    return result;
 }
 
 void myObject::drawPoints()
@@ -162,4 +190,54 @@ void myObject::fillColor()
         std::cout << "[error] : Invalid color mode." << std::endl;
         break;
     }
+}
+
+void myObject::createBoundingBox()
+{
+    _boundingBox = {};
+
+    // find the bounding box
+    for (auto v = _vertices.begin(); v != _vertices.end(); ++v) {
+        _boundingBox.xMin = (v->x < _boundingBox.xMin)? v->x : _boundingBox.xMin;
+        _boundingBox.xMax = (v->x > _boundingBox.xMax)? v->x : _boundingBox.xMax;
+        _boundingBox.yMin = (v->y < _boundingBox.yMin)? v->y : _boundingBox.yMin;
+        _boundingBox.yMax = (v->y > _boundingBox.yMax)? v->y : _boundingBox.yMax;
+        _boundingBox.zMin = (v->z < _boundingBox.zMin)? v->z : _boundingBox.zMin;
+        _boundingBox.zMax = (v->z > _boundingBox.zMax)? v->z : _boundingBox.zMax;
+    }
+}
+
+void myObject::drawBoundingBox()
+{
+    // draw the bounding box
+    glBegin(GL_LINES);
+    // x-axis
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMax);
+    // y-axis
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMax);
+    // z-axis
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMin, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMin, _boundingBox.yMax, _boundingBox.zMax);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMin);
+    glVertex3f(_boundingBox.xMax, _boundingBox.yMax, _boundingBox.zMax);
+    glEnd();
 }
