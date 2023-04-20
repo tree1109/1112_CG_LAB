@@ -319,11 +319,13 @@ void myMouse(int button, int state, int x, int y)
     case 3: // scroll up
         // change the scale
         if (state == GLUT_DOWN)
+            // [TODO] use member function
             scale *= deltaS;
         break;
     case 4: // scroll down
         // change the scale
         if (state == GLUT_DOWN)
+            // [TODO] use member function
             scale /= deltaS;
         break;
     default:
