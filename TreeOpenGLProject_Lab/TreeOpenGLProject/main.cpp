@@ -86,6 +86,9 @@ const GLfloat deltaR = 4.5f;
 const GLfloat deltaS = 1.1f;
 const GLfloat axisLength = 7.0f;
 
+// scaling coefficient
+GLfloat justifyScale = 1.0f;
+
 myMatrix TransformMatrix;
 
 int main(int argc, char** argv)
@@ -153,9 +156,10 @@ void RenderScene(void)
     TransformMatrix.doRotate(thetaY, 0, 1, 0);
     TransformMatrix.doRotate(thetaZ, 0, 0, 1);
     TransformMatrix.doTranslate(tx, ty, tz);
-    // [TODO] need to fix arbitrary axis
-    myDrawArbitraryAxis(V1, V2); // draw arbitrary axis
-    TransformMatrix.doArbitraryRotate(arbitraryTheta, V1, V2);
+    GLfloat newV1[] = { V1[0]/justifyScale, V1[1]/justifyScale, V1[2]/justifyScale };
+    GLfloat newV2[] = { V2[0]/justifyScale, V2[1]/justifyScale, V2[2]/justifyScale };
+    myDrawArbitraryAxis(newV1, newV2); // draw arbitrary axis
+    TransformMatrix.doArbitraryRotate(arbitraryTheta, newV1, newV2);
     // Rendering
     switch (currentObject)
     {
@@ -426,22 +430,21 @@ void drawDot(GLfloat p[]) {
     glBegin(GL_LINES);
     // red mark
     glColor3f(1, 0, 0);
-    glVertex3f(p[0] - 1, p[1], p[2]);
-    glVertex3f(p[0] + 1, p[1], p[2]);
+    glVertex3f(p[0] - 1/justifyScale, p[1], p[2]);
+    glVertex3f(p[0] + 1/justifyScale, p[1], p[2]);
     // green mark
     glColor3f(0, 1, 0);
-    glVertex3f(p[0], p[1] - 1, p[2]);
-    glVertex3f(p[0], p[1] + 1, p[2]);
+    glVertex3f(p[0], p[1] - 1/justifyScale, p[2]);
+    glVertex3f(p[0], p[1] + 1/justifyScale, p[2]);
     // blue mark
     glColor3f(0, 0, 1);
-    glVertex3f(p[0], p[1], p[2] - 1);
-    glVertex3f(p[0], p[1], p[2] + 1);
+    glVertex3f(p[0], p[1], p[2] - 1/justifyScale);
+    glVertex3f(p[0], p[1], p[2] + 1/justifyScale);
     glEnd();
 }
 
-void adjustObjectScale() {
-    GLfloat justifyScale = 1.0f;
-
+void adjustObjectScale()
+{
     switch (currentObject)
     {
     case OBJECT::TEAPOT:
