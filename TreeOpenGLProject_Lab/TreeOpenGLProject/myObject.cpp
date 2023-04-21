@@ -52,6 +52,7 @@ void myObject::drawObject(bool showBoundingBox)
     glLineWidth(1.0f);
 }
 
+// TODO: move out object file reader
 void myObject::loadObjectFile(std::string filePath)
 {
     std::cout << "[info] : Loading object file." << filePath << std::endl;
@@ -172,7 +173,7 @@ void myObject::drawPoints()
     glBegin(GL_POINTS);
     for (auto v = _vertices.begin(); v != _vertices.end(); ++v) {
         fillColor();
-        // [TODO] fix shading with glNormal3f
+        // TODO: fix shading with glNormal3f
         glVertex3f(v->x, v->y, v->z);
     }
     glEnd();
@@ -187,7 +188,7 @@ void myObject::drawLines()
 
         glBegin(GL_LINE_LOOP);
         fillColor();
-        // [TODO] fix shading with glNormal3f
+        // TODO: fix shading with glNormal3f
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
@@ -204,7 +205,7 @@ void myObject::drawFaces()
 
         glBegin(GL_TRIANGLES);
         fillColor();
-        // [TODO] fix shading with glNormal3f
+        // TODO: fix shading with glNormal3f
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
