@@ -289,11 +289,6 @@ void myObject::drawBoundingBox()
 
 void myObject::drawArbitraryAxis()
 {
-    GLfloat length = (GLfloat)sqrt(pow(_v2.x - _v1.x, 2) + pow(_v2.y - _v1.y, 2) + pow(_v2.z - _v1.z, 2));
-    GLfloat x = (_v2.x - _v1.x) / length;
-    GLfloat y = (_v2.y - _v1.y) / length;
-    GLfloat z = (_v2.z - _v1.z) / length;
-
     glBegin(GL_LINES);
     // yellow
     glColor3f(1.0f, 1.0f, 0.0f);
