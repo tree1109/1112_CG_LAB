@@ -1,8 +1,8 @@
-#include "myObject.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <random>
+#include "myObject.h"
 
 myObject::myObject() :
     _vertices{},
@@ -109,10 +109,7 @@ void myObject::doTransformation()
     _transformationMatrix.doTranslate(_position.x, _position.y, _position.z);
 
     drawArbitraryAxis();
-    // temp
-    GLfloat cv1[] = { _v1.x, _v1.y, _v1.z };
-    GLfloat cv2[] = { _v2.x, _v2.y, _v2.z };
-    _transformationMatrix.doArbitraryRotate(_arbitraryTheta, cv1, cv2);
+    _transformationMatrix.doArbitraryRotate(_arbitraryTheta, _v1, _v2);
 }
 
 void myObject::setTransformation(vec3 position, vec3 rotation, GLfloat scaling = 1.0f)

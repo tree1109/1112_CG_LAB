@@ -25,10 +25,12 @@
     <ClCompile Include="myPopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="face3.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="myMatrix.h" />
     <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />
+    <ClInclude Include="vec3.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" />

@@ -3,19 +3,9 @@
 #include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "myMatrix.h"
+#include "vec3.h"
+#include "face3.h"
 
-struct vec3
-{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-};
-struct face3
-{
-    int v1;
-    int v2;
-    int v3;
-};
 enum class RENDER_MODE
 {
     POINTS,

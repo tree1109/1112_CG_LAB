@@ -5,6 +5,7 @@
 #include "myPopupMenu.h"
 #include "myMatrix.h"
 #include "myObject.h"
+#include "vec3.h"
 
 #define SHOW_DEBUG_INFO false
 
@@ -61,8 +62,8 @@ GLfloat thetaY = 0.0;
 GLfloat thetaZ = 0.0;
 GLfloat scale = 1.0f;
 // arbitrary
-GLfloat V1[] = { -5, -5, -5 };
-GLfloat V2[] = { 5, 5, 5 };
+vec3 v1 = { -5, -5, -5 };
+vec3 v2 = { 5, 5, 5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate
@@ -70,11 +71,6 @@ const GLfloat deltaT = 0.3f;
 const GLfloat deltaR = 4.5f;
 const GLfloat deltaS = 1.1f;
 const GLfloat axisLength = 7.0f;
-
-// scaling coefficient
-GLfloat justifyScale = 1.0f;
-
-myMatrix TransformMatrix;
 
 int main(int argc, char** argv)
 {
@@ -137,7 +133,7 @@ void RenderScene(void)
     glLoadIdentity(); // reset model matrix
     currentObject.setTransformation({tx, ty, tz}, {thetaX, thetaY, thetaZ}, scale);
     currentObject.fitToWindow(); // justify object scale
-    currentObject.setArbitraryRotate(arbitraryTheta, { V1[0], V1[1], V1[2] }, { V2[0], V2[1], V2[2] });
+    currentObject.setArbitraryRotate(arbitraryTheta, v1, v2);
     currentObject.doTransformation();
     // Rendering
     currentObject.setRenderMode(currentRenderMode);
@@ -271,14 +267,14 @@ void myMouse(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-            V1[0] = worldX;
-            V1[1] = worldY;
-            V1[2] = depth;
+            v1.x = worldX;
+            v1.y = worldY;
+            v1.z = depth;
             printMouseWindowCoordinate(x, y, true);
         } else if (state == GLUT_UP) {
-            V2[0] = worldX;
-            V2[1] = worldY;
-            V2[2] = depth;
+            v2.x = worldX;
+            v2.y = worldY;
+            v2.z = depth;
             printMouseWindowCoordinate(x, y, false);
         }
         break;
@@ -305,7 +301,7 @@ void myInputArbitraryAxis(void) {
     std::cout << "\033[1;1H\033[2J";
 
     std::cout << "[info]Input v1 and v2 coordinate with \"x y z x y z\" format~" << std::endl;
-    std::cin >> V1[0] >> V1[1] >> V1[2] >> V2[0] >> V2[1] >> V2[2];
+    std::cin >> v1.x >> v1.y >> v1.z >> v2.x >> v2.y >> v2.z;
 }
 
 void myDrawAxis(GLfloat length) {
@@ -346,13 +342,13 @@ void myDebugInfo() {
         << std::setw(6) << thetaZ << ")" << std::endl;
 
     // print arbitrary axis
-    std::cout << "[debug] (V1, V2)                 : ("
-        << std::setw(6) << V1[0] << ", "
-        << std::setw(6) << V1[1] << ", "
-        << std::setw(6) << V1[2] << "), ("
-        << std::setw(6) << V2[0] << ", "
-        << std::setw(6) << V2[1] << ", "
-        << std::setw(6) << V2[2] << ")" << std::endl;
+    std::cout << "[debug] (v1, v2)                 : ("
+        << std::setw(6) << v1.x << ", "
+        << std::setw(6) << v1.y << ", "
+        << std::setw(6) << v1.z << "), ("
+        << std::setw(6) << v2.x << ", "
+        << std::setw(6) << v2.y << ", "
+        << std::setw(6) << v2.z << ")" << std::endl;
 
     // print arbitrary rotation angle
     std::cout << "[debug] (arbitraryTheta)         : ("

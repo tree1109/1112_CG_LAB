@@ -85,17 +85,17 @@ void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     glMultMatrixf(matrix);
 }
 
-void myMatrix::doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
+void myMatrix::doArbitraryRotate(GLfloat angle, vec3 v1, vec3 v2)
 {
     // get unit vector
-    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
-    GLfloat x = (p2[0] - p1[0]) / length;
-    GLfloat y = (p2[1] - p1[1]) / length;
-    GLfloat z = (p2[2] - p1[2]) / length;
+    GLfloat length = (GLfloat)sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2) + pow(v2.z - v1.z, 2));
+    GLfloat ux = (v2.x - v1.x) / length;
+    GLfloat uy = (v2.y - v1.y) / length;
+    GLfloat uz = (v2.z - v1.z) / length;
 
-    doTranslate(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
-    doRotate(angle, x, y, z);            // rotate at origin of unit vector
-    doTranslate(-p1[0], -p1[1], -p1[2]); // reverse move
+    doTranslate(v1.x, v1.y, v1.z);    // move origin of model space to origin of unit vector
+    doRotate(angle, ux, uy, uz);      // rotate at origin of unit vector
+    doTranslate(-v1.x, -v1.y, -v1.z); // reverse move
 }
 
 void myMatrix::doScale(GLfloat scale)
