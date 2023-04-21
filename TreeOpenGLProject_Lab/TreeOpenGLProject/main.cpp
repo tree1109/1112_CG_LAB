@@ -33,18 +33,6 @@
 // 
 // ~~~key map~~~
 
-// function prototypes
-void ChangeSize(int, int);
-void RenderScene(void);
-void SetupRC(void);
-void myKeyboard(unsigned char, int, int);
-void mySpecialKey(int, int, int);
-void myMouse(int, int, int, int);
-void myInputArbitraryAxis(void);
-void myDrawAxis(GLfloat);
-void myDebugInfo(void);
-void printMouseWindowCoordinate(int, int, bool);
-
 // demo object file path
 std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
 std::string teapotObjPath = modelsDirPath + "teapot.obj";
