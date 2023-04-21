@@ -54,12 +54,8 @@ COLOR_MODE currentColorMode = COLOR_MODE::SINGLE;
 // These are variable that you will need
 // to move your cube
 // basic
-GLfloat tx = 0.0;
-GLfloat ty = 0.0;
-GLfloat tz = 0.0;
-GLfloat thetaX = 0.0;
-GLfloat thetaY = 0.0;
-GLfloat thetaZ = 0.0;
+vec3 translate = { 0.0f, 0.0f, 0.0f };
+vec3 rotate = { 0.0f, 0.0f, 0.0f };
 GLfloat scale = 1.0f;
 // arbitrary
 vec3 v1 = { -5, -5, -5 };
@@ -131,7 +127,7 @@ void RenderScene(void)
     // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
-    currentObject.setTransformation({tx, ty, tz}, {thetaX, thetaY, thetaZ}, scale);
+    currentObject.setTransformation(translate, rotate, scale);
     currentObject.fitToWindow(); // justify object scale
     currentObject.setArbitraryRotate(arbitraryTheta, v1, v2);
     currentObject.doTransformation();
@@ -169,38 +165,34 @@ void myKeyboard(unsigned char key, int x, int y)
     {
     case 'r':
         // reset translation & rotation
-        tx = 0;
-        ty = 0;
-        tz = 0;
-        thetaX = 0;
-        thetaY = 0;
-        thetaZ = 0;
+        translate = { 0, 0, 0 };
+        rotate = { 0, 0, 0 };
         scale = 1;
         arbitraryTheta = 0;
         break;
     case 'a':
         // change the rotation angle thetaY along y-axis
-        thetaY -= deltaR;
+        rotate.y -= deltaR;
         break;
     case 'd':
         // change the rotation angle thetaY along y-axis
-        thetaY += deltaR;
+        rotate.y += deltaR;
         break;
     case 'w':
         // change the rotation angle thetaX along x-axis
-        thetaX -= deltaR;
+        rotate.x -= deltaR;
         break;
     case 's':
         // change the rotation angle thetaX along x-axis
-        thetaX += deltaR;
+        rotate.x += deltaR;
         break;
     case 'e':
         // change the rotation angle thetaZ along z-axis
-        thetaZ -= deltaR;
+        rotate.z -= deltaR;
         break;
     case 'q':
         // change the rotation angle thetaZ along z-axis
-        thetaZ += deltaR;
+        rotate.z += deltaR;
         break;
     case 'c':
         // input arbitrary axis and theta in console
@@ -224,19 +216,19 @@ void mySpecialKey(int key, int x, int y)
     {
     case GLUT_KEY_LEFT:
         // change the translation along x-axis
-        tx -= deltaT;
+        translate.x -= deltaT;
         break;
     case GLUT_KEY_RIGHT:
         // change the translation along x-axis
-        tx += deltaT;
+        translate.x += deltaT;
         break;
     case GLUT_KEY_UP:
         // change the translation along y-axis
-        ty += deltaT;
+        translate.y += deltaT;
         break;
     case GLUT_KEY_DOWN:
         // change the translation along y-axis
-        ty -= deltaT;
+        translate.y -= deltaT;
         break;
     default:
         break;
@@ -300,7 +292,8 @@ void myInputArbitraryAxis(void) {
     // move cursor to (1, 1) and clear the console
     std::cout << "\033[1;1H\033[2J";
 
-    std::cout << "[info]Input v1 and v2 coordinate with \"x y z x y z\" format~" << std::endl;
+    std::cout << "[info]Input v1 and v2 coordinate with format" << std::endl;
+    std::cout << "(x y z x y z) : ";
     std::cin >> v1.x >> v1.y >> v1.z >> v2.x >> v2.y >> v2.z;
 }
 
@@ -330,19 +323,19 @@ void myDebugInfo() {
     std::cout << std::fixed << std::setprecision(1);
 
     // print translation
-    std::cout << "[debug] (tx, ty, tz)             : ("
-        << std::setw(6) << tx << ", "
-        << std::setw(6) << ty << ", "
-        << std::setw(6) << tz << ")" << std::endl;
+    std::cout << "[debug] translate (x, y, z) : ("
+        << std::setw(6) << translate.x << ", "
+        << std::setw(6) << translate.y << ", "
+        << std::setw(6) << translate.z << ")" << std::endl;
 
     // print rotation angle
-    std::cout << "[debug] (thetaX, thetaY, thetaZ) : ("
-        << std::setw(6) << thetaX << ", "
-        << std::setw(6) << thetaY << ", "
-        << std::setw(6) << thetaZ << ")" << std::endl;
+    std::cout << "[debug] rotate (x, y, z)    : ("
+        << std::setw(6) << rotate.x << ", "
+        << std::setw(6) << rotate.y << ", "
+        << std::setw(6) << rotate.z << ")" << std::endl;
 
     // print arbitrary axis
-    std::cout << "[debug] (v1, v2)                 : ("
+    std::cout << "[debug] v1, v2 (x, y, z)    : ("
         << std::setw(6) << v1.x << ", "
         << std::setw(6) << v1.y << ", "
         << std::setw(6) << v1.z << "), ("
@@ -351,7 +344,7 @@ void myDebugInfo() {
         << std::setw(6) << v2.z << ")" << std::endl;
 
     // print arbitrary rotation angle
-    std::cout << "[debug] (arbitraryTheta)         : ("
+    std::cout << "[debug]  arbitraryTheta     : ("
         << std::setw(6) << arbitraryTheta << ")" << std::endl;
 }
 
