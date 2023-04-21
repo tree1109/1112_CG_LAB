@@ -3,7 +3,7 @@
 
 struct vec3
 {
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
 };
