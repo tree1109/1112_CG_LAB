@@ -160,7 +160,7 @@ GLfloat myObject::getScalingCoefficient()
 
 void myObject::fitToWindow()
 {
-    _scaling = getScalingCoefficient();
+    _scaling *= getScalingCoefficient();
 }
 
 void myObject::setArbitraryRotate(GLfloat theta, vec3 v1, vec3 v2)
