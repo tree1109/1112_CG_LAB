@@ -70,5 +70,6 @@ private:
     void drawBoundingBox();
     void drawArbitraryAxis();
     void drawCross(vec3 v);
-    void fixPostionVector();
+    void fixPositionVector();
+    vec3 getNormalVector(vec3 v1, vec3 v2, vec3 v3);
 };

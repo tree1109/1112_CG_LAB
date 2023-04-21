@@ -9,7 +9,7 @@ myObject::myObject() :
     _faces{},
     _renderMode(RENDER_MODE::FACES),
     _colorMode(COLOR_MODE::SINGLE),
-    _pointSize(2.0f),
+    _pointSize(5.0f),
     _lineWidth(1.0f),
     _color{ 0.9f, 0.21f, 0.45f },
     _boundingBox{},
@@ -102,7 +102,7 @@ void myObject::loadObjectFile(std::string filePath)
 
 void myObject::doTransformation()
 {
-    fixPostionVector();
+    fixPositionVector();
     _transformationMatrix.doScale(_scaling);
     _transformationMatrix.doRotate(_rotation.x, 1, 0, 0);
     _transformationMatrix.doRotate(_rotation.y, 0, 1, 0);
@@ -170,25 +170,35 @@ void myObject::setArbitraryRotate(GLfloat theta, vec3 v1, vec3 v2)
 
 void myObject::drawPoints()
 {
-    glBegin(GL_POINTS);
-    for (auto v = _vertices.begin(); v != _vertices.end(); ++v) {
+    for (auto& face : _faces) {
+        vec3 v1 = _vertices[face.v1];
+        vec3 v2 = _vertices[face.v2];
+        vec3 v3 = _vertices[face.v3];
+        vec3 normal = getNormalVector(v1, v2, v3);
+
+        glBegin(GL_POINTS);
+        glNormal3f(normal.x, normal.y, normal.z);
         fillColor();
-        // TODO: fix shading with glNormal3f
-        glVertex3f(v->x, v->y, v->z);
+        glVertex3f(v1.x, v1.y, v1.z);
+        fillColor();
+        glVertex3f(v2.x, v2.y, v2.z);
+        fillColor();
+        glVertex3f(v3.x, v3.y, v3.z);
+        glEnd();
     }
-    glEnd();
 }
 
 void myObject::drawLines()
 {
-    for (auto face = _faces.begin(); face != _faces.end(); ++face) {
-        vec3 v1 = _vertices[face->v1];
-        vec3 v2 = _vertices[face->v2];
-        vec3 v3 = _vertices[face->v3];
+    for (auto& face : _faces) {
+        vec3 v1 = _vertices[face.v1];
+        vec3 v2 = _vertices[face.v2];
+        vec3 v3 = _vertices[face.v3];
+        vec3 normal = getNormalVector(v1, v2, v3);
 
         glBegin(GL_LINE_LOOP);
+        glNormal3f(normal.x, normal.y, normal.z);
         fillColor();
-        // TODO: fix shading with glNormal3f
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
@@ -198,14 +208,15 @@ void myObject::drawLines()
 
 void myObject::drawFaces()
 {
-    for (auto face = _faces.begin(); face != _faces.end(); ++face) {
-        vec3 v1 = _vertices[face->v1];
-        vec3 v2 = _vertices[face->v2];
-        vec3 v3 = _vertices[face->v3];
+    for (auto &face : _faces) {
+        vec3 v1 = _vertices[face.v1];
+        vec3 v2 = _vertices[face.v2];
+        vec3 v3 = _vertices[face.v3];
+        vec3 normal = getNormalVector(v1, v2, v3);
 
         glBegin(GL_TRIANGLES);
+        glNormal3f(normal.x, normal.y, normal.z);
         fillColor();
-        // TODO: fix shading with glNormal3f
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
@@ -240,13 +251,13 @@ void myObject::createBoundingBox()
     _boundingBox = {};
 
     // find the bounding box
-    for (auto v = _vertices.begin(); v != _vertices.end(); ++v) {
-        _boundingBox.xMin = (v->x < _boundingBox.xMin)? v->x : _boundingBox.xMin;
-        _boundingBox.xMax = (v->x > _boundingBox.xMax)? v->x : _boundingBox.xMax;
-        _boundingBox.yMin = (v->y < _boundingBox.yMin)? v->y : _boundingBox.yMin;
-        _boundingBox.yMax = (v->y > _boundingBox.yMax)? v->y : _boundingBox.yMax;
-        _boundingBox.zMin = (v->z < _boundingBox.zMin)? v->z : _boundingBox.zMin;
-        _boundingBox.zMax = (v->z > _boundingBox.zMax)? v->z : _boundingBox.zMax;
+    for (auto &v : _vertices) {
+        _boundingBox.xMin = (v.x < _boundingBox.xMin)? v.x : _boundingBox.xMin;
+        _boundingBox.xMax = (v.x > _boundingBox.xMax)? v.x : _boundingBox.xMax;
+        _boundingBox.yMin = (v.y < _boundingBox.yMin)? v.y : _boundingBox.yMin;
+        _boundingBox.yMax = (v.y > _boundingBox.yMax)? v.y : _boundingBox.yMax;
+        _boundingBox.zMin = (v.z < _boundingBox.zMin)? v.z : _boundingBox.zMin;
+        _boundingBox.zMax = (v.z > _boundingBox.zMax)? v.z : _boundingBox.zMax;
     }
 }
 
@@ -318,9 +329,25 @@ void myObject::drawCross(vec3 v)
     glEnd();
 }
 
-void myObject::fixPostionVector()
+void myObject::fixPositionVector()
 {
     _position = { _position.x / _scaling, _position.y / _scaling, _position.z / _scaling };
     _v1 = { _v1.x / _scaling, _v1.y / _scaling, _v1.z / _scaling };
     _v2 = { _v2.x / _scaling, _v2.y / _scaling, _v2.z / _scaling };
+}
+
+vec3 myObject::getNormalVector(vec3 v1, vec3 v2, vec3 v3)
+{
+    // u cross v = normal vector
+    vec3 u = { v3.x - v1.x, v3.y - v1.y, v3.z - v1.z };
+    vec3 v = { v2.x - v1.x, v2.y - v1.y, v2.z - v1.z };
+    vec3 normal = { u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z , u.x * v.y - u.y * v.x };
+    GLfloat length = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+
+    // normalize
+    normal.x /= length;
+    normal.y /= length;
+    normal.z /= length;
+
+    return normal;
 }

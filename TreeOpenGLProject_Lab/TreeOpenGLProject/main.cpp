@@ -44,7 +44,7 @@ myObject teapot;
 myObject teddy;
 myObject octahedron;
 myObject gourd;
-myObject& currentObject = teapot;
+myObject* currentObject = &teapot;
 // user imported object
 std::string userImportedObjPath = "empty";
 myObject userImportedObject;
@@ -129,14 +129,14 @@ void RenderScene(void)
     // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
-    currentObject.setTransformation(translate, rotate, scale);
-    currentObject.fitToWindow(); // justify object scale
-    currentObject.setArbitraryRotate(arbitraryTheta, v1, v2);
-    currentObject.doTransformation();
+    currentObject->setTransformation(translate, rotate, scale);
+    currentObject->fitToWindow(); // justify object scale
+    currentObject->setArbitraryRotate(arbitraryTheta, v1, v2);
+    currentObject->doTransformation();
     // Rendering
-    currentObject.setRenderMode(currentRenderMode);
-    currentObject.setColorMode(currentColorMode);
-    currentObject.drawObject();
+    currentObject->setRenderMode(currentRenderMode);
+    currentObject->setColorMode(currentColorMode);
+    currentObject->drawObject();
     // ~~~object~~~
 
     glutSwapBuffers();
@@ -368,23 +368,23 @@ void setCurrentObject(OBJECT seletedObj)
     switch (seletedObj)
     {
     case OBJECT::USER_IMPORTED:
-        currentObject = userImportedObject;
+        currentObject = &userImportedObject;
         break;
     case OBJECT::TEAPOT:
-        currentObject = teapot;
+        currentObject = &teapot;
         break;
     case OBJECT::TEDDY:
-        currentObject = teddy;
+        currentObject = &teddy;
         break;
     case OBJECT::OCTAHEDRON:
-        currentObject = octahedron;
+        currentObject = &octahedron;
         break;
     case OBJECT::GOURD:
-        currentObject = gourd;
+        currentObject = &gourd;
         break;
     default:
         std::cout << "[error] unknown object" << std::endl;
-        currentObject = teapot;
+        currentObject = &teapot;
         break;
     }
 }
