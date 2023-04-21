@@ -18,7 +18,7 @@ private:
         OPT_4
     };
     enum LoadObjectOpt {
-        IMPORT_OBJ,
+        OBJ_IMPORTED,
         OBJ_TEAPOT,
         OBJ_TEDDY,
         OBJ_OCTAHEDRON,

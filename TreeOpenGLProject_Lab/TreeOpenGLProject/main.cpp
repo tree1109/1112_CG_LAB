@@ -3,7 +3,6 @@
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
-#include "myMatrix.h"
 #include "myObject.h"
 #include "vec3.h"
 
@@ -46,6 +45,9 @@ myObject teddy;
 myObject octahedron;
 myObject gourd;
 myObject& currentObject = teapot;
+// user imported object
+std::string userImportedObjPath = "empty";
+myObject userImportedObject;
 
 // render mode, color mode status
 RENDER_MODE currentRenderMode = RENDER_MODE::FACES;
@@ -287,12 +289,19 @@ void myMouse(int button, int state, int x, int y)
 }
 
 void myInputArbitraryAxis(void) {
-    // move cursor to (1, 1) and clear the console
-    std::cout << "\033[1;1H\033[2J";
-
-    std::cout << "[info]Input v1 and v2 coordinate with format" << std::endl;
-    std::cout << "(x y z x y z) : ";
+    std::cout << "[info] Input v1 and v2 coordinate with format (x y z x y z) : ";
     std::cin >> v1.x >> v1.y >> v1.z >> v2.x >> v2.y >> v2.z;
+    std::cout << "[info] Inputted v1 \033[32m(" 
+        << v1.x << ", " << v1.y << ", " << v1.z << ")\033[0m and v2 \033[32m(" 
+        << v2.x << ", " << v2.y << ", " << v2.z << ")\033[0m" 
+        << std::endl;
+}
+
+void myInputObjectFilePath(void) {
+    std::cout << "[info] Input full path of obj file : ";
+    std::getline(std::cin, userImportedObjPath);
+    std::cout << "[info] Inputted path : \033[32m" << userImportedObjPath << "\033[0m" << std::endl;
+    // TODO: create object and assign to userImportedObj, need to refactor myObject class first
 }
 
 void myDrawAxis(GLfloat length) {
@@ -348,9 +357,9 @@ void myDebugInfo() {
 
 void printMouseWindowCoordinate(int x, int y, bool isDown) {
     if (isDown) {
-        std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
+        std::cout << "[info] mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
     } else {
-        std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
+        std::cout << "[info] mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
     }
 }
 
@@ -358,6 +367,9 @@ void setCurrentObject(OBJECT seletedObj)
 {
     switch (seletedObj)
     {
+    case OBJECT::USER_IMPORTED:
+        currentObject = userImportedObject;
+        break;
     case OBJECT::TEAPOT:
         currentObject = teapot;
         break;
@@ -371,7 +383,7 @@ void setCurrentObject(OBJECT seletedObj)
         currentObject = gourd;
         break;
     default:
-        std::cout << "[error] : unknown object" << std::endl;
+        std::cout << "[error] unknown object" << std::endl;
         currentObject = teapot;
         break;
     }

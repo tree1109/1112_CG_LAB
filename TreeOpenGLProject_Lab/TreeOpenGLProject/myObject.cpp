@@ -43,7 +43,7 @@ void myObject::drawObject(bool showBoundingBox)
         drawFaces();
         break;
     default:
-        std::cout << "[error] : Invalid render mode." << std::endl;
+        std::cout << "[error] Invalid render mode." << std::endl;
         break;
     }
 
@@ -52,10 +52,10 @@ void myObject::drawObject(bool showBoundingBox)
     glLineWidth(1.0f);
 }
 
-// TODO: move out object file reader
+// TODO: move out object file reader, maybe use a factory pattern i guess ? i will try try look
 void myObject::loadObjectFile(std::string filePath)
 {
-    std::cout << "[info] : Loading object file." << filePath << std::endl;
+    std::cout << "[info] Loading object file." << filePath << std::endl;
 
     // create local vectors to store the data then
     // add a dummy vertex to the vertices vector
@@ -65,9 +65,9 @@ void myObject::loadObjectFile(std::string filePath)
 
     std::ifstream objFile(filePath);
     if (!objFile.is_open()) {
-        std::cout << "[error] : Could not open file: " << filePath << std::endl;
+        std::cout << "[error] Could not open file: " << filePath << std::endl;
     } else {
-        std::cout << "[info] : File opened successfully: " << filePath << std::endl;
+        std::cout << "[info] File opened successfully: " << filePath << std::endl;
 
         std::string lineBuffer;
         while (std::getline(objFile, lineBuffer)) {
@@ -230,7 +230,7 @@ void myObject::fillColor()
         glColor3f((GLfloat)normal(generator), (GLfloat)normal(generator), (GLfloat)normal(generator));
         break;
     default:
-        std::cout << "[error] : Invalid color mode." << std::endl;
+        std::cout << "[error] Invalid color mode." << std::endl;
         break;
     }
 }

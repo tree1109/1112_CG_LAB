@@ -15,9 +15,12 @@ void myPopupMenu::MainMenu(int option)
     switch (option)
     {
     case MainMenuOpt::OPT_1:
-        MessagePrinter("cat is cutest");
+        myInputObjectFilePath();
         break;
     case MainMenuOpt::OPT_2:
+        MessagePrinter("cat is cutest");
+        break;
+    case MainMenuOpt::OPT_3:
         MessagePrinter("bocchi kawaii~~");
         break;
     default:
@@ -29,8 +32,9 @@ void myPopupMenu::LoadObjectSubMenu(int option)
 {
     switch (option)
     {
-    case LoadObjectOpt::IMPORT_OBJ:
-        MessagePrinter("Import user OBJ");
+    case LoadObjectOpt::OBJ_IMPORTED:
+        setCurrentObject(OBJECT::USER_IMPORTED);
+        MessagePrinter("Load user imported object");
         break;
     case LoadObjectOpt::OBJ_TEAPOT:
         setCurrentObject(OBJECT::TEAPOT);
@@ -98,7 +102,7 @@ void myPopupMenu::ConfigMenu(void)
 {
     // load object sub menu
     int loadObjectSubMenu = glutCreateMenu(LoadObjectSubMenu);
-    glutAddMenuEntry("Import OBJ", LoadObjectOpt::IMPORT_OBJ);
+    glutAddMenuEntry("User object", LoadObjectOpt::OBJ_IMPORTED);
     glutAddMenuEntry("Teapot", LoadObjectOpt::OBJ_TEAPOT);
     glutAddMenuEntry("Teddy", LoadObjectOpt::OBJ_TEDDY);
     glutAddMenuEntry("Octahedron", LoadObjectOpt::OBJ_OCTAHEDRON);
@@ -117,15 +121,16 @@ void myPopupMenu::ConfigMenu(void)
 
     // main menu
     int mainMenu = glutCreateMenu(MainMenu);
+    glutAddMenuEntry("Import .obj", MainMenuOpt::OPT_1);
     glutAddSubMenu("Load object", loadObjectSubMenu);
     glutAddSubMenu("Set render mode", renderModeSubMenu);
     glutAddSubMenu("Set color mode", colorModeSubMenu);
-    glutAddMenuEntry("uwu", MainMenuOpt::OPT_1);
-    glutAddMenuEntry(">w<", MainMenuOpt::OPT_2);
+    glutAddMenuEntry("uwu", MainMenuOpt::OPT_2);
+    glutAddMenuEntry(">w<", MainMenuOpt::OPT_3);
 }
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
-    std::cout << "[info] : \033[32m" << message << "\033[0m." << std::endl;
+    std::cout << "[info] \033[32m" << message << "\033[0m." << std::endl;
 }
 

@@ -2,6 +2,7 @@
 #include "myObject.h"
 
 enum class OBJECT {
+    USER_IMPORTED,
     TEAPOT,
     TEDDY,
     OCTAHEDRON,
@@ -19,6 +20,7 @@ void myKeyboard(unsigned char, int, int);
 void mySpecialKey(int, int, int);
 void myMouse(int, int, int, int);
 void myInputArbitraryAxis(void);
+void myInputObjectFilePath(void);
 void myDrawAxis(GLfloat);
 void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
