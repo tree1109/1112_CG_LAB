@@ -8,7 +8,6 @@ enum class OBJECT {
     GOURD
 };
 
-extern OBJECT currentObject;
 extern RENDER_MODE currentRenderMode;
 extern COLOR_MODE currentColorMode;
 
@@ -23,3 +22,6 @@ void myInputArbitraryAxis(void);
 void myDrawAxis(GLfloat);
 void myDebugInfo(void);
 void printMouseWindowCoordinate(int, int, bool);
+
+// call by myPopupMenu
+void setCurrentObject(OBJECT);

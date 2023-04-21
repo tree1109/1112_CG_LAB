@@ -33,19 +33,19 @@ void myPopupMenu::LoadObjectSubMenu(int option)
         MessagePrinter("Import user OBJ");
         break;
     case LoadObjectOpt::OBJ_TEAPOT:
-        currentObject = OBJECT::TEAPOT;
+        setCurrentObject(OBJECT::TEAPOT);
         MessagePrinter("Load object [Teapot]");
         break;
     case LoadObjectOpt::OBJ_TEDDY:
-        currentObject = OBJECT::TEDDY;
+        setCurrentObject(OBJECT::TEDDY);
         MessagePrinter("Load object [Teddy]");
         break;
     case LoadObjectOpt::OBJ_OCTAHEDRON:
-        currentObject = OBJECT::OCTAHEDRON;
+        setCurrentObject(OBJECT::OCTAHEDRON);
         MessagePrinter("Load object [Octahedron]");
         break;
     case LoadObjectOpt::OBJ_GOURD:
-        currentObject = OBJECT::GOURD;
+        setCurrentObject(OBJECT::GOURD);
         MessagePrinter("Load object [Gourd]");
         break;
     default:

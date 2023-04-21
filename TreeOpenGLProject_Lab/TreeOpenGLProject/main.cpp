@@ -44,9 +44,9 @@ myObject teapot;
 myObject teddy;
 myObject octahedron;
 myObject gourd;
+myObject& currentObject = teapot;
 
-// show obj, render mode, color mode status
-OBJECT currentObject = OBJECT::TEAPOT;
+// render mode, color mode status
 RENDER_MODE currentRenderMode = RENDER_MODE::FACES;
 COLOR_MODE currentColorMode = COLOR_MODE::SINGLE;
 
@@ -135,36 +135,14 @@ void RenderScene(void)
     // Transform
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // reset model matrix
-    teapot.setTransformation({tx, ty, tz}, {thetaX, thetaY, thetaZ}, scale);
-    teapot.fitToWindow(); // justify object scale
-    teapot.setArbitraryRotate(arbitraryTheta, { V1[0], V1[1], V1[2] }, { V2[0], V2[1], V2[2] });
-    teapot.doTransformation();
+    currentObject.setTransformation({tx, ty, tz}, {thetaX, thetaY, thetaZ}, scale);
+    currentObject.fitToWindow(); // justify object scale
+    currentObject.setArbitraryRotate(arbitraryTheta, { V1[0], V1[1], V1[2] }, { V2[0], V2[1], V2[2] });
+    currentObject.doTransformation();
     // Rendering
-    switch (currentObject)
-    {
-    case OBJECT::TEAPOT:
-        teapot.setRenderMode(currentRenderMode);
-        teapot.setColorMode(currentColorMode);
-        teapot.drawObject();
-        break;
-    case OBJECT::TEDDY:
-        teddy.setRenderMode(currentRenderMode);
-        teddy.setColorMode(currentColorMode);
-        teddy.drawObject();
-        break;
-    case OBJECT::OCTAHEDRON:
-        octahedron.setRenderMode(currentRenderMode);
-        octahedron.setColorMode(currentColorMode);
-        octahedron.drawObject();
-        break;
-    case OBJECT::GOURD:
-        gourd.setRenderMode(currentRenderMode);
-        gourd.setColorMode(currentColorMode);
-        gourd.drawObject();
-        break;
-    default:
-        break;
-    }
+    currentObject.setRenderMode(currentRenderMode);
+    currentObject.setColorMode(currentColorMode);
+    currentObject.drawObject();
     // ~~~object~~~
 
     glutSwapBuffers();
@@ -386,5 +364,28 @@ void printMouseWindowCoordinate(int x, int y, bool isDown) {
         std::cout << "[info] : mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
     } else {
         std::cout << "[info] : mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
+    }
+}
+
+void setCurrentObject(OBJECT seletedObj)
+{
+    switch (seletedObj)
+    {
+    case OBJECT::TEAPOT:
+        currentObject = teapot;
+        break;
+    case OBJECT::TEDDY:
+        currentObject = teddy;
+        break;
+    case OBJECT::OCTAHEDRON:
+        currentObject = octahedron;
+        break;
+    case OBJECT::GOURD:
+        currentObject = gourd;
+        break;
+    default:
+        std::cout << "[error] : unknown object" << std::endl;
+        currentObject = teapot;
+        break;
     }
 }
