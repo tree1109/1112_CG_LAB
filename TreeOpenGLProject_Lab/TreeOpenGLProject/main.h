@@ -13,17 +13,17 @@ extern RENDER_MODE currentRenderMode;
 extern COLOR_MODE currentColorMode;
 
 // function prototypes
-void ChangeSize(int, int);
-void RenderScene(void);
-void SetupRC(void);
-void myKeyboard(unsigned char, int, int);
-void mySpecialKey(int, int, int);
-void myMouse(int, int, int, int);
-void myInputArbitraryAxis(void);
-void myInputObjectFilePath(void);
-void myDrawAxis(GLfloat);
-void myDebugInfo(void);
-void printMouseWindowCoordinate(int, int, bool);
+void ChangeSize(int w, int h);
+void RenderScene();
+void SetupRC();
+void myKeyboard(unsigned char key, int x, int y);
+void mySpecialKey(int key, int x, int y);
+void myMouse(int button, int state, int x, int y);
+void myInputArbitraryAxis();
+void myInputObjectFilePath();
+void myDrawAxis(GLfloat length);
+void myDebugInfo();
+void printMouseWindowCoordinate(int x, int y, bool isDown);
 
 // call by myPopupMenu
-void setCurrentObject(OBJECT);
+void setCurrentObject(OBJECT seletedObj);

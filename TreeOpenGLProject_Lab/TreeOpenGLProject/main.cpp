@@ -54,7 +54,6 @@ myObject octahedron;
 myObject gourd;
 myObject* currentObject = &teapot;
 // user imported object
-std::string userImportedObjPath = "empty";
 myObject userImportedObject;
 
 // render mode, color mode status
@@ -119,7 +118,7 @@ void ChangeSize(int w, int h)
     glLoadIdentity();
 }
 
-void RenderScene(void)
+void RenderScene()
 {
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -324,7 +323,7 @@ void myMouse(int button, int state, int x, int y)
     glutPostRedisplay();
 }
 
-void myInputArbitraryAxis(void) {
+void myInputArbitraryAxis() {
     std::cout << "[info] Input v1 and v2 coordinate with format (x y z x y z) : ";
     std::cin >> v1.x >> v1.y >> v1.z >> v2.x >> v2.y >> v2.z;
     std::cout << "[info] Inputted v1 \033[32m(" 
@@ -333,11 +332,20 @@ void myInputArbitraryAxis(void) {
         << std::endl;
 }
 
-void myInputObjectFilePath(void) {
+void myInputObjectFilePath() {
+    std::string path;
     std::cout << "[info] Input full path of obj file : ";
-    std::getline(std::cin, userImportedObjPath);
-    std::cout << "[info] Inputted path : \033[32m" << userImportedObjPath << "\033[0m" << std::endl;
-    // TODO: create object and assign to userImportedObj, need to refactor myObject class first
+    std::getline(std::cin, path);
+
+    // remove " in path for convenience, if user use "copy path" to paste
+    if (*(path.begin()) == '\"') path.erase(path.begin());
+    if (*(path.end() - 1) == '\"') path.erase(path.end() - 1);
+    std::cout << "[info] User inputted path : \033[32m" << path << "\033[0m" << std::endl;
+    
+    // load obj file then display
+    userImportedObject.loadObjectFile(path);
+    setCurrentObject(OBJECT::USER_IMPORTED);
+    glutPostRedisplay();
 }
 
 void myDrawAxis(GLfloat length) {
