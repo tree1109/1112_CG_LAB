@@ -338,11 +338,15 @@ void myObject::fixPositionVector()
 
 vec3 myObject::getNormalVector(vec3 v1, vec3 v2, vec3 v3)
 {
-    // u cross v = normal vector
     vec3 u = { v3.x - v1.x, v3.y - v1.y, v3.z - v1.z };
     vec3 v = { v2.x - v1.x, v2.y - v1.y, v2.z - v1.z };
-    vec3 normal = { u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z , u.x * v.y - u.y * v.x };
-    GLfloat length = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+    // cross product
+    vec3 normal = {
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x 
+    };
+    GLfloat length = (GLfloat)sqrt(pow(normal.x, 2) + pow(normal.y, 2) + pow(normal.z, 2));
 
     // normalize
     normal.x /= length;

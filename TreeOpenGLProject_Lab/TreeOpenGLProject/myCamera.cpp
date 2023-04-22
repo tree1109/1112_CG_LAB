@@ -96,7 +96,7 @@ void myCamera::updateDirection()
 
 void myCamera::updateRightVector()
 {
-    // direction vector x up vector = right vector
+    // cross product
     vec3 normal = {
         _lookDirection.y * _upVector.z - _lookDirection.z * _upVector.y,
         _lookDirection.z * _upVector.x - _lookDirection.x * _upVector.z,
