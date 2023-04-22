@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="myCamera.cpp" />
     <ClCompile Include="myMatrix.cpp" />
     <ClCompile Include="myObject.cpp" />
     <ClCompile Include="myPopupMenu.cpp" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ClInclude Include="face3.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="myCamera.h" />
     <ClInclude Include="myMatrix.h" />
     <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />

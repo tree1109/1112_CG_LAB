@@ -4,12 +4,20 @@
 #include "main.h"
 #include "myPopupMenu.h"
 #include "myObject.h"
+#include "myCamera.h"
 #include "vec3.h"
 
 #define SHOW_DEBUG_INFO false
 
 // ~~~key map~~~
 // [r] : reset to origin
+// 
+// camara control:
+// [y], [i] : look left or right
+// [u]      : move forward
+// [j]      : move back
+// [h]      : move left
+// [k]      : move right
 // 
 // rotate:
 // [w], [s] : rotate by x-axis
@@ -70,6 +78,9 @@ const GLfloat deltaR = 4.5f;
 const GLfloat deltaS = 1.1f;
 const GLfloat axisLength = 7.0f;
 
+// hire a cameraman
+myCamera niceCameraman;
+
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -113,22 +124,16 @@ void RenderScene(void)
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW); // load the model view matrix
-    glLoadIdentity();
-    gluLookAt(0, 0, 10.0f, 0, 0, 0, 0, 1, 0);
+    glLoadIdentity(); // reset model matrix
 
-    // perform transformation for the cube
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    // cameraman doing his job
+    niceCameraman.work();
+
     // draw x-axis, y-axis, z-axis
     myDrawAxis(axisLength);
 
-    if (SHOW_DEBUG_INFO)
-        myDebugInfo();
-
-    // ~~~object~~~
+    // ~~~object~~~ (a mess)
     // Transform
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity(); // reset model matrix
     currentObject->setTransformation(translate, rotate, scale);
     currentObject->fitToWindow(); // justify object scale
     currentObject->setArbitraryRotate(arbitraryTheta, v1, v2);
@@ -138,6 +143,9 @@ void RenderScene(void)
     currentObject->setColorMode(currentColorMode);
     currentObject->drawObject();
     // ~~~object~~~
+
+    if (SHOW_DEBUG_INFO)
+        myDebugInfo();
 
     glutSwapBuffers();
 }
@@ -166,11 +174,39 @@ void myKeyboard(unsigned char key, int x, int y)
     switch (key)
     {
     case 'r':
+        // reset cameraman
+        niceCameraman.reset();
         // reset translation & rotation
         translate = { 0, 0, 0 };
         rotate = { 0, 0, 0 };
         scale = 1;
         arbitraryTheta = 0;
+        break;
+    case 'u':
+        // ask the cameraman to move forward
+        niceCameraman.moveForward();
+        break;
+    case 'j':
+        // ask the cameraman to move backward
+        niceCameraman.moveBackward();
+        break;
+    case 'h':
+        // ask the cameraman to move left
+        niceCameraman.moveLeft();
+        break;
+    case 'k':
+        // ask the cameraman to move right
+        niceCameraman.moveRight();
+        break;
+    case 'y':
+        // ask the cameraman to look left
+        niceCameraman.lookLeft();
+        std::cout << "[info] cameraman look left" << std::endl;
+        break;
+    case 'i':
+        // ask the cameraman to look right
+        niceCameraman.lookRight();
+        std::cout << "[info] cameraman look right" << std::endl;
         break;
     case 'a':
         // change the rotation angle thetaY along y-axis
