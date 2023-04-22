@@ -57,40 +57,40 @@ void myObject::loadObjectFile(std::string filePath)
 {
     std::cout << "[info] Loading object file." << filePath << std::endl;
 
+    std::ifstream objFile(filePath);
+    if (!objFile.is_open()) {
+        std::cout << "[error] Could not open file: " << filePath << std::endl;
+        return;
+    }
+    std::cout << "[info] File opened successfully: " << filePath << std::endl;
+
     // create local vectors to store the data then
     // add a dummy vertex to the vertices vector
     std::vector<vec3> vertices;
     std::vector<face3> faces;
     vertices.push_back({ 0.0f, 0.0f, 0.0f });
 
-    std::ifstream objFile(filePath);
-    if (!objFile.is_open()) {
-        std::cout << "[error] Could not open file: " << filePath << std::endl;
-    } else {
-        std::cout << "[info] File opened successfully: " << filePath << std::endl;
+    std::string lineBuffer;
+    while (std::getline(objFile, lineBuffer)) {
+        std::istringstream lineSS(lineBuffer);
+        std::string token;
 
-        std::string lineBuffer;
-        while (std::getline(objFile, lineBuffer)) {
-            std::istringstream lineSS(lineBuffer);
-            std::string token;
-
-            // read the first token from the line
-            lineSS >> token;
-            if (token == "v") {
-                // read the vertex data
-                vec3 vertex = {};
-                lineSS >> vertex.x >> vertex.y >> vertex.z;
-                vertices.push_back(vertex);
-            }
-            else if (token == "f") {
-                // read the face data
-                face3 face = {};
-                lineSS >> face.v1 >> face.v2 >> face.v3;
-                faces.push_back(face);
-            }
+        // read the first token from the line
+        lineSS >> token;
+        if (token == "v") {
+            // read the vertex data
+            vec3 vertex = {};
+            lineSS >> vertex.x >> vertex.y >> vertex.z;
+            vertices.push_back(vertex);
         }
-        objFile.close();
+        else if (token == "f") {
+            // read the face data
+            face3 face = {};
+            lineSS >> face.v1 >> face.v2 >> face.v3;
+            faces.push_back(face);
+        }
     }
+    objFile.close();
 
     // copy data to member variables
     _vertices = vertices;
