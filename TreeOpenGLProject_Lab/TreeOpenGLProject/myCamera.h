@@ -1,5 +1,6 @@
 #pragma once
 #include "vec3.h"
+#include "myMatrix.h"
 
 class myCamera
 {
@@ -22,7 +23,12 @@ private:
     vec3 _rightVector;
     const GLfloat _deltaT;
     const GLfloat _deltaR;
+    myMatrix turnLeftMatrix;
+    myMatrix turnRightMatrix;
+    myMatrix turnUpMatrix;
+    myMatrix turnDownMatrix;
 
-    void updateDirection();
+    void updateLookAt();
     void updateRightVector();
+    void updateUpDownMatrix();
 };
