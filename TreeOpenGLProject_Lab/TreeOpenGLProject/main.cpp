@@ -339,8 +339,8 @@ void myMotion(int x, int y)
         static GLfloat lastY;
         static GLfloat lastX;
         if (isFirst) {
-            lastX = x;
-            lastY = y;
+            lastX = static_cast<GLfloat>(x);
+            lastY = static_cast<GLfloat>(y);
             isFirst = false;
         }
         const GLfloat offsetX = lastX - static_cast<GLfloat>(x);
