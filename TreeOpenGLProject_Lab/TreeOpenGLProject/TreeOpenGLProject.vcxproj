@@ -24,6 +24,7 @@
     <ClCompile Include="myMatrix.cpp" />
     <ClCompile Include="myObject.cpp" />
     <ClCompile Include="myPopupMenu.cpp" />
+    <ClCompile Include="vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="face3.h" />
