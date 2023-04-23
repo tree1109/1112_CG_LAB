@@ -18,7 +18,7 @@ void myMatrix::ResetMatrix(void)
     }
 }
 
-myMatrix myMatrix::Mult(const myMatrix& rightM) const
+myMatrix myMatrix::mult(const myMatrix& rightM) const
 {
     myMatrix resultM;
 
@@ -36,18 +36,13 @@ myMatrix myMatrix::Mult(const myMatrix& rightM) const
     return resultM;
 }
 
-std::vector<GLfloat> myMatrix::Mult(const std::vector<GLfloat>& rightV) const
+vec3 myMatrix::mult(const vec3& rightV) const
 {
-    std::vector<GLfloat> resultV(4);
+    vec3 resultV;
 
-    for (int row = 0; row < 4; row++) {
-        GLfloat sum = 0.0f;
-        sum += matrix[4 * row] * rightV[0];
-        sum += matrix[4 * row + 1] * rightV[1];
-        sum += matrix[4 * row + 2] * rightV[2];
-        sum += matrix[4 * row + 3] * rightV[3];
-        resultV[row] = sum;
-    }
+    resultV.x = matrix[0] * rightV.x + matrix[4] * rightV.y + matrix[8] * rightV.z;
+    resultV.y = matrix[1] * rightV.x + matrix[5] * rightV.y + matrix[9] * rightV.z;
+    resultV.z = matrix[2] * rightV.x + matrix[6] * rightV.y + matrix[10] * rightV.z;
 
     return resultV;
 }
@@ -81,6 +76,14 @@ void myMatrix::setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz
     matrix[10] = RaCos + (1 - RaCos) * uz * uz;
 }
 
+void myMatrix::setScaleMatrix(GLfloat sx, GLfloat sy, GLfloat sz)
+{
+    ResetMatrix();
+    matrix[0] = sx;
+    matrix[5] = sy;
+    matrix[10] = sz;
+}
+
 void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)
 {
     setTranslateMatrix(x, y, z);
@@ -93,24 +96,24 @@ void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     glMultMatrixf(matrix);
 }
 
-void myMatrix::doArbitraryRotate(GLfloat angle, GLfloat p1[], GLfloat p2[])
+void myMatrix::doArbitraryRotate(GLfloat angle, vec3 v1, vec3 v2)
 {
     // get unit vector
-    GLfloat length = sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
-    GLfloat x = (p2[0] - p1[0]) / length;
-    GLfloat y = (p2[1] - p1[1]) / length;
-    GLfloat z = (p2[2] - p1[2]) / length;
+    vec3 unitV = (v2 - v1).normalize();
 
-    doTranslate(p1[0], p1[1], p1[2]);    // move origin of model space to origin of unit vector
-    doRotate(angle, x, y, z);            // rotate at origin of unit vector
-    doTranslate(-p1[0], -p1[1], -p1[2]); // reverse move
+    doTranslate(v1.x, v1.y, v1.z);    // move origin of model space to origin of unit vector
+    doRotate(angle, unitV.x, unitV.y, unitV.z);      // rotate at origin of unit vector
+    doTranslate(-v1.x, -v1.y, -v1.z); // reverse move
+}
 
-    // TEST
-    //myMatrix t;
-    //myMatrix r;
-    //myMatrix t_t;
-    //t.setTranslateMatrix(p1[0], p1[1], p1[2]);
-    //r.setRotateMatrix(angle, x, y, z);
-    //t_t.setTranslateMatrix(-p1[0], -p1[1], -p1[2]);
-    //glMultMatrixf(t_t.Mult(r).Mult(t).matrix);
+void myMatrix::doScale(GLfloat scale)
+{
+    setScaleMatrix(scale, scale, scale);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doScale(GLfloat sx, GLfloat sy, GLfloat sz)
+{
+    setScaleMatrix(sx, sy, sz);
+    glMultMatrixf(matrix);
 }
