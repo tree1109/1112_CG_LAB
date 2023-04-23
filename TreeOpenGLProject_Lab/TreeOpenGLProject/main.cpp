@@ -14,19 +14,17 @@
 // 
 // flying camera control:
 // [Scroll] : pressed and moving mouse to change angle of view
-// [u]      : move forward
-// [j]      : move back
-// [h]      : move left
-// [k]      : move right
-// 
+// [u], [j] : move forward and move back
+// [h], [k] : move left and move right
+//
 // rotate:
 // [w], [s] : rotate by x-axis
 // [a], [d] : rotate by y-axis
 // [q], [e] : rotate by z-axis
 // 
 // arbitrary rotate:
-// [z], [x] : rotate by arbitrary axis
-// [c]      : input v1 and v2 coordinates with "x y z x y z" format then press [Enter] to input
+// [z], [x]     : rotate by arbitrary axis
+// [c]          : input v1 and v2 coordinates with "x y z x y z" format then press [Enter] to input
 // [Mouse Left] : press down to set v1, press up to set v2
 // 
 // translate:
@@ -42,6 +40,8 @@
 // ~~~key map~~~
 
 // demo object file path
+// Put the absolute path of the model folder here
+// example: "C:\\XXXXX\\XXXXX\\models\\"
 std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
 std::string teapotObjPath = modelsDirPath + "teapot.obj";
 std::string teddyObjPath = modelsDirPath + "teddy.obj";
