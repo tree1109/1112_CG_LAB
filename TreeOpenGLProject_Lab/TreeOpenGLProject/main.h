@@ -19,6 +19,7 @@ void SetupRC();
 void myKeyboard(unsigned char key, int x, int y);
 void mySpecialKey(int key, int x, int y);
 void myMouse(int button, int state, int x, int y);
+void myMotion(int x, int y);
 void myInputArbitraryAxis();
 void myInputObjectFilePath();
 void myDrawAxis(GLfloat length);

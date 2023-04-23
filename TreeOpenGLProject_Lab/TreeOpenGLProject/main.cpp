@@ -12,8 +12,8 @@
 // ~~~key map~~~
 // [r] : reset to origin
 // 
-// camara control:
-// [y], [i] : look left or right
+// flying camera control:
+// [Scroll] : pressed and moving mouse to change angle of view
 // [u]      : move forward
 // [j]      : move back
 // [h]      : move left
@@ -80,6 +80,9 @@ const GLfloat axisLength = 7.0f;
 // hire a cameraman
 myCamera niceCameraman;
 
+// mouse middle press down
+bool isMouseMiddlePressed = false;
+
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -95,6 +98,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(myKeyboard);
     glutSpecialFunc(mySpecialKey);
     glutMouseFunc(myMouse);
+    glutMotionFunc(myMotion);
 
     myPopupMenu::CreatePopupMenu();
 
@@ -197,16 +201,6 @@ void myKeyboard(unsigned char key, int x, int y)
         // ask the cameraman to move right
         niceCameraman.moveRight();
         break;
-    case 'y':
-        // ask the cameraman to look left
-        niceCameraman.lookLeft();
-        std::cout << "[info] cameraman look left" << std::endl;
-        break;
-    case 'i':
-        // ask the cameraman to look right
-        niceCameraman.lookRight();
-        std::cout << "[info] cameraman look right" << std::endl;
-        break;
     case 'a':
         // change the rotation angle thetaY along y-axis
         rotate.y -= deltaR;
@@ -288,8 +282,10 @@ void myMouse(int button, int state, int x, int y)
     // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
     // 
     // transform screen coordinate to world coordinate
-    GLfloat worldX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 20 - 10;
-    GLfloat worldY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 20 - 10;
+    GLfloat clipX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
+    GLfloat clipY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
+    GLfloat worldX = clipX * 10;
+    GLfloat worldY = clipY * 10;
     const GLfloat depth = 0.0f;
 
     switch (button)
@@ -317,10 +313,29 @@ void myMouse(int button, int state, int x, int y)
         if (state == GLUT_DOWN)
             scale /= deltaS;
         break;
+    case GLUT_MIDDLE_BUTTON:
+        isMouseMiddlePressed = state == GLUT_DOWN;
+        break;
     default:
         break;
     }
     glutPostRedisplay();
+}
+
+void myMotion(int x, int y)
+{
+    GLfloat clipX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
+    GLfloat clipY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
+
+    std::cout << std::fixed << std::setprecision(1);
+    std::cout << "[info] Mouse motion at (" << clipX << ", " << clipY << ")" << std::endl;
+
+    // TODO: change the view angle with this
+    if (isMouseMiddlePressed) {
+        translate.x = clipX * 10;
+        translate.y = clipY * 10;
+        glutPostRedisplay();
+    }
 }
 
 void myInputArbitraryAxis() {
