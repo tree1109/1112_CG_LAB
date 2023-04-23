@@ -42,7 +42,7 @@
 // demo object file path
 // Put the absolute path of the model folder here
 // example: "C:\\XXXXX\\XXXXX\\models\\"
-std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
+std::string modelsDirPath = "Put the absolute path of the models folder here";
 std::string teapotObjPath = modelsDirPath + "teapot.obj";
 std::string teddyObjPath = modelsDirPath + "teddy.obj";
 std::string octahedronObjPath = modelsDirPath + "octahedron.obj";
