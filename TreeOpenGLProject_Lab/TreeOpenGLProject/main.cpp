@@ -79,9 +79,12 @@ const GLfloat axisLength = 7.0f;
 
 // hire a cameraman
 myCamera niceCameraman;
+GLfloat pitch = 0.0f;
+GLfloat yaw = 0.0f;
 
 // mouse middle press down
 bool isMouseMiddlePressed = false;
+bool isFirst = true;
 
 int main(int argc, char** argv)
 {
@@ -179,6 +182,8 @@ void myKeyboard(unsigned char key, int x, int y)
     case 'r':
         // reset cameraman
         niceCameraman.reset();
+        pitch = 0.0f;
+        yaw = 0.f;
         // reset translation & rotation
         translate = { 0, 0, 0 };
         rotate = { 0, 0, 0 };
@@ -282,8 +287,8 @@ void myMouse(int button, int state, int x, int y)
     // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
     // 
     // transform screen coordinate to world coordinate
-    GLfloat clipX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
-    GLfloat clipY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
+    GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
+    GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
     GLfloat worldX = clipX * 10;
     GLfloat worldY = clipY * 10;
     const GLfloat depth = 0.0f;
@@ -314,7 +319,13 @@ void myMouse(int button, int state, int x, int y)
             scale /= deltaS;
         break;
     case GLUT_MIDDLE_BUTTON:
-        isMouseMiddlePressed = state == GLUT_DOWN;
+        if (state == GLUT_DOWN) {
+            isMouseMiddlePressed = true;
+        }
+        else {
+            isFirst = true;
+            isMouseMiddlePressed = false;
+        }
         break;
     default:
         break;
@@ -324,16 +335,32 @@ void myMouse(int button, int state, int x, int y)
 
 void myMotion(int x, int y)
 {
-    GLfloat clipX = (GLfloat)x / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
-    GLfloat clipY = (1 - (GLfloat)y / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
-
-    std::cout << std::fixed << std::setprecision(1);
-    std::cout << "[info] Mouse motion at (" << clipX << ", " << clipY << ")" << std::endl;
-
-    // TODO: change the view angle with this
     if (isMouseMiddlePressed) {
-        translate.x = clipX * 10;
-        translate.y = clipY * 10;
+        static GLfloat lastY;
+        static GLfloat lastX;
+        if (isFirst) {
+            lastX = x;
+            lastY = y;
+            isFirst = false;
+        }
+        const GLfloat offsetX = lastX - static_cast<GLfloat>(x);
+        const GLfloat offsetY = lastY - static_cast<GLfloat>(y);
+        static constexpr GLfloat sensitivity = 0.1f;
+
+        pitch += offsetY * sensitivity;
+        yaw += offsetX * sensitivity;
+
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+
+        niceCameraman.setViewAngle(pitch, yaw);
+
+        // update lastX and lastY
+        lastX = static_cast<GLfloat>(x);
+        lastY = static_cast<GLfloat>(y);
+
         glutPostRedisplay();
     }
 }

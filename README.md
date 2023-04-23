@@ -13,6 +13,6 @@ Read Obj file and render
 - [X] Object transformation: (10%)
   - [X] Rotation (arbitrary axis, x, y, z) & Translation
   - [X] Keyboard control
-- [ ] Adjustable Camera (10%)
-  - [ ] Keyboard control (where the camera is, and where it look at)
+- [X] Adjustable Camera (10%)
+  - [X] Keyboard control (where the camera is, and where it look at)
 - [X] Adjust the object to fit into the screen. (20%)
