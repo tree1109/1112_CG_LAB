@@ -18,7 +18,7 @@ void myMatrix::ResetMatrix(void)
     }
 }
 
-myMatrix myMatrix::Mult(const myMatrix& rightM) const
+myMatrix myMatrix::mult(const myMatrix& rightM) const
 {
     myMatrix resultM;
 
@@ -34,6 +34,17 @@ myMatrix myMatrix::Mult(const myMatrix& rightM) const
     }
 
     return resultM;
+}
+
+vec3 myMatrix::mult(const vec3& rightV) const
+{
+    vec3 resultV;
+
+    resultV.x = matrix[0] * rightV.x + matrix[4] * rightV.y + matrix[8] * rightV.z;
+    resultV.y = matrix[1] * rightV.x + matrix[5] * rightV.y + matrix[9] * rightV.z;
+    resultV.z = matrix[2] * rightV.x + matrix[6] * rightV.y + matrix[10] * rightV.z;
+
+    return resultV;
 }
 
 void myMatrix::setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z)

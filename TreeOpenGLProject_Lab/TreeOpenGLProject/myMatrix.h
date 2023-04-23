@@ -6,7 +6,8 @@ class myMatrix
 public:
     myMatrix(void);
     void ResetMatrix(void);
-    myMatrix Mult(const myMatrix &rightM) const;
+    myMatrix mult(const myMatrix& rightM) const;
+    vec3 mult(const vec3 &rightV) const;
     void setTranslateMatrix(GLfloat x, GLfloat y, GLfloat z);
     void setRotateMatrix(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz);
     void setScaleMatrix(GLfloat sx, GLfloat sy, GLfloat sz);
