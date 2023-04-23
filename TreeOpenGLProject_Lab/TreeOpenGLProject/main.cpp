@@ -40,13 +40,11 @@
 // ~~~key map~~~
 
 // demo object file path
-// Put the absolute path of the model folder here
-// example: "C:\\XXXXX\\XXXXX\\models\\"
-std::string modelsDirPath = "C:\\Users\\zhnzh\\Desktop\\1112_CG_LAB\\TreeOpenGLProject_Lab\\TreeOpenGLProject\\models\\";
-std::string teapotObjPath = modelsDirPath + "teapot.obj";
-std::string teddyObjPath = modelsDirPath + "teddy.obj";
-std::string octahedronObjPath = modelsDirPath + "octahedron.obj";
-std::string gourdObjPath = modelsDirPath + "gourd.obj";
+std::string modelsDirPath = "..\\TreeOpenGLProject\\models\\";
+std::string teapotObjPath = modelsDirPath + "teapot";
+std::string teddyObjPath = modelsDirPath + "teddy";
+std::string octahedronObjPath = modelsDirPath + "octahedron";
+std::string gourdObjPath = modelsDirPath + "gourd";
 // demo object
 myObject teapot;
 myObject teddy;
