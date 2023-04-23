@@ -88,13 +88,10 @@ void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
 void myMatrix::doArbitraryRotate(GLfloat angle, vec3 v1, vec3 v2)
 {
     // get unit vector
-    GLfloat length = (GLfloat)sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2) + pow(v2.z - v1.z, 2));
-    GLfloat ux = (v2.x - v1.x) / length;
-    GLfloat uy = (v2.y - v1.y) / length;
-    GLfloat uz = (v2.z - v1.z) / length;
+    vec3 unitV = (v2 - v1).normalize();
 
     doTranslate(v1.x, v1.y, v1.z);    // move origin of model space to origin of unit vector
-    doRotate(angle, ux, uy, uz);      // rotate at origin of unit vector
+    doRotate(angle, unitV.x, unitV.y, unitV.z);      // rotate at origin of unit vector
     doTranslate(-v1.x, -v1.y, -v1.z); // reverse move
 }
 

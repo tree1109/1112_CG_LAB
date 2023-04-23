@@ -23,42 +23,26 @@ void myCamera::work()
 
 void myCamera::moveForward()
 {
-    _eyePosition.x += _lookDirection.x * _deltaT;
-    _eyePosition.y += _lookDirection.y * _deltaT;
-    _eyePosition.z += _lookDirection.z * _deltaT;
-    _lookAtPosition.x += _lookDirection.x * _deltaT;
-    _lookAtPosition.y += _lookDirection.y * _deltaT;
-    _lookAtPosition.z += _lookDirection.z * _deltaT;
+    _eyePosition += _lookDirection * _deltaT;
+    _lookAtPosition += _lookDirection * _deltaT;
 }
 
 void myCamera::moveBackward()
 {
-    _eyePosition.x -= _lookDirection.x * _deltaT;
-    _eyePosition.y -= _lookDirection.y * _deltaT;
-    _eyePosition.z -= _lookDirection.z * _deltaT;
-    _lookAtPosition.x -= _lookDirection.x * _deltaT;
-    _lookAtPosition.y -= _lookDirection.y * _deltaT;
-    _lookAtPosition.z -= _lookDirection.z * _deltaT;
+    _eyePosition -= _lookDirection * _deltaT;
+    _lookAtPosition -= _lookDirection * _deltaT;
 }
 
 void myCamera::moveLeft()
 {
-    _eyePosition.x -= _rightVector.x * _deltaT;
-    _eyePosition.y -= _rightVector.y * _deltaT;
-    _eyePosition.z -= _rightVector.z * _deltaT;
-    _lookAtPosition.x -= _rightVector.x * _deltaT;
-    _lookAtPosition.y -= _rightVector.y * _deltaT;
-    _lookAtPosition.z -= _rightVector.z * _deltaT;
+    _eyePosition -= _rightVector * _deltaT;
+    _lookAtPosition -= _rightVector * _deltaT;
 }
 
 void myCamera::moveRight()
 {
-    _eyePosition.x += _rightVector.x * _deltaT;
-    _eyePosition.y += _rightVector.y * _deltaT;
-    _eyePosition.z += _rightVector.z * _deltaT;
-    _lookAtPosition.x += _rightVector.x * _deltaT;
-    _lookAtPosition.y += _rightVector.y * _deltaT;
-    _lookAtPosition.z += _rightVector.z * _deltaT;
+    _eyePosition += _rightVector * _deltaT;
+    _lookAtPosition += _rightVector * _deltaT;
 }
 
 void myCamera::lookLeft()
@@ -81,32 +65,12 @@ void myCamera::reset()
 
 void myCamera::updateDirection()
 {
-    vec3 normal = {
-        _lookAtPosition.x - _eyePosition.x,
-        _lookAtPosition.y - _eyePosition.y,
-        _lookAtPosition.z - _eyePosition.z, };
-    GLfloat length = (GLfloat)sqrt(pow(normal.x, 2) + pow(normal.y, 2) + pow(normal.z, 2));
-
-    normal.x /= length;
-    normal.y /= length;
-    normal.z /= length;
-
-    _lookDirection = normal;
+    _lookDirection = _lookAtPosition - _eyePosition;
+    _lookDirection = _lookDirection.normalize();
 }
 
 void myCamera::updateRightVector()
 {
-    // cross product
-    vec3 normal = {
-        _lookDirection.y * _upVector.z - _lookDirection.z * _upVector.y,
-        _lookDirection.z * _upVector.x - _lookDirection.x * _upVector.z,
-        _lookDirection.x * _upVector.y - _lookDirection.y * _upVector.x
-    };
-    GLfloat length = (GLfloat)sqrt(pow(normal.x, 2) + pow(normal.y, 2) + pow(normal.z, 2));
-
-    normal.x /= length;
-    normal.y /= length;
-    normal.z /= length;
-
-    _rightVector = normal;
+    _rightVector = _lookDirection.cross(_upVector);
+    _rightVector = _rightVector.normalize();
 }

@@ -331,27 +331,15 @@ void myObject::drawCross(vec3 v)
 
 void myObject::fixPositionVector()
 {
-    _position = { _position.x / _scaling, _position.y / _scaling, _position.z / _scaling };
-    _v1 = { _v1.x / _scaling, _v1.y / _scaling, _v1.z / _scaling };
-    _v2 = { _v2.x / _scaling, _v2.y / _scaling, _v2.z / _scaling };
+    _position /= _scaling;
+    _v1 /= _scaling;
+    _v2 /= _scaling;
 }
 
 vec3 myObject::getNormalVector(vec3 v1, vec3 v2, vec3 v3)
 {
-    vec3 u = { v3.x - v1.x, v3.y - v1.y, v3.z - v1.z };
-    vec3 v = { v2.x - v1.x, v2.y - v1.y, v2.z - v1.z };
-    // cross product
-    vec3 normal = {
-        u.y * v.z - u.z * v.y,
-        u.z * v.x - u.x * v.z,
-        u.x * v.y - u.y * v.x 
-    };
-    GLfloat length = (GLfloat)sqrt(pow(normal.x, 2) + pow(normal.y, 2) + pow(normal.z, 2));
-
-    // normalize
-    normal.x /= length;
-    normal.y /= length;
-    normal.z /= length;
-
-    return normal;
+    vec3 u = v3 - v1;
+    vec3 v = v2 - v1;
+    vec3 normal = u.cross(v);
+    return normal.normalize();
 }
