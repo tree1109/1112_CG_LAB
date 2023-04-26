@@ -52,7 +52,7 @@ void myObject::drawObject(bool showBoundingBox)
     glLineWidth(1.0f);
 }
 
-// TODO: move out object file reader, maybe use a factory pattern i guess ? i will try try look
+// TODO: move out object file reader
 void myObject::loadObjectFile(std::string filePath)
 {
     std::cout << "[info] Loading object file." << filePath << std::endl;
