@@ -3,11 +3,14 @@
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
+#include "my2dGrid.h"
 
 // ~~~key map~~~
 // [r] : reset
 // 
 // ~~~key map~~~
+
+my2dGrid grid;
 
 int main(int argc, char** argv)
 {
@@ -43,11 +46,14 @@ void ChangeSize(int w, int h)
 
 void RenderScene()
 {
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW); // load the model view matrix
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, -10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+    grid.render2DGrid();
+
     glutSwapBuffers();
 }
 
@@ -125,7 +131,7 @@ void myMouse(int button, int state, int x, int y)
 void myMotion(int x, int y)
 {
 
-    //glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 
