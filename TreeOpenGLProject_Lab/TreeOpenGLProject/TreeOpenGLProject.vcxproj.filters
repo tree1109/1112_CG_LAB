@@ -21,36 +21,12 @@
     <ClCompile Include="myPopupMenu.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="myMatrix.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
-    <ClCompile Include="myObject.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
-    <ClCompile Include="myCamera.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myPopupMenu.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="myMatrix.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="myObject.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="main.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="face3.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="vec3.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="myCamera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

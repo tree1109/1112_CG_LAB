@@ -1,7 +1,6 @@
 #include <iostream>
 #include "GL\freeglut.h"
 #include "myPopupMenu.h"
-#include "main.h"
 
 void myPopupMenu::CreatePopupMenu(void)
 {
@@ -15,7 +14,7 @@ void myPopupMenu::MainMenu(int option)
     switch (option)
     {
     case MainMenuOpt::OPT_1:
-        myInputObjectFilePath();
+
         break;
     case MainMenuOpt::OPT_2:
         MessagePrinter("cat is cutest");
@@ -28,103 +27,11 @@ void myPopupMenu::MainMenu(int option)
     }
 }
 
-void myPopupMenu::LoadObjectSubMenu(int option)
-{
-    switch (option)
-    {
-    case LoadObjectOpt::OBJ_IMPORTED:
-        setCurrentObject(OBJECT::USER_IMPORTED);
-        MessagePrinter("Load user imported object");
-        break;
-    case LoadObjectOpt::OBJ_TEAPOT:
-        setCurrentObject(OBJECT::TEAPOT);
-        MessagePrinter("Load object [Teapot]");
-        break;
-    case LoadObjectOpt::OBJ_TEDDY:
-        setCurrentObject(OBJECT::TEDDY);
-        MessagePrinter("Load object [Teddy]");
-        break;
-    case LoadObjectOpt::OBJ_OCTAHEDRON:
-        setCurrentObject(OBJECT::OCTAHEDRON);
-        MessagePrinter("Load object [Octahedron]");
-        break;
-    case LoadObjectOpt::OBJ_GOURD:
-        setCurrentObject(OBJECT::GOURD);
-        MessagePrinter("Load object [Gourd]");
-        break;
-    default:
-        break;
-    }
-    glutPostRedisplay();
-}
-
-void myPopupMenu::RenderModeSubMenu(int option)
-{
-    switch (option)
-    {
-    case RenderModeOpt::POINT:
-        currentRenderMode = RENDER_MODE::POINTS;
-        MessagePrinter("Set render mode to [Point]");
-        break;
-    case RenderModeOpt::LINE:
-        currentRenderMode = RENDER_MODE::LINES;
-        MessagePrinter("Set render mode to [Line]");
-        break;
-    case RenderModeOpt::FACE:
-        currentRenderMode = RENDER_MODE::FACES;
-        MessagePrinter("Set render mode to [Face]");
-        break;
-    default:
-        break;
-    }
-    glutPostRedisplay();
-}
-
-void myPopupMenu::ColorModeSubMenu(int option)
-{
-    switch (option)
-    {
-    case ColorModeOpt::SINGLE:
-        currentColorMode = COLOR_MODE::SINGLE;
-        MessagePrinter("Set color mode to [Single]");
-        break;
-    case ColorModeOpt::RANDOM:
-        currentColorMode = COLOR_MODE::RANDOM;
-        MessagePrinter("Set color mode to [Random]");
-        break;
-    default:
-        break;
-    }
-    glutPostRedisplay();
-}
-
 void myPopupMenu::ConfigMenu(void)
 {
-    // load object sub menu
-    int loadObjectSubMenu = glutCreateMenu(LoadObjectSubMenu);
-    glutAddMenuEntry("User object", LoadObjectOpt::OBJ_IMPORTED);
-    glutAddMenuEntry("Teapot", LoadObjectOpt::OBJ_TEAPOT);
-    glutAddMenuEntry("Teddy", LoadObjectOpt::OBJ_TEDDY);
-    glutAddMenuEntry("Octahedron", LoadObjectOpt::OBJ_OCTAHEDRON);
-    glutAddMenuEntry("Gourd", LoadObjectOpt::OBJ_GOURD);
-
-    // render mode sub menu
-    int renderModeSubMenu = glutCreateMenu(RenderModeSubMenu);
-    glutAddMenuEntry("Point", RenderModeOpt::POINT);
-    glutAddMenuEntry("Line", RenderModeOpt::LINE);
-    glutAddMenuEntry("Face", RenderModeOpt::FACE);
-
-    // color mode sub menu
-    int colorModeSubMenu = glutCreateMenu(ColorModeSubMenu);
-    glutAddMenuEntry("Single", ColorModeOpt::SINGLE);
-    glutAddMenuEntry("Random", ColorModeOpt::RANDOM);
-
     // main menu
     int mainMenu = glutCreateMenu(MainMenu);
-    glutAddMenuEntry("Import .obj", MainMenuOpt::OPT_1);
-    glutAddSubMenu("Load object", loadObjectSubMenu);
-    glutAddSubMenu("Set render mode", renderModeSubMenu);
-    glutAddSubMenu("Set color mode", colorModeSubMenu);
+    glutAddMenuEntry("wakuwaku", MainMenuOpt::OPT_1);
     glutAddMenuEntry("uwu", MainMenuOpt::OPT_2);
     glutAddMenuEntry(">w<", MainMenuOpt::OPT_3);
 }
