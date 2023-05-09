@@ -11,9 +11,11 @@ public:
     void setFilledCell(int x, int y, bool filled);
     int getGridDimension();
     void resetFilledCells();
+    void setGridColor(GLfloat r, GLfloat g, GLfloat b);
 
 private:
     int _dimensions;
+    GLfloat _cellColor[3];
     std::vector<bool> _filledCells;
 
     void createGrid();

@@ -10,7 +10,8 @@
 // 
 // ~~~key map~~~
 
-my2dGrid grid;
+my2dGrid vertexGrid;
+my2dGrid lineGrid;
 
 int v1[] = {3,3};
 int v2[] = {3,-3};
@@ -44,6 +45,10 @@ int main(int argc, char** argv)
 
     myPopupMenu::CreatePopupMenu();
 
+    // set grid color
+    vertexGrid.setGridColor(1.0f, 0.2f, 0.2f);
+    lineGrid.setGridColor(0.2f, 1.0f, 0.2f);
+
     glutMainLoop();
     return 0;
 }
@@ -66,7 +71,7 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    grid.render2DGrid();
+    vertexGrid.render2DGrid();
 
     glutSwapBuffers();
 }
@@ -122,7 +127,7 @@ void myMouse(int button, int state, int x, int y)
     GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
     GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
     GLfloat halfOfCellSize = 0.5f;
-    GLfloat translateToGrid = grid.getGridDimension() + halfOfCellSize;
+    GLfloat translateToGrid = vertexGrid.getGridDimension() + halfOfCellSize;
     int gridX = static_cast<int>(round(clipX * translateToGrid));
     int gridY = static_cast<int>(round(clipY * translateToGrid));
 
@@ -130,7 +135,8 @@ void myMouse(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-            grid.setFilledCell(gridX, gridY, true);
+            setVertex(gridX, gridY);
+            vertexGrid.setFilledCell(gridX, gridY, true);
             printMouseWindowCoordinate(gridX, gridY, true);
         } else if (state == GLUT_UP) {
             printMouseWindowCoordinate(gridX, gridY, false);
@@ -147,7 +153,6 @@ void myMotion(int x, int y)
     //glutPostRedisplay();
 }
 
-
 void printMouseWindowCoordinate(int x, int y, bool isDown) {
     if (isDown) {
         std::cout << "[info] mouse \033[93mdown\033[0m at (" << x << ", " << y << ")" << std::endl;
@@ -156,7 +161,46 @@ void printMouseWindowCoordinate(int x, int y, bool isDown) {
     }
 }
 
+void setVertex(int x, int y) {
+    switch (currentVertex)
+    {
+    case CURRENT_VERTEX::V1:
+        vertexGrid.resetFilledCells();
+        lineGrid.resetFilledCells();
+        v1[0] = x;
+        v1[1] = y;
+        currentVertex = CURRENT_VERTEX::V2;
+    break;
+    case CURRENT_VERTEX::V2:
+        v1[0] = x;
+        v1[1] = y;
+        currentVertex = CURRENT_VERTEX::V3;
+    break;
+    case CURRENT_VERTEX::V3:
+        v1[0] = x;
+        v1[1] = y;
+        currentVertex = CURRENT_VERTEX::V4;
+        break;
+    case CURRENT_VERTEX::V4:
+        v1[0] = x;
+        v1[1] = y;
+        currentVertex = CURRENT_VERTEX::V1;
+        break;
+    }
+}
+
+void linePainter(int x1, int y1, int x2, int y2) {
+    // color:
+    //    endpoint: red
+    //    line: green or blue
+
+    // TODO: check which region
+
+    // TODO: use Midpoint algorithm draw line
+}
+
 void setGridDimension(int dim) {
-    grid.setDimension(dim);
+    vertexGrid.setDimension(dim);
+    lineGrid.setDimension(dim);
     glutPostRedisplay();
 }
