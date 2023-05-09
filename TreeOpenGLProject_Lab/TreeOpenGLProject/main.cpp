@@ -199,6 +199,10 @@ void linePainter(int x1, int y1, int x2, int y2) {
     // TODO: use Midpoint algorithm draw line
 }
 
+int getRegion(int x1, int y1, int x2, int y2) {
+    
+}
+
 void setGridDimension(int dim) {
     vertexGrid.setDimension(dim);
     lineGrid.setDimension(dim);
