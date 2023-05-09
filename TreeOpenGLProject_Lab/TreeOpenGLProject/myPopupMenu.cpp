@@ -1,6 +1,7 @@
 #include <iostream>
 #include "GL\freeglut.h"
 #include "myPopupMenu.h"
+#include "main.h"
 
 void myPopupMenu::CreatePopupMenu(void)
 {
@@ -32,25 +33,24 @@ void myPopupMenu::GridDimensionsSubMenu(int option)
     switch (option)
     {
     case DIM_5:
-        // TODO: set grid dim
+        setGridDimension(5);
         MessagePrinter("Set grid dimensions to 5");
         break;
     case DIM_10:
-        // TODO: set grid dim
+        setGridDimension(10);
         MessagePrinter("Set grid dimensions to 10");
         break;
     case DIM_20:
-        // TODO: set grid dim
+        setGridDimension(20);
         MessagePrinter("Set grid dimensions to 20");
         break;
     case DIM_50:
-        // TODO: set grid dim
+        setGridDimension(50);
         MessagePrinter("Set grid dimensions to 50");
         break;
     default:
         break;
     }
-    glutPostRedisplay();
 }
 
 void myPopupMenu::ConfigMenu(void)

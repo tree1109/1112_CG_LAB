@@ -40,7 +40,7 @@ void ChangeSize(int w, int h)
     glMatrixMode(GL_PROJECTION); // load the projection matrix
     glLoadIdentity();
     glOrtho(-10, 10, -10, 10, -10, 20);
-	glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
 
@@ -141,4 +141,9 @@ void printMouseWindowCoordinate(int x, int y, bool isDown) {
     } else {
         std::cout << "[info] mouse \033[92mup\033[0m at (" << x << ", " << y << ")" << std::endl;
     }
+}
+
+void setGridDimension(int dim) {
+    grid.setDimension(dim);
+    glutPostRedisplay();
 }
