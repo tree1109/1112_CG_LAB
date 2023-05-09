@@ -17,6 +17,15 @@ int v2[] = {3,-3};
 int v3[] = {-3,-3};
 int v4[] = {-3,3};
 
+enum class CURRENT_VERTEX
+{
+    V1,
+    V2,
+    V3,
+    V4
+};
+CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
+
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -114,17 +123,17 @@ void myMouse(int button, int state, int x, int y)
     GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
     GLfloat halfOfCellSize = 0.5f;
     GLfloat translateToGrid = grid.getGridDimension() + halfOfCellSize;
-    int gridX = round(clipX * translateToGrid);
-    int gridY = round(clipY * translateToGrid);
+    int gridX = static_cast<int>(round(clipX * translateToGrid));
+    int gridY = static_cast<int>(round(clipY * translateToGrid));
 
     switch (button)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-            grid.setCellFilled(gridX, gridY, true);
-            printMouseWindowCoordinate(x, y, true);
+            grid.setFilledCell(gridX, gridY, true);
+            printMouseWindowCoordinate(gridX, gridY, true);
         } else if (state == GLUT_UP) {
-            printMouseWindowCoordinate(x, y, false);
+            printMouseWindowCoordinate(gridX, gridY, false);
         }
         break;
     default:

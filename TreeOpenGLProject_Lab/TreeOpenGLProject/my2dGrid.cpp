@@ -49,7 +49,7 @@ void my2dGrid::setDimension(int dim)
     createGrid();
 }
 
-void my2dGrid::setCellFilled(int x, int y, bool filled)
+void my2dGrid::setFilledCell(int x, int y, bool filled)
 {
     int gridX = x + _dimensions;
     int gridY = y + _dimensions;
@@ -60,6 +60,11 @@ void my2dGrid::setCellFilled(int x, int y, bool filled)
 int my2dGrid::getGridDimension()
 {
     return _dimensions;
+}
+
+void my2dGrid::resetFilledCells()
+{
+    createGrid();
 }
 
 void my2dGrid::createGrid()

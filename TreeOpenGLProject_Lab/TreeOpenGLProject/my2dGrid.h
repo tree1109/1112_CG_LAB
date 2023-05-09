@@ -8,8 +8,9 @@ public:
     my2dGrid();
     void render2DGrid();
     void setDimension(int dim);
-    void setCellFilled(int x, int y, bool filled);
+    void setFilledCell(int x, int y, bool filled);
     int getGridDimension();
+    void resetFilledCells();
 
 private:
     int _dimensions;
