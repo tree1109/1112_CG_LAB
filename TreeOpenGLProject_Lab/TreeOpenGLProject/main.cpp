@@ -30,13 +30,6 @@ int main(int argc, char** argv)
 
     myPopupMenu::CreatePopupMenu();
 
-    // test img
-    grid.setCellFilled(1, 1, true);
-    grid.setCellFilled(0, 0, true);
-    grid.setCellFilled(-1, -1, true);
-    grid.setCellFilled(0, -1, true);
-    grid.setCellFilled(1, -1, true);
-
     glutMainLoop();
     return 0;
 }
