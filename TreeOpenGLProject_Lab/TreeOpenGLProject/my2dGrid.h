@@ -13,7 +13,7 @@ private:
     int _dimensions;
     std::vector<bool> _filledCells;
 
-    void creatGrid();
+    void createGrid();
     bool isCellFilled(int x, int y);
     void drawBox(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 };

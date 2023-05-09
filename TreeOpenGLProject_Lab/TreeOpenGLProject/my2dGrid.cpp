@@ -3,7 +3,7 @@
 my2dGrid::my2dGrid() :
     _dimensions(10)
 {
-    creatGrid();
+    createGrid();
 }
 
 void my2dGrid::render2DGrid()
@@ -44,10 +44,10 @@ void my2dGrid::render2DGrid()
 void my2dGrid::setDimension(int dim)
 {
     _dimensions = dim;
-    creatGrid();
+    createGrid();
 }
 
-void my2dGrid::creatGrid()
+void my2dGrid::createGrid()
 {
     int size = _dimensions * 2 + 1;
     std::vector<bool> cells = std::vector<bool>(size * size);

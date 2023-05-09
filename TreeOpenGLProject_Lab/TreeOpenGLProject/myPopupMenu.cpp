@@ -13,13 +13,13 @@ void myPopupMenu::MainMenu(int option)
 {
     switch (option)
     {
-    case MainMenuOpt::OPT_1:
-
+    case OPT_1:
+        MessagePrinter("wow");
         break;
-    case MainMenuOpt::OPT_2:
+    case OPT_2:
         MessagePrinter("cat is cutest");
         break;
-    case MainMenuOpt::OPT_3:
+    case OPT_3:
         MessagePrinter("bocchi kawaii~~");
         break;
     default:
@@ -27,17 +27,50 @@ void myPopupMenu::MainMenu(int option)
     }
 }
 
+void myPopupMenu::GridDimensionsSubMenu(int option)
+{
+    switch (option)
+    {
+    case DIM_5:
+        // TODO: set grid dim
+        MessagePrinter("Set grid dimensions to 5");
+        break;
+    case DIM_10:
+        // TODO: set grid dim
+        MessagePrinter("Set grid dimensions to 10");
+        break;
+    case DIM_20:
+        // TODO: set grid dim
+        MessagePrinter("Set grid dimensions to 20");
+        break;
+    case DIM_50:
+        // TODO: set grid dim
+        MessagePrinter("Set grid dimensions to 50");
+        break;
+    default:
+        break;
+    }
+    glutPostRedisplay();
+}
+
 void myPopupMenu::ConfigMenu(void)
 {
+    // load grid dimensionsSubMenu sub menu
+    int gridDimensionsSubMenu = glutCreateMenu(GridDimensionsSubMenu);
+    glutAddMenuEntry("5", DIM_5);
+    glutAddMenuEntry("10", DIM_10);
+    glutAddMenuEntry("20", DIM_20);
+    glutAddMenuEntry("50", DIM_50);
+
     // main menu
     int mainMenu = glutCreateMenu(MainMenu);
-    glutAddMenuEntry("wakuwaku", MainMenuOpt::OPT_1);
-    glutAddMenuEntry("uwu", MainMenuOpt::OPT_2);
-    glutAddMenuEntry(">w<", MainMenuOpt::OPT_3);
+    glutAddSubMenu("Set Grid Dims. To", gridDimensionsSubMenu);
+    glutAddMenuEntry("wow", OPT_1);
+    glutAddMenuEntry("uwu", OPT_2);
+    glutAddMenuEntry(">w<", OPT_3);
 }
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
     std::cout << "[info] \033[32m" << message << "\033[0m." << std::endl;
 }
-
