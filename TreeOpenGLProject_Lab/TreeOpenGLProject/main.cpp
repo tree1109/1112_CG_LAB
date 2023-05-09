@@ -12,6 +12,11 @@
 
 my2dGrid grid;
 
+int v1[] = {3,3};
+int v2[] = {3,-3};
+int v3[] = {-3,-3};
+int v4[] = {-3,3};
+
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);

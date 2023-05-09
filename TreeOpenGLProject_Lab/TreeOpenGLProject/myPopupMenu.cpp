@@ -12,10 +12,20 @@ void myPopupMenu::CreatePopupMenu(void)
 
 void myPopupMenu::MainMenu(int option)
 {
+    static bool isNormalMode = true;
+
     switch (option)
     {
     case OPT_1:
-        MessagePrinter("wow");
+        if (isNormalMode) {
+            // TODO: switch to debug mode
+            isNormalMode = false;
+            MessagePrinter("Switch to Debug Mode");
+        } else {
+            // TODO: switch to normal mode
+            isNormalMode = true;
+            MessagePrinter("Switch to Normal Mode");
+        }
         break;
     case OPT_2:
         MessagePrinter("cat is cutest");
@@ -65,7 +75,7 @@ void myPopupMenu::ConfigMenu(void)
     // main menu
     int mainMenu = glutCreateMenu(MainMenu);
     glutAddSubMenu("Set Grid Dims. To", gridDimensionsSubMenu);
-    glutAddMenuEntry("wow", OPT_1);
+    glutAddMenuEntry("Normal / Debug Mode", OPT_1);
     glutAddMenuEntry("uwu", OPT_2);
     glutAddMenuEntry(">w<", OPT_3);
 }
