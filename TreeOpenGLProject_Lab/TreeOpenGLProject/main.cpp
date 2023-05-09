@@ -30,6 +30,13 @@ int main(int argc, char** argv)
 
     myPopupMenu::CreatePopupMenu();
 
+    // test img
+    grid.setCellFilled(1, 1, true);
+    grid.setCellFilled(0, 0, true);
+    grid.setCellFilled(-1, -1, true);
+    grid.setCellFilled(0, -1, true);
+    grid.setCellFilled(1, -1, true);
+
     glutMainLoop();
     return 0;
 }
@@ -50,7 +57,7 @@ void RenderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW); // load the model view matrix
     glLoadIdentity(); // reset model matrix
-    gluLookAt(0.0f, 0.0f, -10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     grid.render2DGrid();
 
@@ -82,7 +89,7 @@ void myKeyboard(unsigned char key, int x, int y)
     {
     case 'r':
         // reset
-
+        // TODO: clear grid filled cell
         break;
     default:
         break;
@@ -107,18 +114,18 @@ void myMouse(int button, int state, int x, int y)
     // transform screen coordinate to world coordinate
     GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
     GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
-    GLfloat worldX = clipX * 10;
-    GLfloat worldY = clipY * 10;
-    const GLfloat depth = 0.0f;
+    GLfloat halfOfCellSize = 0.5f;
+    GLfloat translateToGrid = grid.getGridDimension() + halfOfCellSize;
+    int gridX = round(clipX * translateToGrid);
+    int gridY = round(clipY * translateToGrid);
 
     switch (button)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-
+            grid.setCellFilled(gridX, gridY, true);
             printMouseWindowCoordinate(x, y, true);
         } else if (state == GLUT_UP) {
-
             printMouseWindowCoordinate(x, y, false);
         }
         break;
@@ -130,8 +137,7 @@ void myMouse(int button, int state, int x, int y)
 
 void myMotion(int x, int y)
 {
-
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
 

@@ -8,6 +8,8 @@ public:
     my2dGrid();
     void render2DGrid();
     void setDimension(int dim);
+    void setCellFilled(int x, int y, bool filled);
+    int getGridDimension();
 
 private:
     int _dimensions;
@@ -17,4 +19,3 @@ private:
     bool isCellFilled(int x, int y);
     void drawBox(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 };
-

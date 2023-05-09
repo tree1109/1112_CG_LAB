@@ -9,8 +9,8 @@ my2dGrid::my2dGrid() :
 void my2dGrid::render2DGrid()
 {
     int size = _dimensions * 2 + 1;
-    GLfloat deltaX = 20.0f / size;
-    GLfloat deltaY = 20.0f / size;
+    const GLfloat deltaX = 20.0f / size;
+    const GLfloat deltaY = 20.0f / size;
     GLfloat rangeX = deltaX / 2;
     GLfloat rangeY = deltaY / 2;
     for (int i = 0; i <= _dimensions; ++i) {
@@ -31,12 +31,14 @@ void my2dGrid::render2DGrid()
         rangeY += deltaY;
     }
 
-    rangeX += deltaX;
-    rangeY += deltaY;
-
     for (int i = -_dimensions; i <= _dimensions; ++i) {
         for (int j = -_dimensions; j <= _dimensions; ++j) {
-            // TODO: draw box
+            GLfloat left = i * deltaX - deltaX / 2;
+            GLfloat right = i * deltaX + deltaX / 2;
+            GLfloat up = j * deltaY - deltaY / 2;
+            GLfloat down = j * deltaY + deltaY / 2;
+            if (isCellFilled(i, j))
+                drawBox(left, up, right, down);
         }
     }
 }
@@ -47,10 +49,23 @@ void my2dGrid::setDimension(int dim)
     createGrid();
 }
 
+void my2dGrid::setCellFilled(int x, int y, bool filled)
+{
+    int gridX = x + _dimensions;
+    int gridY = y + _dimensions;
+    int cellsPerRow = _dimensions * 2 + 1;
+    _filledCells.at(gridX + gridY * cellsPerRow) = filled;
+}
+
+int my2dGrid::getGridDimension()
+{
+    return _dimensions;
+}
+
 void my2dGrid::createGrid()
 {
     int size = _dimensions * 2 + 1;
-    std::vector<bool> cells = std::vector<bool>(size * size);
+    auto cells = std::vector<bool>(size * size);
     _filledCells = cells;
 }
 
@@ -58,7 +73,8 @@ bool my2dGrid::isCellFilled(int x, int y)
 {
     int gridX = x + _dimensions;
     int gridY = y + _dimensions;
-    return _filledCells.at(gridX + gridY * _dimensions);
+    int cellsPerRow = _dimensions * 2 + 1;
+    return _filledCells.at(gridX + gridY * cellsPerRow);
 }
 
 void my2dGrid::drawBox(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
