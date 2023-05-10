@@ -171,13 +171,13 @@ void setVertex(int x, int y) {
         v1[0] = x;
         v1[1] = y;
         currentVertex = CURRENT_VERTEX::V2;
-    break;
+        break;
     case CURRENT_VERTEX::V2:
         v2[0] = x;
         v2[1] = y;
         currentVertex = CURRENT_VERTEX::V3;
         linePainter(v1[0], v1[1], v2[0], v2[1]);
-    break;
+        break;
     case CURRENT_VERTEX::V3:
         v3[0] = x;
         v3[1] = y;
@@ -204,26 +204,7 @@ void linePainter(int x1, int y1, int x2, int y2) {
 
     std::cout << "[info] region: " << region << std::endl;
 
-    // TODO: use Midpoint algorithm draw line
-    int dx = x2 - x1;
-    int dy = y2 - y1;
-    int d = 2 * dy - dx;
-    int deltaE = 2 * dy;
-    int deltaNE = 2 * (dy - dx);
-    int x = x1;
-    int y = y1;
-    lineGrid.setFilledCell(x, y, true);
-    while (x < x2) {
-        if (d <= 0) {
-            d += deltaE;
-            x = x + 1;
-        } else {
-            d += deltaNE;
-            x = x + 1;
-            y = y + 1;
-        }
-        lineGrid.setFilledCell(x, y, true);
-    }
+    midpointAlgorithm(region, x1, y1, x2, y2);
 }
 
 int getRegion(int x1, int y1, int x2, int y2) {
@@ -251,6 +232,30 @@ int getRegion(int x1, int y1, int x2, int y2) {
     }
 
     return 0;
+}
+
+void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
+{
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int d = 2 * dy - dx;
+    int deltaE = 2 * dy;
+    int deltaNE = 2 * (dy - dx);
+    int x = x1;
+    int y = y1;
+    lineGrid.setFilledCell(x, y, true);
+    while (x < x2) {
+        if (d <= 0) {
+            d += deltaE;
+            x = x + 1;
+        }
+        else {
+            d += deltaNE;
+            x = x + 1;
+            y = y + 1;
+        }
+        lineGrid.setFilledCell(x, y, true);
+    }
 }
 
 void setGridDimension(int dim) {
