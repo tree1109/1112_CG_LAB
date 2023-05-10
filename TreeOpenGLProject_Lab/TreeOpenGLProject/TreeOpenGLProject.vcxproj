@@ -20,12 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="my2dGrid.cpp" />
+    <ClCompile Include="myGrid.cpp" />
     <ClCompile Include="myPopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
-    <ClInclude Include="my2dGrid.h" />
+    <ClInclude Include="myGrid.h" />
     <ClInclude Include="myPopupMenu.h" />
   </ItemGroup>
   <ItemGroup>

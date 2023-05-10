@@ -3,15 +3,15 @@
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
-#include "my2dGrid.h"
+#include "myGrid.h"
 
 // ~~~key map~~~
 // [r] : reset
 // 
 // ~~~key map~~~
 
-my2dGrid vertexGrid;
-my2dGrid lineGrid;
+MyGrid vertexGrid;
+MyGrid lineGrid;
 
 int v1[] = {3,3};
 int v2[] = {3,-3};
@@ -46,8 +46,8 @@ int main(int argc, char** argv)
     myPopupMenu::CreatePopupMenu();
 
     // set grid color
-    vertexGrid.setGridColor(1.0f, 0.2f, 0.2f);
-    lineGrid.setGridColor(0.2f, 1.0f, 0.2f);
+    vertexGrid.SetGridColor(1.0f, 0.2f, 0.2f);
+    lineGrid.SetGridColor(0.2f, 1.0f, 0.2f);
 
     glutMainLoop();
     return 0;
@@ -71,8 +71,8 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    lineGrid.render2DGrid();
-    vertexGrid.render2DGrid();
+    lineGrid.Render2DGrid();
+    vertexGrid.Render2DGrid();
 
     glutSwapBuffers();
 }
@@ -128,7 +128,7 @@ void myMouse(int button, int state, int x, int y)
     GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
     GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
     GLfloat halfOfCellSize = 0.5f;
-    GLfloat translateToGrid = vertexGrid.getGridDimension() + halfOfCellSize;
+    GLfloat translateToGrid = vertexGrid.GetGridDimension() + halfOfCellSize;
     int gridX = static_cast<int>(round(clipX * translateToGrid));
     int gridY = static_cast<int>(round(clipY * translateToGrid));
 
@@ -137,7 +137,7 @@ void myMouse(int button, int state, int x, int y)
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
             setVertex(gridX, gridY);
-            vertexGrid.setFilledCell(gridX, gridY, true);
+            vertexGrid.SetFilledCell(gridX, gridY, true);
             printMouseWindowCoordinate(gridX, gridY, true);
         } else if (state == GLUT_UP) {
             printMouseWindowCoordinate(gridX, gridY, false);
@@ -166,8 +166,8 @@ void setVertex(int x, int y) {
     switch (currentVertex)
     {
     case CURRENT_VERTEX::V1:
-        vertexGrid.resetFilledCells();
-        lineGrid.resetFilledCells();
+        vertexGrid.ResetFilledCells();
+        lineGrid.ResetFilledCells();
         v1[0] = x;
         v1[1] = y;
         currentVertex = CURRENT_VERTEX::V2;
@@ -243,7 +243,7 @@ void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
     int deltaNE = 2 * (dy - dx);
     int x = x1;
     int y = y1;
-    lineGrid.setFilledCell(x, y, true);
+    lineGrid.SetFilledCell(x, y, true);
     while (x < x2) {
         if (d <= 0) {
             d += deltaE;
@@ -254,12 +254,12 @@ void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
             x = x + 1;
             y = y + 1;
         }
-        lineGrid.setFilledCell(x, y, true);
+        lineGrid.SetFilledCell(x, y, true);
     }
 }
 
 void setGridDimension(int dim) {
-    vertexGrid.setDimension(dim);
-    lineGrid.setDimension(dim);
+    vertexGrid.SetDimension(dim);
+    lineGrid.SetDimension(dim);
     glutPostRedisplay();
 }
