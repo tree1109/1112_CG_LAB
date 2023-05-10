@@ -71,6 +71,7 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
+    lineGrid.render2DGrid();
     vertexGrid.render2DGrid();
 
     glutSwapBuffers();
@@ -172,19 +173,23 @@ void setVertex(int x, int y) {
         currentVertex = CURRENT_VERTEX::V2;
     break;
     case CURRENT_VERTEX::V2:
-        v1[0] = x;
-        v1[1] = y;
+        v2[0] = x;
+        v2[1] = y;
         currentVertex = CURRENT_VERTEX::V3;
+        linePainter(v1[0], v1[1], v2[0], v2[1]);
     break;
     case CURRENT_VERTEX::V3:
-        v1[0] = x;
-        v1[1] = y;
+        v3[0] = x;
+        v3[1] = y;
         currentVertex = CURRENT_VERTEX::V4;
+        linePainter(v2[0], v2[1], v3[0], v3[1]);
         break;
     case CURRENT_VERTEX::V4:
-        v1[0] = x;
-        v1[1] = y;
+        v4[0] = x;
+        v4[1] = y;
         currentVertex = CURRENT_VERTEX::V1;
+        linePainter(v3[0], v3[1], v4[0], v4[1]);
+        linePainter(v4[0], v4[1], v1[0], v1[1]);
         break;
     }
 }
@@ -193,14 +198,59 @@ void linePainter(int x1, int y1, int x2, int y2) {
     // color:
     //    endpoint: red
     //    line: green or blue
+    int region = getRegion(x1, y1, x2, y2);
+    if (region == 0)
+        std::cout << "[error] Can't get region." << std::endl;
 
-    // TODO: check which region
+    std::cout << "[info] region: " << region << std::endl;
 
     // TODO: use Midpoint algorithm draw line
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int d = 2 * dy - dx;
+    int deltaE = 2 * dy;
+    int deltaNE = 2 * (dy - dx);
+    int x = x1;
+    int y = y1;
+    lineGrid.setFilledCell(x, y, true);
+    while (x < x2) {
+        if (d <= 0) {
+            d += deltaE;
+            x = x + 1;
+        } else {
+            d += deltaNE;
+            x = x + 1;
+            y = y + 1;
+        }
+        lineGrid.setFilledCell(x, y, true);
+    }
 }
 
 int getRegion(int x1, int y1, int x2, int y2) {
-    
+    int deltaX = x2 - x1;
+    int deltaY = y2 - y1;
+    if (deltaX >= 0 && deltaY >= 0) {
+        if (deltaX >= deltaY)
+            return 1;
+        return 2;
+    }
+    if (deltaX < 0 && deltaY >= 0) {
+        if (abs(deltaX) >= deltaY)
+            return 4;
+        return 3;
+    }
+    if (deltaX < 0 && deltaY < 0) {
+        if (abs(deltaX) >= abs(deltaY))
+            return 5;
+        return 6;
+    }
+    if (deltaX >= 0 && deltaY < 0) {
+        if (deltaX >= abs(deltaY))
+            return 8;
+        return 7;
+    }
+
+    return 0;
 }
 
 void setGridDimension(int dim) {
