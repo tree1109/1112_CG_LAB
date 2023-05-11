@@ -197,14 +197,13 @@ void setVertex(int x, int y) {
 void linePainter(int x1, int y1, int x2, int y2) {
     // color:
     //    endpoint: red
-    //    line: green or blue
+    //    line: green(E) or blue(NE)
+
+    // get region
     int region = getRegion(x1, y1, x2, y2);
-    if (region == 0)
-        std::cout << "[error] Can't get region." << std::endl;
 
-    std::cout << "[info] region: " << region << std::endl;
 
-    midpointAlgorithm(region, x1, y1, x2, y2);
+    midpointAlgorithm(x1, y1, x2, y2);
 }
 
 int getRegion(int x1, int y1, int x2, int y2) {
@@ -234,7 +233,7 @@ int getRegion(int x1, int y1, int x2, int y2) {
     return 0;
 }
 
-void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
+void midpointAlgorithm(int x1, int y1, int x2, int y2)
 {
     int dx = x2 - x1;
     int dy = y2 - y1;
