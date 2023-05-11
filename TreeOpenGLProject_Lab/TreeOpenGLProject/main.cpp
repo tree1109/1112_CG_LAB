@@ -46,8 +46,8 @@ int main(int argc, char** argv)
     myPopupMenu::CreatePopupMenu();
 
     // set grid color
-    vertexGrid.SetGridColor(1.0f, 0.2f, 0.2f);
-    lineGrid.SetGridColor(0.2f, 1.0f, 0.2f);
+    vertexGrid.SetPixelColor({1.0f, 0.2f, 0.2f});
+    lineGrid.SetPixelColor({0.2f, 1.0f, 0.2f});
 
     glutMainLoop();
     return 0;
@@ -71,8 +71,8 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    lineGrid.Render2DGrid();
-    vertexGrid.Render2DGrid();
+    lineGrid.RenderGrid();
+    vertexGrid.RenderGrid();
 
     glutSwapBuffers();
 }
@@ -137,7 +137,7 @@ void myMouse(int button, int state, int x, int y)
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
             setVertex(gridX, gridY);
-            vertexGrid.SetFilledCell(gridX, gridY, true);
+            vertexGrid.SetPixel(gridX, gridY, true);
             printMouseWindowCoordinate(gridX, gridY, true);
         } else if (state == GLUT_UP) {
             printMouseWindowCoordinate(gridX, gridY, false);
@@ -166,8 +166,8 @@ void setVertex(int x, int y) {
     switch (currentVertex)
     {
     case CURRENT_VERTEX::V1:
-        vertexGrid.ResetFilledCells();
-        lineGrid.ResetFilledCells();
+        vertexGrid.RemoveAllPixel();
+        lineGrid.RemoveAllPixel();
         v1[0] = x;
         v1[1] = y;
         currentVertex = CURRENT_VERTEX::V2;
@@ -243,7 +243,7 @@ void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
     int deltaNE = 2 * (dy - dx);
     int x = x1;
     int y = y1;
-    lineGrid.SetFilledCell(x, y, true);
+    lineGrid.SetPixel(x, y, true);
     while (x < x2) {
         if (d <= 0) {
             d += deltaE;
@@ -254,7 +254,7 @@ void midpointAlgorithm(int region, int x1, int y1, int x2, int y2)
             x = x + 1;
             y = y + 1;
         }
-        lineGrid.SetFilledCell(x, y, true);
+        lineGrid.SetPixel(x, y, true);
     }
 }
 

@@ -1,61 +1,77 @@
 #include "myGrid.h"
 
 MyGrid::MyGrid() :
+    grid_size_x_(20.0f),
+    grid_size_y_(20.0f),
     dimensions_(10),
-    cell_color_{ 1.0f, 0.0f, 1.0f }
+    pixel_color_{1.0f, 0.2f, 1.0f}
 {
-    CreateGrid();
+    InitializePixelGrid();
 }
 
-void MyGrid::Render2DGrid()
+void MyGrid::RenderGrid() const
 {
-    const int size = dimensions_ * 2 + 1;
-    const GLfloat delta_x = 20.0f / static_cast<GLfloat>(size);
-    const GLfloat delta_y = 20.0f / static_cast<GLfloat>(size);
-    GLfloat range_x = delta_x / 2;
-    GLfloat range_y = delta_y / 2;
-    for (int i = 0; i <= dimensions_; ++i) {
-        glBegin(GL_LINES);
-        glColor3f(1, 1, 1);
-        // row
-        glVertex3f(-10, range_y, 0);
-        glVertex3f(10, range_y, 0);
-        glVertex3f(-10, -range_y, 0);
-        glVertex3f(10, -range_y, 0);
-        // col
-        glVertex3f(range_x, 10, 0);
-        glVertex3f(range_x, -10, 0);
-        glVertex3f(-range_x, 10, 0);
-        glVertex3f(-range_x, -10, 0);
-        glEnd();
-        range_x += delta_x;
-        range_y += delta_y;
-    }
+    const int pixel_grid_size = GetPixelGridSize();
 
-    for (int i = -dimensions_; i <= dimensions_; ++i) {
-        for (int j = -dimensions_; j <= dimensions_; ++j) {
-            const GLfloat left = static_cast<GLfloat>(i) * delta_x - delta_x / 2;
-            const GLfloat right = static_cast<GLfloat>(i) * delta_x + delta_x / 2;
-            const GLfloat up = static_cast<GLfloat>(j) * delta_y - delta_y / 2;
-            const GLfloat down = static_cast<GLfloat>(j) * delta_y + delta_y / 2;
-            if (IsCellFilled(i, j))
-                DrawBox(left, up, right, down);
+    // if dimensions=15, then size=31
+    // do scale from (0)---(31) to (-10)---(10)
+    glPushMatrix();
+    glTranslatef(-grid_size_x_ / 2.0f, -grid_size_y_ / 2.0f, 0);
+    glScalef(grid_size_x_ / static_cast<GLfloat>(pixel_grid_size), grid_size_y_ / static_cast<GLfloat>(pixel_grid_size), 1.0f);
+
+    // draw grid
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i = 0; i <= pixel_grid_size; ++i)
+    {
+        // vertical line
+        glVertex2i(i, 0);
+        glVertex2i(i, pixel_grid_size);
+        // horizontal line
+        glVertex2i(0, i);
+        glVertex2i(pixel_grid_size, i);
+    }
+    glEnd();
+
+    // draw pixel
+    glBegin(GL_QUADS);
+    for (int x = 0; x < pixel_grid_size; ++x)
+    {
+        for (int y = 0; y < pixel_grid_size; ++y)
+        {
+            const bool is_filled = pixel_grid_.at(x + y * pixel_grid_size);
+            if (is_filled)
+            {
+                glColor3f(pixel_color_[0], pixel_color_[1], pixel_color_[2]);
+                glVertex2i(x, y);
+                glVertex2i(x, y + 1);
+                glVertex2i(x + 1, y + 1);
+                glVertex2i(x + 1, y);
+            }
         }
     }
+    glEnd();
+
+    glPopMatrix();
 }
 
 void MyGrid::SetDimension(const int dim)
 {
     dimensions_ = dim;
-    CreateGrid();
+    InitializePixelGrid();
 }
 
-void MyGrid::SetFilledCell(const int x, const int y, const bool filled)
+void MyGrid::SetPixel(int x, int y, const bool is_filled)
 {
-    const int grid_x = x + dimensions_;
-    const int grid_y = y + dimensions_;
-    const int cells_per_row = dimensions_ * 2 + 1;
-    filled_cells_.at(grid_x + grid_y * cells_per_row) = filled;
+    const int pixel_grid_size = GetPixelGridSize();
+    x += dimensions_;
+    y += dimensions_;
+    pixel_grid_.at(x + y * pixel_grid_size) = is_filled;
+}
+
+void MyGrid::SetPixelColor(const Color& color)
+{
+    pixel_color_ = color;
 }
 
 int MyGrid::GetGridDimension() const
@@ -63,40 +79,22 @@ int MyGrid::GetGridDimension() const
     return dimensions_;
 }
 
-void MyGrid::ResetFilledCells()
+int MyGrid::GetPixelGridSize() const
 {
-    CreateGrid();
+    return dimensions_ * 2 + 1;
 }
 
-void MyGrid::SetGridColor(const GLfloat r, const GLfloat g, const GLfloat b)
+void MyGrid::RemoveAllPixel()
 {
-    cell_color_[0] = r;
-    cell_color_[1] = g;
-    cell_color_[2] = b;
+    InitializePixelGrid();
 }
 
-void MyGrid::CreateGrid()
+void MyGrid::InitializePixelGrid()
 {
-    const int size = dimensions_ * 2 + 1;
-    const auto cells = std::vector<bool>(size * size);
-    filled_cells_ = cells;
-}
-
-bool MyGrid::IsCellFilled(const int x, const int y)
-{
-    const int grid_x = x + dimensions_;
-    const int grid_y = y + dimensions_;
-    const int cells_per_row = dimensions_ * 2 + 1;
-    return filled_cells_.at(grid_x + grid_y * cells_per_row);
-}
-
-void MyGrid::DrawBox(const GLfloat x1, const GLfloat y1, const GLfloat x2, const GLfloat y2) const
-{
-    glBegin(GL_QUADS);
-    glColor3f(cell_color_[0], cell_color_[1], cell_color_[2]);
-    glVertex3f(x1, y1, 0.0f);
-    glVertex3f(x2, y1, 0.0f);
-    glVertex3f(x2, y2, 0.0f);
-    glVertex3f(x1, y2, 0.0f);
-    glEnd();
+    const int pixel_grid_size = GetPixelGridSize();
+    pixel_grid_ = std::vector<bool>(pixel_grid_size * pixel_grid_size);
+    for (auto pixel : pixel_grid_)
+    {
+        pixel = false;
+    }
 }
