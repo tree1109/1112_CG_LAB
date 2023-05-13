@@ -183,67 +183,59 @@ void setVertex(int x, int y) {
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
         v1 = { x, y };
-        // TODO: print vertex coordinate with red color
+        printVertexPixelCoordinate("v1", v1);
         currentVertex = CURRENT_VERTEX::V2;
         break;
     case CURRENT_VERTEX::V2:
         v2 = { x, y };
-        // TODO: print vertex coordinate with red color
+        printVertexPixelCoordinate("v2", v2);
         linePainter(v1, v2);
+        if (onDebugMode) printLineRegion("v1v2", v1, v2);
         currentVertex = CURRENT_VERTEX::V3;
         break;
     case CURRENT_VERTEX::V3:
         v3 = { x, y };
-        // TODO: print vertex coordinate with red color
+        printVertexPixelCoordinate("v3", v3);
         linePainter(v2, v3);
+        if (onDebugMode) printLineRegion("v2v3", v2, v3);
         currentVertex = CURRENT_VERTEX::V4;
         break;
     case CURRENT_VERTEX::V4:
         v4 = { x, y };
-        // TODO: print vertex coordinate with red color
+        printVertexPixelCoordinate("v4", v4);
         linePainter(v3, v4);
+        if (onDebugMode) printLineRegion("v3v4", v3, v4);
         linePainter(v4, v1);
-        std::cout << "[info] Line \033[96mv1v2\033[0m region: " << getRegion(v1, v2) << std::endl;
-        std::cout << "[info] Line \033[96mv2v3\033[0m region: " << getRegion(v2, v3) << std::endl;
-        std::cout << "[info] Line \033[96mv3v4\033[0m region: " << getRegion(v3, v4) << std::endl;
-        std::cout << "[info] Line \033[96mv4v1\033[0m region: " << getRegion(v4, v1) << std::endl;
+        if (onDebugMode) printLineRegion("v4v1", v4, v1);
         currentVertex = CURRENT_VERTEX::V1;
         break;
     }
 }
 
 void linePainter(std::array<int, 2> v1, std::array<int, 2> v2) {
-    // color:
+    // line color:
     //    endpoint: red
     //    line: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1], onDebugMode);
 }
 
 int getRegion(std::array<int, 2> v1, std::array<int, 2> v2) {
-    int deltaX = v2[0] - v1[0];
-    int deltaY = v2[1] - v1[1];
-    if (deltaX >= 0 && deltaY >= 0) {
-        if (deltaX >= deltaY)
-            return 1;
-        return 2;
-    }
-    if (deltaX < 0 && deltaY >= 0) {
-        if (-deltaX >= deltaY)
-            return 4;
-        return 3;
-    }
-    if (deltaX < 0 && deltaY < 0) {
-        if (-deltaX >= -deltaY)
-            return 5;
-        return 6;
-    }
-    if (deltaX >= 0 && deltaY < 0) {
-        if (deltaX >= -deltaY)
-            return 8;
-        return 7;
-    }
+    const bool steep = abs(v2[1] - v1[1]) > abs(v2[0] - v1[0]); // is m > 1?
+    const bool isLeft2Right = v1[0] < v2[0];
+    const bool isBottom2Top = v1[1] < v2[1];
 
-    return 0;
+    if (isLeft2Right) {
+        // I
+        if (isBottom2Top)
+            return steep ? 2 : 1;
+        // IV
+        return steep ? 7 : 8;
+    }
+    // II
+    if (isBottom2Top)
+        return steep ? 3 : 4;
+    // III
+    return steep ? 6 : 5;
 }
 
 // Bresenham Algorithm
@@ -265,20 +257,15 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
     const int delta_se = 2 * (dy + dx); // 2* (a-b) for m < 0
     int decision;
 
-    auto printVertex = [&printCoordinate](int x, int y) {
-        if (printCoordinate)
-            std::cout << "[debug] Line pixel: (" << x << ", " << y << ")" << std::endl;
-    };
-
     int x = x1;
     int y = y1;
     if (steep) {
         lineGreenGrid.SetPixel(y, x, true);
-        printVertex(y, x);
+        if (printCoordinate) printLinePixelCoordinate({y, x}, true);
     }
     else {
         lineGreenGrid.SetPixel(x, y, true);
-        printVertex(x, y);
+        if (printCoordinate) printLinePixelCoordinate({x, y}, true);
     }
 
     if (y1>y2) {
@@ -289,11 +276,11 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
                 ++x;
                 if (steep) {
                     lineGreenGrid.SetPixel(y, x, true);
-                    printVertex(y, x);
+                    if (printCoordinate) printLinePixelCoordinate({ y, x }, true);
                 }
                 else {
                     lineGreenGrid.SetPixel(x, y, true);
-                    printVertex(x, y);
+                    if (printCoordinate) printLinePixelCoordinate({ x, y }, true);
                 }
             }
             else {
@@ -302,11 +289,11 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
                 --y;
                 if (steep) {
                     lineBlueGrid.SetPixel(y, x, true);
-                    printVertex(y, x);
+                    if (printCoordinate) printLinePixelCoordinate({ y, x }, false);
                 }
                 else {
                     lineBlueGrid.SetPixel(x, y, true);
-                    printVertex(x, y);
+                    if (printCoordinate) printLinePixelCoordinate({ x, y }, false);
                 }
             }
         }
@@ -319,11 +306,11 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
                 ++x;
                 if (steep) {
                     lineGreenGrid.SetPixel(y, x, true);
-                    printVertex(y, x);
+                    if (printCoordinate) printLinePixelCoordinate({ y, x }, true);
                 }
                 else {
                     lineGreenGrid.SetPixel(x, y, true);
-                    printVertex(x, y);
+                    if (printCoordinate) printLinePixelCoordinate({ x, y }, true);
                 }
             }
             else {
@@ -332,15 +319,33 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
                 ++y;
                 if (steep) {
                     lineBlueGrid.SetPixel(y, x, true);
-                    printVertex(y, x);
+                    if (printCoordinate) printLinePixelCoordinate({ y, x }, false);
                 }
                 else {
                     lineBlueGrid.SetPixel(x, y, true);
-                    printVertex(x, y);
+                    if (printCoordinate) printLinePixelCoordinate({ x, y }, false);
                 }
             }
         }
     }
+}
+
+void printVertexPixelCoordinate(std::string name, std::array<int, 2> vertex)
+{
+    std::cout << "[info] Vertex \033[91m" << name << "\033[0m at \033[91m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
+}
+
+void printLinePixelCoordinate(std::array<int, 2> vertex, bool isE)
+{
+    if (isE)
+        std::cout << "\033[93m[debug]\033[0m Line pixel \033[92mE\033[0m at \033[92m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
+    else
+        std::cout << "\033[93m[debug]\033[0m Line pixel \033[94mNE\033[0m at \033[94m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
+}
+
+void printLineRegion(std::string name, std::array<int, 2> v1, std::array<int, 2> v2)
+{
+    std::cout << "\033[93m[debug]\033[0m Line \033[96m" << name << "\033[0m is \033[96mregion " << getRegion(v1, v2) << "\033[0m" << std::endl;
 }
 
 void setGridDimension(int dim) {
@@ -355,7 +360,7 @@ void switchDebugMode()
 {
     onDebugMode = !onDebugMode;
     if (onDebugMode)
-        std::cout << "[info] Switch to \033[91mDebug Mode\033[0m" << std::endl;
+        std::cout << "[info] Switch to \033[93mDebug Mode\033[0m" << std::endl;
     else
         std::cout << "[info] Switch to \033[92mNormal Mode\033[0m" << std::endl;
     glutPostRedisplay();
