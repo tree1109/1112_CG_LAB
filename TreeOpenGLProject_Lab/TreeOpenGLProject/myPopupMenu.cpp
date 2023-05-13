@@ -72,5 +72,5 @@ void myPopupMenu::ConfigMenu(void)
 
 void myPopupMenu::MessagePrinter(std::string message)
 {
-    std::cout << "[info] \033[32m" << message << "\033[0m." << std::endl;
+    std::cout << "[info] \033[32m" << message << "\033[0m" << std::endl;
 }
