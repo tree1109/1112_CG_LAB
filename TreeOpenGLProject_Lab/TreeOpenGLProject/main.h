@@ -11,12 +11,12 @@ void printMouseWindowCoordinate(int x, int y, bool isDown);
 void setVertex(int x, int y);
 void linePainter(std::array<int, 2> v1, std::array<int, 2> v2);
 int getRegion(std::array<int, 2> v1, std::array<int, 2> v2);
-void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate);
+void midpointAlgorithm(int x1, int y1, int x2, int y2);
 
 // message printer
-void printVertexPixelCoordinate(std::string name, std::array<int, 2> vertex);
+void printVertexPixelCoordinate(const std::string& name, std::array<int, 2> vertex);
 void printLinePixelCoordinate(std::array<int, 2> vertex, bool isE);
-void printLineRegion(std::string name, std::array<int, 2> v1, std::array<int, 2> v2);
+void printLineRegion(const std::string& name, std::array<int, 2> v1, std::array<int, 2> v2);
 
 // for popup menu
 void setGridDimension(int dim);
