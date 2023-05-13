@@ -257,13 +257,10 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
         }
     };
 
-    // draw first pixel
-    drawPixel(true);
-
     // top to bottom
     if (y1 > y2) {
         decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
-        while (x < x2) {
+        while (x < x2 - 1) {
             if (decision >= 0) {
                 // E
                 decision += deltaE;
@@ -282,7 +279,7 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     // bottom to top
     else {
         decision = 2 * dy - dx; // 2* (a+b/2) for m >= 0
-        while (x < x2) {
+        while (x < x2 - 1) {
             if (decision <= 0) {
                 // E
                 decision += deltaE;
