@@ -101,8 +101,10 @@ void myKeyboard(unsigned char key, int x, int y)
     switch (key)
     {
     case 'r':
-        // reset
-        // TODO: clear grid filled cell
+        // clean all pixels
+        vertexGrid.RemoveAllPixel();
+        lineGrid.RemoveAllPixel();
+        currentVertex = CURRENT_VERTEX::V1;
         break;
     default:
         break;
