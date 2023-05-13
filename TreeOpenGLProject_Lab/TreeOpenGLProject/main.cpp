@@ -176,46 +176,42 @@ void setVertex(int x, int y) {
         vertexGrid.RemoveAllPixel();
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
-        v1[0] = x;
-        v1[1] = y;
+        v1 = { x, y };
         currentVertex = CURRENT_VERTEX::V2;
         break;
     case CURRENT_VERTEX::V2:
-        v2[0] = x;
-        v2[1] = y;
+        v2 = { x, y };
         currentVertex = CURRENT_VERTEX::V3;
-        linePainter(v1[0], v1[1], v2[0], v2[1]);
+        linePainter(v1, v2);
         break;
     case CURRENT_VERTEX::V3:
-        v3[0] = x;
-        v3[1] = y;
+        v3 = { x, y };
         currentVertex = CURRENT_VERTEX::V4;
-        linePainter(v2[0], v2[1], v3[0], v3[1]);
+        linePainter(v2, v3);
         break;
     case CURRENT_VERTEX::V4:
-        v4[0] = x;
-        v4[1] = y;
+        v4 = { x, y };
         currentVertex = CURRENT_VERTEX::V1;
-        linePainter(v3[0], v3[1], v4[0], v4[1]);
-        linePainter(v4[0], v4[1], v1[0], v1[1]);
-        std::cout << "[info] Line \033[96mv1v2\033[0m region: " << getRegion(v1[0], v1[1], v2[0], v2[1]) << std::endl;
-        std::cout << "[info] Line \033[96mv2v3\033[0m region: " << getRegion(v2[0], v2[1], v3[0], v3[1]) << std::endl;
-        std::cout << "[info] Line \033[96mv3v4\033[0m region: " << getRegion(v3[0], v3[1], v4[0], v4[1]) << std::endl;
-        std::cout << "[info] Line \033[96mv4v1\033[0m region: " << getRegion(v4[0], v4[1], v1[0], v1[1]) << std::endl;
+        linePainter(v3, v4);
+        linePainter(v4, v1);
+        std::cout << "[info] Line \033[96mv1v2\033[0m region: " << getRegion(v1, v2) << std::endl;
+        std::cout << "[info] Line \033[96mv2v3\033[0m region: " << getRegion(v2, v3) << std::endl;
+        std::cout << "[info] Line \033[96mv3v4\033[0m region: " << getRegion(v3, v4) << std::endl;
+        std::cout << "[info] Line \033[96mv4v1\033[0m region: " << getRegion(v4, v1) << std::endl;
         break;
     }
 }
 
-void linePainter(int x1, int y1, int x2, int y2) {
+void linePainter(std::array<int, 2> v1, std::array<int, 2> v2) {
     // color:
     //    endpoint: red
     //    line: green(E) or blue(NE)
-    midpointAlgorithm(x1, y1, x2, y2);
+    midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
 }
 
-int getRegion(int x1, int y1, int x2, int y2) {
-    int deltaX = x2 - x1;
-    int deltaY = y2 - y1;
+int getRegion(std::array<int, 2> v1, std::array<int, 2> v2) {
+    int deltaX = v2[0] - v1[0];
+    int deltaY = v2[1] - v1[1];
     if (deltaX >= 0 && deltaY >= 0) {
         if (deltaX >= deltaY)
             return 1;
