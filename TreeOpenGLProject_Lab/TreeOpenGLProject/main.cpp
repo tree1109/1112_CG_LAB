@@ -149,7 +149,7 @@ void myMouse(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-            printMouseWindowCoordinate(gridX, gridY, true);
+            //printMouseWindowCoordinate(gridX, gridY, true);
             setVertex(gridX, gridY);
             vertexGrid.SetPixel(gridX, gridY, true);
         } else if (state == GLUT_UP) {
@@ -183,27 +183,31 @@ void setVertex(int x, int y) {
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
         v1 = { x, y };
+        // TODO: print vertex coordinate with red color
         currentVertex = CURRENT_VERTEX::V2;
         break;
     case CURRENT_VERTEX::V2:
         v2 = { x, y };
-        currentVertex = CURRENT_VERTEX::V3;
+        // TODO: print vertex coordinate with red color
         linePainter(v1, v2);
+        currentVertex = CURRENT_VERTEX::V3;
         break;
     case CURRENT_VERTEX::V3:
         v3 = { x, y };
-        currentVertex = CURRENT_VERTEX::V4;
+        // TODO: print vertex coordinate with red color
         linePainter(v2, v3);
+        currentVertex = CURRENT_VERTEX::V4;
         break;
     case CURRENT_VERTEX::V4:
         v4 = { x, y };
-        currentVertex = CURRENT_VERTEX::V1;
+        // TODO: print vertex coordinate with red color
         linePainter(v3, v4);
         linePainter(v4, v1);
         std::cout << "[info] Line \033[96mv1v2\033[0m region: " << getRegion(v1, v2) << std::endl;
         std::cout << "[info] Line \033[96mv2v3\033[0m region: " << getRegion(v2, v3) << std::endl;
         std::cout << "[info] Line \033[96mv3v4\033[0m region: " << getRegion(v3, v4) << std::endl;
         std::cout << "[info] Line \033[96mv4v1\033[0m region: " << getRegion(v4, v1) << std::endl;
+        currentVertex = CURRENT_VERTEX::V1;
         break;
     }
 }
@@ -347,8 +351,12 @@ void setGridDimension(int dim) {
     glutPostRedisplay();
 }
 
-void setGridDebugMode(bool isOn)
+void switchDebugMode()
 {
-    onDebugMode = isOn;
+    onDebugMode = !onDebugMode;
+    if (onDebugMode)
+        std::cout << "[info] Switch to \033[91mDebug Mode\033[0m" << std::endl;
+    else
+        std::cout << "[info] Switch to \033[92mNormal Mode\033[0m" << std::endl;
     glutPostRedisplay();
 }

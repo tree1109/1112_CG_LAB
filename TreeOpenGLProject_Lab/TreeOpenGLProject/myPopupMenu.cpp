@@ -12,20 +12,10 @@ void myPopupMenu::CreatePopupMenu(void)
 
 void myPopupMenu::MainMenu(int option)
 {
-    static bool isDebugMode = false;
-
     switch (option)
     {
     case OPT_1:
-        if (isDebugMode) {
-            isDebugMode = false;
-            setGridDebugMode(false);
-            MessagePrinter("Switch to Normal Mode");
-        } else {
-            isDebugMode = true;
-            setGridDebugMode(true);
-            MessagePrinter("Switch to Debug Mode");
-        }
+        switchDebugMode();
         break;
     case OPT_2:
         MessagePrinter("cat is cutest");

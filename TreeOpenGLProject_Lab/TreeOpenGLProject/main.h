@@ -15,4 +15,4 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate);
 
 // for popup menu
 void setGridDimension(int dim);
-void setGridDebugMode(bool onDebugMode);
+void switchDebugMode();
