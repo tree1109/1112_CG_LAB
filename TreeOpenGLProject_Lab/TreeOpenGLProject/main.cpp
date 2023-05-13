@@ -20,6 +20,10 @@ std::array<int, 2> v2 = {3,-3};
 std::array<int, 2> v3 = {-3,-3};
 std::array<int, 2> v4 = {-3,3};
 
+// Normal mode 顯示所有點下去紅點
+// Debug mode 顯示連起來的線
+bool onDebugMode = false;
+
 enum class CURRENT_VERTEX
 {
     V1,
@@ -75,8 +79,10 @@ void RenderScene()
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
     vertexGrid.RenderGrid();
-    lineGreenGrid.RenderGrid();
-    lineBlueGrid.RenderGrid();
+    if (onDebugMode) {
+        lineGreenGrid.RenderGrid();
+        lineBlueGrid.RenderGrid();
+    }
 
     glutSwapBuffers();
 }
@@ -206,7 +212,7 @@ void linePainter(std::array<int, 2> v1, std::array<int, 2> v2) {
     // color:
     //    endpoint: red
     //    line: green(E) or blue(NE)
-    midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
+    midpointAlgorithm(v1[0], v1[1], v2[0], v2[1], onDebugMode);
 }
 
 int getRegion(std::array<int, 2> v1, std::array<int, 2> v2) {
@@ -237,7 +243,7 @@ int getRegion(std::array<int, 2> v1, std::array<int, 2> v2) {
 }
 
 // Bresenham Algorithm
-void midpointAlgorithm(int x1, int y1, int x2, int y2)
+void midpointAlgorithm(int x1, int y1, int x2, int y2, bool printCoordinate)
 {
     const bool steep = abs(y2 - y1) > abs(x2 - x1);
     if (steep) {
@@ -255,10 +261,21 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     const int delta_se = 2 * (dy + dx); // 2* (a-b) for m < 0
     int decision;
 
+    auto printVertex = [&printCoordinate](int x, int y) {
+        if (printCoordinate)
+            std::cout << "[debug] Line pixel: (" << x << ", " << y << ")" << std::endl;
+    };
+
     int x = x1;
     int y = y1;
-    if (steep) lineGreenGrid.SetPixel(y, x, true);
-    else lineGreenGrid.SetPixel(x, y, true);
+    if (steep) {
+        lineGreenGrid.SetPixel(y, x, true);
+        printVertex(y, x);
+    }
+    else {
+        lineGreenGrid.SetPixel(x, y, true);
+        printVertex(x, y);
+    }
 
     if (y1>y2) {
         decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
@@ -266,15 +283,27 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
             if (decision > 0) {
                 decision += delta_e;
                 ++x;
-                if (steep) lineGreenGrid.SetPixel(y, x, true);
-                else lineGreenGrid.SetPixel(x, y, true);
+                if (steep) {
+                    lineGreenGrid.SetPixel(y, x, true);
+                    printVertex(y, x);
+                }
+                else {
+                    lineGreenGrid.SetPixel(x, y, true);
+                    printVertex(x, y);
+                }
             }
             else {
                 decision += delta_se;
                 ++x;
                 --y;
-                if (steep) lineBlueGrid.SetPixel(y, x, true);
-                else lineBlueGrid.SetPixel(x, y, true);
+                if (steep) {
+                    lineBlueGrid.SetPixel(y, x, true);
+                    printVertex(y, x);
+                }
+                else {
+                    lineBlueGrid.SetPixel(x, y, true);
+                    printVertex(x, y);
+                }
             }
         }
     }
@@ -284,15 +313,27 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
             if (decision <= 0) {
                 decision += delta_e;
                 ++x;
-                if (steep) lineGreenGrid.SetPixel(y, x, true);
-                else lineGreenGrid.SetPixel(x, y, true);
+                if (steep) {
+                    lineGreenGrid.SetPixel(y, x, true);
+                    printVertex(y, x);
+                }
+                else {
+                    lineGreenGrid.SetPixel(x, y, true);
+                    printVertex(x, y);
+                }
             }
             else {
                 decision += delta_ne;
                 ++x;
                 ++y;
-                if (steep) lineBlueGrid.SetPixel(y, x, true);
-                else lineBlueGrid.SetPixel(x, y, true);
+                if (steep) {
+                    lineBlueGrid.SetPixel(y, x, true);
+                    printVertex(y, x);
+                }
+                else {
+                    lineBlueGrid.SetPixel(x, y, true);
+                    printVertex(x, y);
+                }
             }
         }
     }
@@ -303,5 +344,11 @@ void setGridDimension(int dim) {
     lineGreenGrid.SetDimension(dim);
     lineBlueGrid.SetDimension(dim);
     currentVertex = CURRENT_VERTEX::V1;
+    glutPostRedisplay();
+}
+
+void setGridDebugMode(bool isOn)
+{
+    onDebugMode = isOn;
     glutPostRedisplay();
 }

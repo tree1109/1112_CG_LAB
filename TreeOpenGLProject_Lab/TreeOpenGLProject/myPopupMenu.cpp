@@ -12,19 +12,19 @@ void myPopupMenu::CreatePopupMenu(void)
 
 void myPopupMenu::MainMenu(int option)
 {
-    static bool isNormalMode = true;
+    static bool isDebugMode = false;
 
     switch (option)
     {
     case OPT_1:
-        if (isNormalMode) {
-            // TODO: switch to debug mode
-            isNormalMode = false;
-            MessagePrinter("Switch to Debug Mode");
-        } else {
-            // TODO: switch to normal mode
-            isNormalMode = true;
+        if (isDebugMode) {
+            isDebugMode = false;
+            setGridDebugMode(false);
             MessagePrinter("Switch to Normal Mode");
+        } else {
+            isDebugMode = true;
+            setGridDebugMode(true);
+            MessagePrinter("Switch to Debug Mode");
         }
         break;
     case OPT_2:
