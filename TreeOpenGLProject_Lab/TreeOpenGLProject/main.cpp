@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <iomanip>
+#include <array>
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
@@ -11,12 +12,13 @@
 // ~~~key map~~~
 
 MyGrid vertexGrid;
-MyGrid lineGrid;
+MyGrid lineGreenGrid; // for E
+MyGrid lineBlueGrid;  // for NE
 
-int v1[] = {3,3};
-int v2[] = {3,-3};
-int v3[] = {-3,-3};
-int v4[] = {-3,3};
+std::array<int, 2> v1 = {3,3};
+std::array<int, 2> v2 = {3,-3};
+std::array<int, 2> v3 = {-3,-3};
+std::array<int, 2> v4 = {-3,3};
 
 enum class CURRENT_VERTEX
 {
@@ -46,8 +48,9 @@ int main(int argc, char** argv)
     myPopupMenu::CreatePopupMenu();
 
     // set grid color
-    vertexGrid.SetPixelColor({1.0f, 0.2f, 0.2f});
-    lineGrid.SetPixelColor({0.2f, 1.0f, 0.2f});
+    vertexGrid.SetPixelColor({1.0f, 0.5f, 0.5f});
+    lineGreenGrid.SetPixelColor({ 0.5f, 1.0f, 0.5f });
+    lineBlueGrid.SetPixelColor({0.5f, 0.5f, 1.0f});
 
     glutMainLoop();
     return 0;
@@ -71,8 +74,9 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
-    lineGrid.RenderGrid();
     vertexGrid.RenderGrid();
+    lineGreenGrid.RenderGrid();
+    lineBlueGrid.RenderGrid();
 
     glutSwapBuffers();
 }
@@ -103,7 +107,8 @@ void myKeyboard(unsigned char key, int x, int y)
     case 'r':
         // clean all pixels
         vertexGrid.RemoveAllPixel();
-        lineGrid.RemoveAllPixel();
+        lineGreenGrid.RemoveAllPixel();
+        lineBlueGrid.RemoveAllPixel();
         currentVertex = CURRENT_VERTEX::V1;
         break;
     default:
@@ -138,11 +143,11 @@ void myMouse(int button, int state, int x, int y)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
+            printMouseWindowCoordinate(gridX, gridY, true);
             setVertex(gridX, gridY);
             vertexGrid.SetPixel(gridX, gridY, true);
-            printMouseWindowCoordinate(gridX, gridY, true);
         } else if (state == GLUT_UP) {
-            printMouseWindowCoordinate(gridX, gridY, false);
+            //printMouseWindowCoordinate(gridX, gridY, false);
         }
         break;
     default:
@@ -169,7 +174,8 @@ void setVertex(int x, int y) {
     {
     case CURRENT_VERTEX::V1:
         vertexGrid.RemoveAllPixel();
-        lineGrid.RemoveAllPixel();
+        lineGreenGrid.RemoveAllPixel();
+        lineBlueGrid.RemoveAllPixel();
         v1[0] = x;
         v1[1] = y;
         currentVertex = CURRENT_VERTEX::V2;
@@ -192,6 +198,10 @@ void setVertex(int x, int y) {
         currentVertex = CURRENT_VERTEX::V1;
         linePainter(v3[0], v3[1], v4[0], v4[1]);
         linePainter(v4[0], v4[1], v1[0], v1[1]);
+        std::cout << "[info] Line \033[96mv1v2\033[0m region: " << getRegion(v1[0], v1[1], v2[0], v2[1]) << std::endl;
+        std::cout << "[info] Line \033[96mv2v3\033[0m region: " << getRegion(v2[0], v2[1], v3[0], v3[1]) << std::endl;
+        std::cout << "[info] Line \033[96mv3v4\033[0m region: " << getRegion(v3[0], v3[1], v4[0], v4[1]) << std::endl;
+        std::cout << "[info] Line \033[96mv4v1\033[0m region: " << getRegion(v4[0], v4[1], v1[0], v1[1]) << std::endl;
         break;
     }
 }
@@ -200,11 +210,6 @@ void linePainter(int x1, int y1, int x2, int y2) {
     // color:
     //    endpoint: red
     //    line: green(E) or blue(NE)
-
-    // get region
-    int region = getRegion(x1, y1, x2, y2);
-
-
     midpointAlgorithm(x1, y1, x2, y2);
 }
 
@@ -217,17 +222,17 @@ int getRegion(int x1, int y1, int x2, int y2) {
         return 2;
     }
     if (deltaX < 0 && deltaY >= 0) {
-        if (abs(deltaX) >= deltaY)
+        if (-deltaX >= deltaY)
             return 4;
         return 3;
     }
     if (deltaX < 0 && deltaY < 0) {
-        if (abs(deltaX) >= abs(deltaY))
+        if (-deltaX >= -deltaY)
             return 5;
         return 6;
     }
     if (deltaX >= 0 && deltaY < 0) {
-        if (deltaX >= abs(deltaY))
+        if (deltaX >= -deltaY)
             return 8;
         return 7;
     }
@@ -235,32 +240,72 @@ int getRegion(int x1, int y1, int x2, int y2) {
     return 0;
 }
 
+// Bresenham Algorithm
 void midpointAlgorithm(int x1, int y1, int x2, int y2)
 {
-    int dx = x2 - x1;
-    int dy = y2 - y1;
-    int d = 2 * dy - dx;
-    int deltaE = 2 * dy;
-    int deltaNE = 2 * (dy - dx);
+    const bool steep = abs(y2 - y1) > abs(x2 - x1);
+    if (steep) {
+        std::swap(x1, y1);
+        std::swap(x2, y2);
+    }
+    if (x1 > x2) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
+    const int dx = x2 - x1;
+    const int dy = y2 - y1;
+    const int delta_e = 2 * dy;         // 2* (a)
+    const int delta_ne = 2 * (dy - dx); // 2* (a+b) for m >= 0
+    const int delta_se = 2 * (dy + dx); // 2* (a-b) for m < 0
+    int decision;
+
     int x = x1;
     int y = y1;
-    lineGrid.SetPixel(x, y, true);
-    while (x < x2) {
-        if (d <= 0) {
-            d += deltaE;
-            x = x + 1;
+    if (steep) lineGreenGrid.SetPixel(y, x, true);
+    else lineGreenGrid.SetPixel(x, y, true);
+
+    if (y1>y2) {
+        decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
+        while (x < x2) {
+            if (decision > 0) {
+                decision += delta_e;
+                ++x;
+                if (steep) lineGreenGrid.SetPixel(y, x, true);
+                else lineGreenGrid.SetPixel(x, y, true);
+            }
+            else {
+                decision += delta_se;
+                ++x;
+                --y;
+                if (steep) lineBlueGrid.SetPixel(y, x, true);
+                else lineBlueGrid.SetPixel(x, y, true);
+            }
         }
-        else {
-            d += deltaNE;
-            x = x + 1;
-            y = y + 1;
+    }
+    else {
+        decision = 2 * dy - dx; // 2* (a+b/2) for m >= 0
+        while (x < x2) {
+            if (decision <= 0) {
+                decision += delta_e;
+                ++x;
+                if (steep) lineGreenGrid.SetPixel(y, x, true);
+                else lineGreenGrid.SetPixel(x, y, true);
+            }
+            else {
+                decision += delta_ne;
+                ++x;
+                ++y;
+                if (steep) lineBlueGrid.SetPixel(y, x, true);
+                else lineBlueGrid.SetPixel(x, y, true);
+            }
         }
-        lineGrid.SetPixel(x, y, true);
     }
 }
 
 void setGridDimension(int dim) {
     vertexGrid.SetDimension(dim);
-    lineGrid.SetDimension(dim);
+    lineGreenGrid.SetDimension(dim);
+    lineBlueGrid.SetDimension(dim);
+    currentVertex = CURRENT_VERTEX::V1;
     glutPostRedisplay();
 }
