@@ -3,7 +3,7 @@
 #include <array>
 #include "GL/freeglut.h"
 
-typedef std::array<GLfloat, 3> Color;
+using Color = std::array<GLfloat, 3>;
 
 class MyGrid
 {

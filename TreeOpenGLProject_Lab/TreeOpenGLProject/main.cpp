@@ -14,23 +14,16 @@ MyGrid vertexGrid;
 MyGrid lineGreenGrid; // for E
 MyGrid lineBlueGrid;  // for NE
 
-std::array<int, 2> v1 = {3,3};
-std::array<int, 2> v2 = {3,-3};
-std::array<int, 2> v3 = {-3,-3};
-std::array<int, 2> v4 = {-3,3};
+Vertex v1 = {3,3};
+Vertex v2 = {3,-3};
+Vertex v3 = {-3,-3};
+Vertex v4 = {-3,3};
 
-// Normal mode 顯示所有點下去紅點
-// Debug mode 顯示連起來的線
+// Normal mode: only show vertex
+// Debug mode: show vertex and line
 bool onDebugMode = false;
 
 // FSM for setting vertex
-enum class CURRENT_VERTEX
-{
-    V1,
-    V2,
-    V3,
-    V4
-};
 CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
 
 int main(int argc, char** argv)
@@ -137,22 +130,17 @@ void myMouse(const int button, const int state, const int x, const int y)
     // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
     // 
     // transform screen coordinate to world coordinate
-    GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
-    GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
-    GLfloat halfOfCellSize = 0.5f;
-    GLfloat translateToGrid = vertexGrid.GetGridDimension() + halfOfCellSize;
-    int gridX = static_cast<int>(round(clipX * translateToGrid));
-    int gridY = static_cast<int>(round(clipY * translateToGrid));
-
+    const GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
+    const GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
+    const GLfloat halfOfCellSize = 0.5f;
+    const GLfloat translateToGrid = static_cast<GLfloat>(vertexGrid.GetGridDimension()) + halfOfCellSize;
+    const int gridX = static_cast<int>(round(clipX * translateToGrid));
+    const int gridY = static_cast<int>(round(clipY * translateToGrid));
     switch (button)
     {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
-            //printMouseWindowCoordinate(gridX, gridY, true);
             setVertex(gridX, gridY);
-            vertexGrid.SetPixel(gridX, gridY, true);
-        } else if (state == GLUT_UP) {
-            //printMouseWindowCoordinate(gridX, gridY, false);
         }
         break;
     default:
@@ -170,44 +158,47 @@ void setVertex(const int x, const int y)
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
         v1 = { x, y };
-        printVertexPixelCoordinate("v1", v1);
+        vertexPainter(v1, "v1");
         currentVertex = CURRENT_VERTEX::V2;
         break;
     case CURRENT_VERTEX::V2:
         v2 = { x, y };
-        printVertexPixelCoordinate("v2", v2);
-        linePainter(v1, v2);
-        if (onDebugMode) printLineRegion("v1v2", v1, v2);
+        vertexPainter(v2, "v2");
+        linePainter(v1, v2, "v1v2");
         currentVertex = CURRENT_VERTEX::V3;
         break;
     case CURRENT_VERTEX::V3:
         v3 = { x, y };
-        printVertexPixelCoordinate("v3", v3);
-        linePainter(v2, v3);
-        if (onDebugMode) printLineRegion("v2v3", v2, v3);
+        vertexPainter(v3, "v3");
+        linePainter(v2, v3, "v2v3");
         currentVertex = CURRENT_VERTEX::V4;
         break;
     case CURRENT_VERTEX::V4:
         v4 = { x, y };
-        printVertexPixelCoordinate("v4", v4);
-        linePainter(v3, v4);
-        if (onDebugMode) printLineRegion("v3v4", v3, v4);
-        linePainter(v4, v1);
-        if (onDebugMode) printLineRegion("v4v1", v4, v1);
+        vertexPainter(v4,"v4");
+        linePainter(v3, v4, "v3v4");
+        linePainter(v4, v1, "v4v1");
         currentVertex = CURRENT_VERTEX::V1;
         break;
     }
 }
 
-void linePainter(const std::array<int, 2> v1, const std::array<int, 2> v2)
+void vertexPainter(const Vertex& v, const std::string& name)
+{
+    vertexGrid.SetPixel(v[0], v[1], true);
+    printVertexPixelCoordinate(v, name);
+}
+
+void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 {
     // line color:
     //    endpoint: red
     //    line: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
+    if (onDebugMode) printLineRegion(v1, v2, name);
 }
 
-int getRegion(const std::array<int, 2> v1, const std::array<int, 2> v2)
+int getRegion(const Vertex& v1, const Vertex& v2)
 {
     const bool steep = abs(v2[1] - v1[1]) > abs(v2[0] - v1[0]); // is m > 1?
     const bool isLeft2Right = v1[0] < v2[0];
@@ -258,12 +249,12 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
         if (steep) {
             if (isE) lineGreenGrid.SetPixel(y, x, true);
             else lineBlueGrid.SetPixel(y, x, true);
-            if (onDebugMode) printLinePixelCoordinate({ y, x }, true);
+            if (onDebugMode) printLinePixelCoordinate({ y, x }, isE);
         }
         else {
             if (isE) lineGreenGrid.SetPixel(x, y, true);
             else lineBlueGrid.SetPixel(x, y, true);
-            if (onDebugMode) printLinePixelCoordinate({ x, y }, true);
+            if (onDebugMode) printLinePixelCoordinate({ x, y }, isE);
         }
     };
 
@@ -311,12 +302,12 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
 }
 
 // message printer
-void printVertexPixelCoordinate(const std::string& name, const std::array<int, 2>& vertex)
+void printVertexPixelCoordinate(const Vertex& vertex, const std::string& name)
 {
     std::cout << "[info] Vertex \033[91m" << name << "\033[0m at \033[91m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
 }
 
-void printLinePixelCoordinate(const std::array<int, 2>& vertex, const bool isE)
+void printLinePixelCoordinate(const Vertex& vertex, const bool isE)
 {
     if (isE)
         std::cout << "\033[93m[debug]\033[0m Line pixel \033[92mE\033[0m at \033[92m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
@@ -324,7 +315,7 @@ void printLinePixelCoordinate(const std::array<int, 2>& vertex, const bool isE)
         std::cout << "\033[93m[debug]\033[0m Line pixel \033[94mNE\033[0m at \033[94m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
 }
 
-void printLineRegion(const std::string& name, const std::array<int, 2>& v1, const std::array<int, 2>& v2)
+void printLineRegion(const Vertex& v1, const Vertex& v2, const std::string& name)
 {
     std::cout << "\033[93m[debug]\033[0m Line \033[96m" << name << "\033[0m is \033[96mregion " << getRegion(v1, v2) << "\033[0m" << std::endl;
 }
