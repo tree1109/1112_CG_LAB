@@ -185,15 +185,14 @@ void setVertex(const int x, const int y)
 
 void vertexPainter(const Vertex& v, const std::string& name)
 {
+    // vertex color: red
     vertexGrid.SetPixel(v[0], v[1], true);
     printVertexPixelCoordinate(v, name);
 }
 
 void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 {
-    // line color:
-    //    endpoint: red
-    //    line: green(E) or blue(NE)
+    // line color: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
     if (onDebugMode) printLineRegion(v1, v2, name);
 }
