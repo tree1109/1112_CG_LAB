@@ -18,8 +18,11 @@ void myMouse(int button, int state, int x, int y);
 void setVertex(int x, int y);
 void vertexPainter(const Vertex& v, const std::string& name);
 void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name);
+void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name);
 int getRegion(const Vertex& v1, const Vertex& v2);
 void midpointAlgorithm(int x1, int y1, int x2, int y2);
+void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3);
+
 
 // message printer
 void printVertexPixelCoordinate(const Vertex& vertex, const std::string& name);

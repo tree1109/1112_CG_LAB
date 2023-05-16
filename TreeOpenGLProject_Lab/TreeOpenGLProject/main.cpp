@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include <array>
+#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
@@ -13,6 +14,7 @@
 MyGrid vertexGrid;
 MyGrid lineGreenGrid; // for E
 MyGrid lineBlueGrid;  // for NE
+MyGrid faceGrid;
 
 Vertex v1 = {3,3};
 Vertex v2 = {3,-3};
@@ -46,6 +48,7 @@ int main(int argc, char** argv)
     vertexGrid.SetPixelColor({1.0f, 0.5f, 0.5f});
     lineGreenGrid.SetPixelColor({ 0.5f, 1.0f, 0.5f });
     lineBlueGrid.SetPixelColor({0.5f, 0.5f, 1.0f});
+    faceGrid.SetPixelColor({ 1.0f,1.0f,0.5f });
 
     glutMainLoop();
     return 0;
@@ -73,6 +76,7 @@ void RenderScene()
     if (onDebugMode) {
         lineGreenGrid.RenderGrid();
         lineBlueGrid.RenderGrid();
+        faceGrid.RenderGrid();
     }
 
     glutSwapBuffers();
@@ -106,6 +110,7 @@ void myKeyboard(const unsigned char key, int x, int y)
         vertexGrid.RemoveAllPixel();
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
+        faceGrid.RemoveAllPixel();
         currentVertex = CURRENT_VERTEX::V1;
         break;
     default:
@@ -156,6 +161,7 @@ void setVertex(const int x, const int y)
         vertexGrid.RemoveAllPixel();
         lineGreenGrid.RemoveAllPixel();
         lineBlueGrid.RemoveAllPixel();
+        faceGrid.RemoveAllPixel();
         v1 = { x, y };
         vertexPainter(v1, "v1");
         currentVertex = CURRENT_VERTEX::V2;
@@ -171,6 +177,7 @@ void setVertex(const int x, const int y)
         vertexPainter(v3, "v3");
         linePainter(v2, v3, "v2v3");
         linePainter(v3, v1, "v3v1");
+        facePainter(v1, v2, v3, "v1v2v3");
         currentVertex = CURRENT_VERTEX::V1;
         break;
     }
@@ -188,6 +195,11 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
     // line color: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
     if (onDebugMode) printLineRegion(v1, v2, name);
+}
+
+void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
+{
+    halfSpaceTest(v1, v2, v3);
 }
 
 int getRegion(const Vertex& v1, const Vertex& v2)
@@ -290,6 +302,52 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     }
 }
 
+// TODO: dirty
+void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
+{
+    // get bounding box
+    int xMin = std::min({ v1[0], v2[0], v3[0] });
+    int xMax = std::max({ v1[0], v2[0], v3[0] });
+    int yMin = std::min({ v1[1], v2[1], v3[1] });
+    int yMax = std::max({ v1[1], v2[1], v3[1] });
+
+    // equation
+    auto lineEquation = [&](const Vertex& v1, const Vertex& v2, int x, int y) -> float
+    {
+        int a = v2[1] - v1[1];
+        int b = v1[0] - v2[0];
+        int c = v2[0] * v1[1] - v2[1] * v1[0];
+        return a * x + b * y + c;
+    };
+
+    int a1 = v2[1] - v1[1];
+    int a2 = v3[1] - v2[1];
+    int a3 = v1[1] - v3[1];
+    int b1 = v1[0] - v2[0];
+    int b2 = v2[0] - v3[0];
+    int b3 = v3[0] - v1[0];
+    float e1 = lineEquation(v1, v2, xMin, yMin);
+    float e2 = lineEquation(v2, v3, xMin, yMin);
+    float e3 = lineEquation(v3, v1, xMin, yMin);
+    int xDim = xMax - xMin + 1;
+
+    // draw pixel
+    for (int y = yMin; y <= yMax; ++y) {
+        for (int x = xMin; x <= xMax; ++x) {
+            if (e1 < 0 && e2 < 0 && e3 < 0) {
+                faceGrid.SetPixel(x, y, true);
+            }
+            e1 += a1;
+            e2 += a2;
+            e3 += a3;
+        }
+        e1 += -xDim * a1 + b1;
+        e2 += -xDim * a2 + b2;
+        e3 += -xDim * a3 + b3;
+    }
+
+}
+
 // message printer
 void printVertexPixelCoordinate(const Vertex& vertex, const std::string& name)
 {
@@ -315,6 +373,7 @@ void setGridDimension(const int dim)
     vertexGrid.SetDimension(dim);
     lineGreenGrid.SetDimension(dim);
     lineBlueGrid.SetDimension(dim);
+    faceGrid.SetDimension(dim);
     currentVertex = CURRENT_VERTEX::V1;
     glutPostRedisplay();
 }
