@@ -17,7 +17,6 @@ MyGrid lineBlueGrid;  // for NE
 Vertex v1 = {3,3};
 Vertex v2 = {3,-3};
 Vertex v3 = {-3,-3};
-Vertex v4 = {-3,3};
 
 // Normal mode: only show vertex
 // Debug mode: show vertex and line
@@ -171,13 +170,7 @@ void setVertex(const int x, const int y)
         v3 = { x, y };
         vertexPainter(v3, "v3");
         linePainter(v2, v3, "v2v3");
-        currentVertex = CURRENT_VERTEX::V4;
-        break;
-    case CURRENT_VERTEX::V4:
-        v4 = { x, y };
-        vertexPainter(v4,"v4");
-        linePainter(v3, v4, "v3v4");
-        linePainter(v4, v1, "v4v1");
+        linePainter(v3, v1, "v3v1");
         currentVertex = CURRENT_VERTEX::V1;
         break;
     }

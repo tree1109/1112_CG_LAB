@@ -6,8 +6,7 @@ enum class CURRENT_VERTEX
 {
     V1,
     V2,
-    V3,
-    V4
+    V3
 };
 
 // function prototypes
