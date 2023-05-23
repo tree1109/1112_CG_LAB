@@ -23,6 +23,8 @@ int getRegion(const Vertex& v1, const Vertex& v2);
 void midpointAlgorithm(int x1, int y1, int x2, int y2);
 void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3);
 
+// animation
+void myTimer(int index);
 
 // message printer
 void printVertexPixelCoordinate(const Vertex& vertex, const std::string& name);

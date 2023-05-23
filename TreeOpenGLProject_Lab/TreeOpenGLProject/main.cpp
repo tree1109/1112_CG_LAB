@@ -27,6 +27,13 @@ bool onDebugMode = false;
 // FSM for setting vertex
 CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
 
+// pixels needs to be rendered 
+std::vector<Vertex> renderPixel = {};
+
+// animation
+const int TIME_INTERVAL = 13;
+bool isRendering = false;
+
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -200,6 +207,16 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
 {
     halfSpaceTest(v1, v2, v3);
+    if (!isRendering) 
+    {
+        // start rendering
+        isRendering = true;
+        glutTimerFunc(TIME_INTERVAL, myTimer, 0);
+    }
+    else
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+    }
 }
 
 int getRegion(const Vertex& v1, const Vertex& v2)
@@ -302,7 +319,6 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     }
 }
 
-// TODO: dirty
 void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
 {
     // get bounding box
@@ -317,7 +333,7 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
         int a = v2[1] - v1[1];
         int b = v1[0] - v2[0];
         int c = v2[0] * v1[1] - v2[1] * v1[0];
-        return a * x + b * y + c;
+        return static_cast<float>(a * x + b * y + c);
     };
 
     int a1 = v2[1] - v1[1];
@@ -335,7 +351,8 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
     for (int y = yMin; y <= yMax; ++y) {
         for (int x = xMin; x <= xMax; ++x) {
             if (e1 < 0 && e2 < 0 && e3 < 0) {
-                faceGrid.SetPixel(x, y, true);
+                // push to list for later rendering
+                renderPixel.push_back({ x, y });
             }
             e1 += a1;
             e2 += a2;
@@ -346,6 +363,27 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
         e3 += -xDim * a3 + b3;
     }
 
+}
+
+// animation
+void myTimer(int index)
+{
+    // check if all pixel rendered
+    if (index == renderPixel.size())
+    {
+        // reset after render all pixel
+        renderPixel = {};
+        isRendering = false;
+        return;
+    }
+
+    // render current pixel
+    const Vertex &pixel = renderPixel.at(index);
+    faceGrid.SetPixel(pixel.at(0), pixel.at(1), true);
+    glutPostRedisplay();
+
+    // render next pixel
+    glutTimerFunc(TIME_INTERVAL, myTimer, ++index);
 }
 
 // message printer
