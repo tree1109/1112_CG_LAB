@@ -27,7 +27,7 @@ bool onDebugMode = false;
 // FSM for setting vertex
 CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
 
-// pixels needs to be rendered 
+// pixels needs to be rendered
 std::vector<Vertex> renderPixel = {};
 
 // animation
