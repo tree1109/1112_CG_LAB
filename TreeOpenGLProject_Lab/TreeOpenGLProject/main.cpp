@@ -113,6 +113,11 @@ void myKeyboard(const unsigned char key, int x, int y)
     switch (key)
     {
     case 'r':
+        if (isRendering)
+        {
+            std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+            return;
+        }
         // clean up grid and vertex
         vertexGrid.RemoveAllPixel();
         lineGreenGrid.RemoveAllPixel();
@@ -162,6 +167,11 @@ void myMouse(const int button, const int state, const int x, const int y)
 
 void setVertex(const int x, const int y)
 {
+    if (isRendering)
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
+    }
     switch (currentVertex)
     {
     case CURRENT_VERTEX::V1:
@@ -207,16 +217,14 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
 {
     halfSpaceTest(v1, v2, v3);
-    if (!isRendering) 
-    {
-        // start rendering
-        isRendering = true;
-        glutTimerFunc(TIME_INTERVAL, myTimer, 0);
-    }
-    else
+    if (isRendering)
     {
         std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
     }
+    // start rendering
+    isRendering = true;
+    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
 }
 
 int getRegion(const Vertex& v1, const Vertex& v2)
@@ -362,7 +370,6 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
         e2 += -xDim * a2 + b2;
         e3 += -xDim * a3 + b3;
     }
-
 }
 
 // animation
@@ -408,6 +415,11 @@ void printLineRegion(const Vertex& v1, const Vertex& v2, const std::string& name
 // for popup menu
 void setGridDimension(const int dim)
 {
+    if (isRendering)
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
+    }
     vertexGrid.SetDimension(dim);
     lineGreenGrid.SetDimension(dim);
     lineBlueGrid.SetDimension(dim);
