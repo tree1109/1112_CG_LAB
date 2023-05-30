@@ -11,8 +11,11 @@ public:
     MyGrid();
     void RenderGrid() const;
     void SetDimension(int dim);
-    void SetPixel(int x, int y, bool is_filled);
-    void SetPixelColor(const Color& color);
+    void SetPixel(int x, int y, const Color& color);
+    void SetVertexPixel(int x, int y);
+    void SetEPixel(int x, int y);
+    void SetNEPixel(int x, int y);
+    void SetFacePixel(int x, int y);
     int GetGridDimension() const;
     int GetPixelGridSize() const;
     void RemoveAllPixel();
@@ -21,8 +24,7 @@ private:
     GLfloat grid_size_x_;
     GLfloat grid_size_y_;
     int dimensions_;
-    Color pixel_color_;
-    std::vector<bool> pixel_grid_;
+    std::vector<Color> pixel_grid_;
 
     void InitializePixelGrid();
 };

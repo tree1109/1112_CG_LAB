@@ -11,10 +11,7 @@
 // [r] : clean up grid and vertex
 // ~~~key map~~~
 
-MyGrid vertexGrid;
-MyGrid lineGreenGrid; // for E
-MyGrid lineBlueGrid;  // for NE
-MyGrid faceGrid;
+MyGrid colorGrid;
 
 Vertex v1 = {3,3};
 Vertex v2 = {3,-3};
@@ -51,12 +48,6 @@ int main(int argc, char** argv)
 
     myPopupMenu::CreatePopupMenu();
 
-    // set grid color
-    vertexGrid.SetPixelColor({1.0f, 0.5f, 0.5f});
-    lineGreenGrid.SetPixelColor({ 0.5f, 1.0f, 0.5f });
-    lineBlueGrid.SetPixelColor({0.5f, 0.5f, 1.0f});
-    faceGrid.SetPixelColor({ 1.0f,1.0f,0.5f });
-
     glutMainLoop();
     return 0;
 }
@@ -79,12 +70,7 @@ void RenderScene()
     glLoadIdentity(); // reset model matrix
     gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-    vertexGrid.RenderGrid();
-    if (onDebugMode) {
-        lineGreenGrid.RenderGrid();
-        lineBlueGrid.RenderGrid();
-        faceGrid.RenderGrid();
-    }
+    colorGrid.RenderGrid();
 
     glutSwapBuffers();
 }
@@ -119,10 +105,7 @@ void myKeyboard(const unsigned char key, int x, int y)
             return;
         }
         // clean up grid and vertex
-        vertexGrid.RemoveAllPixel();
-        lineGreenGrid.RemoveAllPixel();
-        lineBlueGrid.RemoveAllPixel();
-        faceGrid.RemoveAllPixel();
+        colorGrid.RemoveAllPixel();
         currentVertex = CURRENT_VERTEX::V1;
         break;
     default:
@@ -149,7 +132,7 @@ void myMouse(const int button, const int state, const int x, const int y)
     const GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
     const GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
     const GLfloat halfOfCellSize = 0.5f;
-    const GLfloat translateToGrid = static_cast<GLfloat>(vertexGrid.GetGridDimension()) + halfOfCellSize;
+    const GLfloat translateToGrid = static_cast<GLfloat>(colorGrid.GetGridDimension()) + halfOfCellSize;
     const int gridX = static_cast<int>(round(clipX * translateToGrid));
     const int gridY = static_cast<int>(round(clipY * translateToGrid));
     switch (button)
@@ -167,6 +150,7 @@ void myMouse(const int button, const int state, const int x, const int y)
 
 void setVertex(const int x, const int y)
 {
+    static bool debug_mode_flag;
     if (isRendering)
     {
         std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
@@ -175,26 +159,29 @@ void setVertex(const int x, const int y)
     switch (currentVertex)
     {
     case CURRENT_VERTEX::V1:
-        vertexGrid.RemoveAllPixel();
-        lineGreenGrid.RemoveAllPixel();
-        lineBlueGrid.RemoveAllPixel();
-        faceGrid.RemoveAllPixel();
+        colorGrid.RemoveAllPixel();
         v1 = { x, y };
         vertexPainter(v1, "v1");
         currentVertex = CURRENT_VERTEX::V2;
+        debug_mode_flag = onDebugMode;
         break;
     case CURRENT_VERTEX::V2:
         v2 = { x, y };
         vertexPainter(v2, "v2");
-        linePainter(v1, v2, "v1v2");
+        if (debug_mode_flag) {
+			linePainter(v1, v2, "v1v2");
+        }
         currentVertex = CURRENT_VERTEX::V3;
         break;
     case CURRENT_VERTEX::V3:
         v3 = { x, y };
         vertexPainter(v3, "v3");
-        linePainter(v2, v3, "v2v3");
-        linePainter(v3, v1, "v3v1");
-        facePainter(v1, v2, v3, "v1v2v3");
+        if (debug_mode_flag)
+        {
+	        linePainter(v2, v3, "v2v3");
+	        linePainter(v3, v1, "v3v1");
+	        facePainter(v1, v2, v3, "v1v2v3");
+        }
         currentVertex = CURRENT_VERTEX::V1;
         break;
     }
@@ -203,7 +190,7 @@ void setVertex(const int x, const int y)
 void vertexPainter(const Vertex& v, const std::string& name)
 {
     // vertex color: red
-    vertexGrid.SetPixel(v[0], v[1], true);
+    colorGrid.SetVertexPixel(v[0], v[1]);
     printVertexPixelCoordinate(v, name);
 }
 
@@ -211,7 +198,7 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 {
     // line color: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
-    if (onDebugMode) printLineRegion(v1, v2, name);
+    printLineRegion(v1, v2, name);
 }
 
 void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
@@ -276,14 +263,14 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     // draw E or NE(SE) pixel according to steep
     auto drawPixel = [&](const bool isE) {
         if (steep) {
-            if (isE) lineGreenGrid.SetPixel(y, x, true);
-            else lineBlueGrid.SetPixel(y, x, true);
-            if (onDebugMode) printLinePixelCoordinate({ y, x }, isE);
+            if (isE) colorGrid.SetEPixel(y, x);
+            else colorGrid.SetNEPixel(y, x);
+            printLinePixelCoordinate({ y, x }, isE);
         }
         else {
-            if (isE) lineGreenGrid.SetPixel(x, y, true);
-            else lineBlueGrid.SetPixel(x, y, true);
-            if (onDebugMode) printLinePixelCoordinate({ x, y }, isE);
+            if (isE) colorGrid.SetEPixel(x, y);
+            else colorGrid.SetNEPixel(x, y);
+            printLinePixelCoordinate({ x, y }, isE);
         }
     };
 
@@ -386,7 +373,7 @@ void myTimer(int index)
 
     // render current pixel
     const Vertex &pixel = renderPixel.at(index);
-    faceGrid.SetPixel(pixel.at(0), pixel.at(1), true);
+    colorGrid.SetFacePixel(pixel.at(0), pixel.at(1));
     glutPostRedisplay();
 
     // render next pixel
@@ -420,10 +407,7 @@ void setGridDimension(const int dim)
         std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
         return;
     }
-    vertexGrid.SetDimension(dim);
-    lineGreenGrid.SetDimension(dim);
-    lineBlueGrid.SetDimension(dim);
-    faceGrid.SetDimension(dim);
+    colorGrid.SetDimension(dim);
     currentVertex = CURRENT_VERTEX::V1;
     glutPostRedisplay();
 }

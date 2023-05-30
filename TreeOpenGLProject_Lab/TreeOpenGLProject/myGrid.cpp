@@ -3,8 +3,7 @@
 MyGrid::MyGrid() :
     grid_size_x_(20.0f),
     grid_size_y_(20.0f),
-    dimensions_(10),
-    pixel_color_{1.0f, 0.2f, 1.0f}
+    dimensions_(10)
 {
     InitializePixelGrid();
 }
@@ -39,15 +38,12 @@ void MyGrid::RenderGrid() const
     {
         for (int y = 0; y < pixel_grid_size; ++y)
         {
-            const bool is_filled = pixel_grid_.at(x + y * pixel_grid_size);
-            if (is_filled)
-            {
-                glColor3f(pixel_color_[0], pixel_color_[1], pixel_color_[2]);
-                glVertex2i(x, y);
-                glVertex2i(x, y + 1);
-                glVertex2i(x + 1, y + 1);
-                glVertex2i(x + 1, y);
-            }
+            const Color& pixel_color = pixel_grid_.at(x + y * pixel_grid_size);
+            glColor3f(pixel_color[0], pixel_color[1], pixel_color[2]);
+            glVertex2i(x, y);
+            glVertex2i(x, y + 1);
+            glVertex2i(x + 1, y + 1);
+            glVertex2i(x + 1, y);
         }
     }
     glEnd();
@@ -61,17 +57,36 @@ void MyGrid::SetDimension(const int dim)
     InitializePixelGrid();
 }
 
-void MyGrid::SetPixel(int x, int y, const bool is_filled)
+void MyGrid::SetPixel(int x, int y, const Color& color)
 {
     const int pixel_grid_size = GetPixelGridSize();
     x += dimensions_;
     y += dimensions_;
-    pixel_grid_.at(x + y * pixel_grid_size) = is_filled;
+    pixel_grid_.at(x + y * pixel_grid_size) = color;
 }
 
-void MyGrid::SetPixelColor(const Color& color)
+void MyGrid::SetVertexPixel(int x, int y)
 {
-    pixel_color_ = color;
+    // red
+    SetPixel(x, y, { 1.0f, 0.5f, 0.5f });
+}
+
+void MyGrid::SetEPixel(int x, int y)
+{
+    // green
+    SetPixel(x, y, { 0.5f, 1.0f, 0.5f });
+}
+
+void MyGrid::SetNEPixel(int x, int y)
+{
+    // blue
+    SetPixel(x, y, { 0.5f, 0.5f, 1.0f });
+}
+
+void MyGrid::SetFacePixel(int x, int y)
+{
+    // yellow
+    SetPixel(x, y, { 1.0f, 1.0f, 0.5f });
 }
 
 int MyGrid::GetGridDimension() const
@@ -92,9 +107,10 @@ void MyGrid::RemoveAllPixel()
 void MyGrid::InitializePixelGrid()
 {
     const int pixel_grid_size = GetPixelGridSize();
-    pixel_grid_ = std::vector<bool>(pixel_grid_size * pixel_grid_size);
+    pixel_grid_ = std::vector<Color>(pixel_grid_size * pixel_grid_size);
     for (auto pixel : pixel_grid_)
     {
-        pixel = false;
+        // default color: black
+        pixel = {0.0f, 0.0f, 0.0f};
     }
 }
