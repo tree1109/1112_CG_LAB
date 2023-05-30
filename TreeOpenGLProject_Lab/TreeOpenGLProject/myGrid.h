@@ -18,6 +18,8 @@ public:
     void SetFacePixel(int x, int y);
     int GetGridDimension() const;
     int GetPixelGridSize() const;
+    Color& GetPixelColorAt(int x, int y);
+    bool isPixelColorFilledAt(int x, int y);
     void RemoveAllPixel();
 
 private:

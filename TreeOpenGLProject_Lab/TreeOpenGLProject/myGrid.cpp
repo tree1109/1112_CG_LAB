@@ -86,7 +86,9 @@ void MyGrid::SetNEPixel(int x, int y)
 void MyGrid::SetFacePixel(int x, int y)
 {
     // yellow
-    SetPixel(x, y, { 1.0f, 1.0f, 0.5f });
+    // avoid face cover the line color
+    if (!isPixelColorFilledAt(x, y))
+        SetPixel(x, y, { 1.0f, 1.0f, 0.5f });
 }
 
 int MyGrid::GetGridDimension() const
@@ -97,6 +99,24 @@ int MyGrid::GetGridDimension() const
 int MyGrid::GetPixelGridSize() const
 {
     return dimensions_ * 2 + 1;
+}
+
+Color& MyGrid::GetPixelColorAt(int x, int y)
+{
+    const int pixel_grid_size = GetPixelGridSize();
+    x += dimensions_;
+    y += dimensions_;
+    return pixel_grid_.at(x + y * pixel_grid_size);
+}
+
+bool MyGrid::isPixelColorFilledAt(int x, int y)
+{
+    static constexpr GLfloat error = 0.00000001f;
+    const Color& color = GetPixelColorAt(x, y);
+    const GLfloat red = color[0];
+    const GLfloat green = color[1];
+    const GLfloat blue = color[2];
+    return !(red < error && green < error && blue < error);
 }
 
 void MyGrid::RemoveAllPixel()
