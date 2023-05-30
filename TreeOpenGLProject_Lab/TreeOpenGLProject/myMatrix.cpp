@@ -84,6 +84,19 @@ void myMatrix::setScaleMatrix(GLfloat sx, GLfloat sy, GLfloat sz)
     matrix[10] = sz;
 }
 
+void myMatrix::setFrustumMatrix(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+    ResetMatrix();
+    matrix[0] = 2 * zNear / (right - left);
+    matrix[5] = 2 * zNear / (top - bottom);
+    matrix[8] = (right + left) / (right - left);
+    matrix[9] = (top + bottom) / (top - bottom);
+    matrix[10] = 0 - (zFar + zNear) / (zFar - zNear);
+    matrix[11] = 0 - 1;
+    matrix[14] = 0 - 2 * zFar * zNear / (zFar - zNear);
+    matrix[15] = 0;
+}
+
 void myMatrix::doTranslate(GLfloat x, GLfloat y, GLfloat z)
 {
     setTranslateMatrix(x, y, z);
@@ -115,5 +128,11 @@ void myMatrix::doScale(GLfloat scale)
 void myMatrix::doScale(GLfloat sx, GLfloat sy, GLfloat sz)
 {
     setScaleMatrix(sx, sy, sz);
+    glMultMatrixf(matrix);
+}
+
+void myMatrix::doFrustum(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+    setFrustumMatrix(left, right, bottom, top, zNear, zFar);
     glMultMatrixf(matrix);
 }

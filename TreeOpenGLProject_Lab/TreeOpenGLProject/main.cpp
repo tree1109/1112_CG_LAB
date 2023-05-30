@@ -40,13 +40,11 @@
 // ~~~key map~~~
 
 // demo object file path
-// Put the absolute path of the model folder here
-// example: "C:\\XXXXX\\XXXXX\\models\\"
-std::string modelsDirPath = "Put the absolute path of the models folder here";
-std::string teapotObjPath = modelsDirPath + "teapot.obj";
-std::string teddyObjPath = modelsDirPath + "teddy.obj";
-std::string octahedronObjPath = modelsDirPath + "octahedron.obj";
-std::string gourdObjPath = modelsDirPath + "gourd.obj";
+std::string modelsDirPath = "..\\TreeOpenGLProject\\models\\";
+std::string teapotObjPath = modelsDirPath + "teapot";
+std::string teddyObjPath = modelsDirPath + "teddy";
+std::string octahedronObjPath = modelsDirPath + "octahedron";
+std::string gourdObjPath = modelsDirPath + "gourd";
 // demo object
 myObject teapot;
 myObject teddy;
@@ -120,8 +118,14 @@ void ChangeSize(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION); // load the projection matrix
     glLoadIdentity();
-    glOrtho(-10, 10, -10, 10, -10, 20);
-    glMatrixMode(GL_MODELVIEW);
+    //glOrtho(-10, 10, -10, 10, -10, 20);
+
+    // test
+    static myMatrix projectionMatrix;
+    projectionMatrix.doFrustum(-10, 10, -10, 10, 20, 50);
+    // test
+
+	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
 
@@ -131,6 +135,11 @@ void RenderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW); // load the model view matrix
     glLoadIdentity(); // reset model matrix
+
+    // test
+    static myMatrix traslateMatrix;
+    traslateMatrix.doTranslate(0, 0, -35);
+    // test
 
     // cameraman doing his job
     niceCameraman.work();
