@@ -22,6 +22,7 @@ void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std
 int getRegion(const Vertex& v1, const Vertex& v2);
 void midpointAlgorithm(int x1, int y1, int x2, int y2);
 void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3);
+void pushToPixelRenderQueue(const Vertex& v);
 
 // animation
 void myTimer(int index);

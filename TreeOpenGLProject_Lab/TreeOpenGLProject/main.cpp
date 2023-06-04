@@ -347,7 +347,7 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
         for (int x = xMin; x <= xMax; ++x) {
             if (e1 < 0 && e2 < 0 && e3 < 0) {
                 // push to list for later rendering
-                renderPixel.push_back({ x, y });
+                pushToPixelRenderQueue({ x, y });
             }
             e1 += a1;
             e2 += a2;
@@ -357,6 +357,11 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
         e2 += -xDim * a2 + b2;
         e3 += -xDim * a3 + b3;
     }
+}
+
+void pushToPixelRenderQueue(const Vertex& v)
+{
+    renderPixel.push_back(v);
 }
 
 // animation
