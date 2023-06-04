@@ -35,3 +35,5 @@ void printLineRegion(const Vertex& v1, const Vertex& v2, const std::string& name
 // for popup menu
 void setGridDimension(int dim);
 void switchDebugMode();
+void drawEdges();
+void drawPolygon();

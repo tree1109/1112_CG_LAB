@@ -169,7 +169,7 @@ void setVertex(const int x, const int y)
         v2 = { x, y };
         vertexPainter(v2, "v2");
         if (debug_mode_flag) {
-			linePainter(v1, v2, "v1v2");
+            linePainter(v1, v2, "v1v2");
         }
         currentVertex = CURRENT_VERTEX::V3;
         break;
@@ -178,9 +178,9 @@ void setVertex(const int x, const int y)
         vertexPainter(v3, "v3");
         if (debug_mode_flag)
         {
-	        linePainter(v2, v3, "v2v3");
-	        linePainter(v3, v1, "v3v1");
-	        facePainter(v1, v2, v3, "v1v2v3");
+            linePainter(v2, v3, "v2v3");
+            linePainter(v3, v1, "v3v1");
+            facePainter(v1, v2, v3, "v1v2v3");
         }
         currentVertex = CURRENT_VERTEX::V1;
         break;
@@ -425,4 +425,15 @@ void switchDebugMode()
     else
         std::cout << "[info] Switch to \033[92mNormal Mode\033[0m" << std::endl;
     glutPostRedisplay();
+}
+
+void drawEdges()
+{
+    // TODO 連線產生線段
+    // TODO 線段根據端點顏色插植
+}
+
+void drawPolygon()
+{
+    // TODO 使用crowAlgorithm
 }

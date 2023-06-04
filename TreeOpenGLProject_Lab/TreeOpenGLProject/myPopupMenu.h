@@ -12,7 +12,8 @@ private:
     enum MainMenuOpt {
         OPT_1, 
         OPT_2, 
-        OPT_3
+        OPT_3,
+        OPT_4
     };
     enum GridDimensionOpt {
         DIM_5,

@@ -18,10 +18,15 @@ void myPopupMenu::MainMenu(int option)
         switchDebugMode();
         break;
     case OPT_2:
-        MessagePrinter("cat is cutest");
+        drawEdges();
+        MessagePrinter("Start draw edges");
         break;
     case OPT_3:
-        MessagePrinter("bocchi kawaii~~");
+        drawPolygon();
+        MessagePrinter("Start draw polygon");
+        break;
+    case OPT_4:
+        MessagePrinter("cat is cutest");
         break;
     default:
         break;
@@ -66,8 +71,9 @@ void myPopupMenu::ConfigMenu(void)
     int mainMenu = glutCreateMenu(MainMenu);
     glutAddSubMenu("Set Grid Dims. To", gridDimensionsSubMenu);
     glutAddMenuEntry("Normal / Debug Mode", OPT_1);
-    glutAddMenuEntry("uwu", OPT_2);
-    glutAddMenuEntry(">w<", OPT_3);
+    glutAddMenuEntry("Draw edges", OPT_2);
+    glutAddMenuEntry("Draw polygon", OPT_3);
+    glutAddMenuEntry(">w<", OPT_4);
 }
 
 void myPopupMenu::MessagePrinter(std::string message)
