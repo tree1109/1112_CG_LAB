@@ -572,7 +572,7 @@ void increment(Vertex& edge, const Vertex& delta)
 
 // draw edge with color
 // TODO interpolating with color
-void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
+std::vector<Vertex> drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
 {
     // is m > 1 ?
     // translate with y=x to make m <= 1
@@ -586,6 +586,9 @@ void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
     if (v1.x > v2.x) {
         std::swap(v1.x, v2.x);
         std::swap(v1.y, v2.y);
+        std::swap(v1.r, v2.r);
+        std::swap(v1.g, v2.g);
+        std::swap(v1.b, v2.b);
     }
 
     const int dx = v2.x - v1.x;
@@ -597,17 +600,24 @@ void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
     int x = v1.x;
     int y = v1.y;
 
+    // color
+    const float vertex_count = v2.x - v1.x + 1;
+    const float dr = (v2.r - v1.r) / vertex_count;
+    const float dg = (v2.g - v1.g) / vertex_count;
+    const float db = (v2.b - v1.b) / vertex_count;
+    float r = v1.r;
+    float g = v1.g;
+    float b = v1.b;
+
+    // all edge vertex
+    std::vector<Vertex> edges_vertex = {};
+
     // draw pixel according to steep
     auto drawPixel = [&]() {
-        if (steep) {
-            pushToPixelRenderQueue({ y, x, v1.r, v1.g, v1.b });
-            // TODO push to vector for print coordinate
-        }
-        else {
-            pushToPixelRenderQueue({ x, y, v1.r, v1.g, v1.b });
-            // TODO push to vector for print coordinate
-
-        }
+        if (steep)
+            edges_vertex.push_back({ y, x, r, g, b });
+        else
+            edges_vertex.push_back({ x, y, r, g, b });
     };
 
     // top to bottom
@@ -625,6 +635,9 @@ void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
                 ++x;
                 --y;
             }
+            r += dr;
+            g += dg;
+            b += db;
             drawPixel();
         }
     }
@@ -643,10 +656,14 @@ void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
                 ++x;
                 ++y;
             }
+            r += dr;
+            g += dg;
+            b += db;
             drawPixel();
         }
     }
 
+    return edges_vertex;
 }
 
 // animation
@@ -688,6 +705,16 @@ void printLinePixelCoordinate(const Vec2i& vertex, const bool isE)
 void printLineRegion(const Vec2i& v1, const Vec2i& v2, const std::string& name)
 {
     std::cout << "\033[93m[debug]\033[0m Line \033[96m" << name << "\033[0m is \033[96mregion " << getRegion(v1, v2) << "\033[0m" << std::endl;
+}
+
+void printEdgeCoordinate(const std::vector<Vertex>& v_list, int edge_code)
+{
+    std::cout << "[info] Edge " << edge_code << ": ";
+    for (auto& v: v_list)
+    {
+        std::cout << "(" << v.x << ", " << v.y << ") ";
+    }
+    std::cout << std::endl;
 }
 
 // for popup menu
@@ -740,7 +767,9 @@ void drawEdges()
         const Vertex& v1 = vList.at(i);
         const Vertex& v2 = vList.at((i+1) % vList.size());
 
-        drawEdgeMidpointAlgorithm(v1, v2);
+        std::vector<Vertex> edge_vertex = drawEdgeMidpointAlgorithm(v1, v2);
+        printEdgeCoordinate(edge_vertex, i + 1); // print all vertices coordinate of edges
+        renderPixel.insert(renderPixel.end(), edge_vertex.begin(), edge_vertex.end()); // add all vertices to renderPixel
     }
 
     // start rendering

@@ -53,7 +53,7 @@ void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta
 void increment(Vertex& edge, const Vertex& delta);
 
 // draw edge with color
-void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2);
+std::vector<Vertex> drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2);
 
 // animation
 void myTimer(int index);
@@ -62,6 +62,7 @@ void myTimer(int index);
 void printVertexPixelCoordinate(const Vec2i& vertex, const std::string& name);
 void printLinePixelCoordinate(const Vec2i& vertex, bool isE);
 void printLineRegion(const Vec2i& v1, const Vec2i& v2, const std::string& name);
+void printEdgeCoordinate(const std::vector<Vertex>& v, int edge_code);
 
 // for popup menu
 void setGridDimension(int dim);
