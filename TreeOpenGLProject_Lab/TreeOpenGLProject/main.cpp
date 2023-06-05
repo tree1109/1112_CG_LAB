@@ -480,6 +480,10 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             }
             left_index = v_index;
         }
+
+        // fix error, it just work!
+        ++rem_v_num;
+
         // find appropriate right edge
         while (right_upper_endpoint_y <= y && rem_v_num > 0)
         {
