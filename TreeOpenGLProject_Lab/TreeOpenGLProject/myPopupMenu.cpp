@@ -19,13 +19,14 @@ void myPopupMenu::MainMenu(int option)
         break;
     case OPT_2:
         drawEdges();
-        MessagePrinter("Start draw edges");
         break;
     case OPT_3:
         drawPolygon();
-        MessagePrinter("Start draw polygon");
         break;
     case OPT_4:
+        switchCrowbarMode();
+        break;
+    case OPT_5:
         MessagePrinter("cat is cutest");
         break;
     default:
@@ -73,7 +74,8 @@ void myPopupMenu::ConfigMenu(void)
     glutAddMenuEntry("Normal / Debug Mode", OPT_1);
     glutAddMenuEntry("Draw edges", OPT_2);
     glutAddMenuEntry("Draw polygon", OPT_3);
-    glutAddMenuEntry(">w<", OPT_4);
+    glutAddMenuEntry("Crowbar Mode", OPT_4);
+    glutAddMenuEntry(">w<", OPT_5);
 }
 
 void myPopupMenu::MessagePrinter(std::string message)

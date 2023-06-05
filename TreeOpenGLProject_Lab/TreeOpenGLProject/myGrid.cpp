@@ -128,7 +128,7 @@ void MyGrid::InitializePixelGrid()
 {
     const int pixel_grid_size = GetPixelGridSize();
     pixel_grid_ = std::vector<Color>(pixel_grid_size * pixel_grid_size);
-    for (auto pixel : pixel_grid_)
+    for (auto& pixel : pixel_grid_)
     {
         // default color: black
         pixel = {0.0f, 0.0f, 0.0f};

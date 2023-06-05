@@ -3,10 +3,16 @@
 #include <array>
 
 using Vec2i = std::array<int, 2>;
-struct Vertex
+class Vertex
 {
-    float x;
-    float y;
+public:
+    Vertex() = default;
+    Vertex(int x, int y) : x(static_cast<float>(x)), y(static_cast<float>(y)) {}
+    Vertex(int x, int y, float r, float g, float b) : x(static_cast<float>(x)), y(static_cast<float>(y)), r(r), g(g), b(b) {}
+    Vertex(float x, float y) : x(x), y(y) {}
+    Vertex(float x, float y, float r, float g, float b) : x(x), y(y), r(r), g(g), b(b) {}
+    float x = 0.0f;
+    float y = 0.0f;
     float r = 1.0f;
     float g = 0.25f;
     float b = 0.5f;
@@ -27,13 +33,14 @@ void SetupRC();
 void myKeyboard(unsigned char key, int x, int y);
 void myMouse(int button, int state, int x, int y);
 void setVertex(int x, int y);
-void vertexPainter(const Vec2i& v, const std::string& name);
-void linePainter(const Vec2i& v1, const Vec2i& v2, const std::string& name);
-void facePainter(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3, const std::string& name);
+void vertexPainter(const Vertex& v, const std::string& name);
+void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name);
+void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name);
 int getRegion(const Vec2i& v1, const Vec2i& v2);
 void midpointAlgorithm(int x1, int y1, int x2, int y2);
 void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3);
-void pushToPixelRenderQueue(const Vec2i& v);
+void pushToVerticesList(const Vertex& v);
+void pushToPixelRenderQueue(const Vertex& v);
 
 // crowbar
 void crow(const std::vector<Vertex>& v_list, int v_num);
@@ -57,3 +64,4 @@ void setGridDimension(int dim);
 void switchDebugMode();
 void drawEdges();
 void drawPolygon();
+void switchCrowbarMode();

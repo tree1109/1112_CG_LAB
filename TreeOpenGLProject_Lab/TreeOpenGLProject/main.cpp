@@ -11,19 +11,26 @@
 
 MyGrid colorGrid;
 
-Vec2i v1 = {3,3};
-Vec2i v2 = {3,-3};
-Vec2i v3 = {-3,-3};
+Vertex v1;
+Vertex v2;
+Vertex v3;
 
+// vertices list
+std::vector<Vertex> vList = {};
+
+// only for non crowbar mode
 // Normal mode: only show vertex
 // Debug mode: show vertex and line
 bool onDebugMode = false;
+
+// is crowbar mode???
+bool onCrowbarMode = false;
 
 // FSM for setting vertex
 CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
 
 // pixels needs to be rendered
-std::vector<Vec2i> renderPixel = {};
+std::vector<Vertex> renderPixel = {};
 
 // animation
 const int TIME_INTERVAL = 13;
@@ -105,6 +112,7 @@ void myKeyboard(const unsigned char key, int x, int y)
         // clean up grid and vertex
         colorGrid.RemoveAllPixel();
         currentVertex = CURRENT_VERTEX::V1;
+        vList = {};
         break;
     default:
         break;
@@ -154,54 +162,76 @@ void setVertex(const int x, const int y)
         std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
         return;
     }
-    switch (currentVertex)
+
+    if (onCrowbarMode)
     {
-    case CURRENT_VERTEX::V1:
-        colorGrid.RemoveAllPixel();
-        v1 = { x, y };
-        vertexPainter(v1, "v1");
-        currentVertex = CURRENT_VERTEX::V2;
-        debug_mode_flag = onDebugMode;
-        break;
-    case CURRENT_VERTEX::V2:
-        v2 = { x, y };
-        vertexPainter(v2, "v2");
-        if (debug_mode_flag) {
-            linePainter(v1, v2, "v1v2");
-        }
-        currentVertex = CURRENT_VERTEX::V3;
-        break;
-    case CURRENT_VERTEX::V3:
-        v3 = { x, y };
-        vertexPainter(v3, "v3");
-        if (debug_mode_flag)
+        // TODO get random color
+        const Vertex v = { x, y };
+        pushToVerticesList(v);
+    }
+    else
+    {
+        switch (currentVertex)
         {
-            linePainter(v2, v3, "v2v3");
-            linePainter(v3, v1, "v3v1");
-            facePainter(v1, v2, v3, "v1v2v3");
+        case CURRENT_VERTEX::V1:
+            colorGrid.RemoveAllPixel();
+            v1 = { x, y };
+            vertexPainter(v1, "v1");
+            currentVertex = CURRENT_VERTEX::V2;
+            debug_mode_flag = onDebugMode;
+            break;
+        case CURRENT_VERTEX::V2:
+            v2 = { x, y };
+            vertexPainter(v2, "v2");
+            if (debug_mode_flag) {
+                linePainter(v1, v2, "v1v2");
+            }
+            currentVertex = CURRENT_VERTEX::V3;
+            break;
+        case CURRENT_VERTEX::V3:
+            v3 = { x, y };
+            vertexPainter(v3, "v3");
+            if (debug_mode_flag)
+            {
+                linePainter(v2, v3, "v2v3");
+                linePainter(v3, v1, "v3v1");
+                facePainter(v1, v2, v3, "v1v2v3");
+            }
+            currentVertex = CURRENT_VERTEX::V1;
+            break;
         }
-        currentVertex = CURRENT_VERTEX::V1;
-        break;
     }
 }
 
-void vertexPainter(const Vec2i& v, const std::string& name)
+void vertexPainter(const Vertex& v, const std::string& name)
 {
+    // for compatibility
+    const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
+
     // vertex color: red
-    colorGrid.SetVertexPixel(v[0], v[1]);
-    printVertexPixelCoordinate(v, name);
+    colorGrid.SetVertexPixel(v_old[0], v_old[1]);
+    printVertexPixelCoordinate(v_old, name);
 }
 
-void linePainter(const Vec2i& v1, const Vec2i& v2, const std::string& name)
+void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
 {
+    // for compatibility
+    const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
+    const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
+
     // line color: green(E) or blue(NE)
-    midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
-    printLineRegion(v1, v2, name);
+    midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
+    printLineRegion(v1_old, v2_old, name);
 }
 
-void facePainter(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3, const std::string& name)
+void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
 {
-    halfSpaceTest(v1, v2, v3);
+    // for compatibility
+    const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
+    const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
+    const Vec2i v3_old = { static_cast<int>(v3.x), static_cast<int>(v3.y) };
+
+    halfSpaceTest(v1_old, v2_old, v3_old);
     if (isRendering)
     {
         std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
@@ -345,7 +375,7 @@ void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3)
         for (int x = xMin; x <= xMax; ++x) {
             if (e1 < 0 && e2 < 0 && e3 < 0) {
                 // push to list for later rendering
-                pushToPixelRenderQueue({ x, y });
+                pushToPixelRenderQueue({ x, y , 1.0f, 1.0f, 0.5f });
             }
             e1 += a1;
             e2 += a2;
@@ -357,7 +387,12 @@ void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3)
     }
 }
 
-void pushToPixelRenderQueue(const Vec2i& v)
+void pushToVerticesList(const Vertex& v)
+{
+    vList.push_back(v);
+}
+
+void pushToPixelRenderQueue(const Vertex& v)
 {
     renderPixel.push_back(v);
 }
@@ -369,7 +404,7 @@ void crow(const std::vector<Vec2i>& v_list, int v_num)
     int index_min = 0;
 
     // copy v_list
-    for (auto v : v_list)
+    for (auto& v : v_list)
     {
         Vertex v_float = {static_cast<float>(v[0]) , static_cast<float>(v[1])};
         v_list_float.push_back(v_float);
@@ -501,8 +536,10 @@ void myTimer(int index)
     }
 
     // render current pixel
-    const Vec2i &pixel = renderPixel.at(index);
-    colorGrid.SetFacePixel(pixel.at(0), pixel.at(1));
+    const Vertex &pixel = renderPixel.at(index);
+    //colorGrid.SetFacePixel(pixel.x, pixel.y);
+    if (!colorGrid.isPixelColorFilledAt(pixel.x, pixel.y))
+        colorGrid.SetPixel(pixel.x, pixel.y, { pixel.r, pixel.g, pixel.b });
     glutPostRedisplay();
 
     // render next pixel
@@ -543,6 +580,12 @@ void setGridDimension(const int dim)
 
 void switchDebugMode()
 {
+    if (onCrowbarMode)
+    {
+        std::cout << "\033[91m[error]\033[0m Only for Non Crowbar Mode !!" << std::endl;
+        return;
+    }
+
     onDebugMode = !onDebugMode;
     if (onDebugMode)
         std::cout << "[info] Switch to \033[93mDebug Mode\033[0m" << std::endl;
@@ -553,11 +596,59 @@ void switchDebugMode()
 
 void drawEdges()
 {
+    if (!onCrowbarMode)
+    {
+        std::cout << "\033[91m[error]\033[0m Only for Crowbar Mode!!" << std::endl;
+        return;
+    }
+
+    if (isRendering)
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
+    }
+
     // TODO 連線產生線段
     // TODO 線段根據端點顏色插植
 }
 
 void drawPolygon()
 {
+    if (!onCrowbarMode)
+    {
+        std::cout << "\033[91m[error]\033[0m Only for Crowbar Mode!!" << std::endl;
+        return;
+    }
+
+    if (isRendering)
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
+    }
+
     // TODO 使用crowAlgorithm
+}
+
+void switchCrowbarMode()
+{
+    if (isRendering)
+    {
+        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
+        return;
+    }
+
+    onCrowbarMode = !onCrowbarMode;
+    if (onCrowbarMode)
+    {
+        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[92mon\033[92m!" << std::endl;
+        colorGrid.RemoveAllPixel();
+    }
+    else
+    {
+        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[91moff\033[91m!" << std::endl;
+        colorGrid.RemoveAllPixel();
+        currentVertex = CURRENT_VERTEX::V1;
+        vList = {};
+    }
+    glutPostRedisplay();
 }
