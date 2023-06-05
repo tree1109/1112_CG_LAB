@@ -530,7 +530,7 @@ void scanX(Vertex& left_edge, Vertex& right_edge, int y)
         differenceX(left_edge, right_edge, s, delta_s, left_x);
         for (int x = left_x; x < right_x; ++x)
         {
-            pushToPixelRenderQueue({ x, y ,1.0f ,0.25f ,0.5f});
+            pushToPixelRenderQueue({x, y, s.r, s.g, s.b});
             increment(s, delta_s);
         }
     }
@@ -540,6 +540,12 @@ void difference(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_
 {
     delta_edge.x = (v2.x - v1.x) / distance;
     edge.x = v1.x + fix * delta_edge.x;
+    delta_edge.r = (v2.r - v1.r) / distance;
+    edge.r = v1.r + fix * delta_edge.r;
+    delta_edge.g = (v2.g - v1.g) / distance;
+    edge.g = v1.g + fix * delta_edge.g;
+    delta_edge.b = (v2.b - v1.b) / distance;
+    edge.b = v1.b + fix * delta_edge.b;
 }
 
 void differenceY(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int y)
@@ -559,6 +565,9 @@ void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta
 void increment(Vertex& edge, const Vertex& delta)
 {
     edge.x += delta.x;
+    edge.r += delta.r;
+    edge.g += delta.g;
+    edge.b += delta.b;
 }
 
 // animation
