@@ -437,7 +437,7 @@ float getRandomNumber()
 }
 
 // crowbar
-// not working
+// only convex polygon
 void crow(const std::vector<Vertex>& v_list, int v_num)
 {
     int index_min = 0;
@@ -469,13 +469,12 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
 
     left_index = right_index = v_index;
     left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index].y));
-
+    
     for (rem_v_num = v_num; rem_v_num > 0;)
     {
         // find appropriate left edge
         while (left_upper_endpoint_y <= y && rem_v_num > 0)
         {
-            rem_v_num--;
             v_index--;
             // go clockwise
             if (v_index < 0)
@@ -484,14 +483,15 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace left edge
             if (y < left_upper_endpoint_y)
+            {
                 differenceY(v_list[left_index], v_list[v_index], left_edge, left_edge_delta, y);
-
+                rem_v_num--; // after found the right upper index, decrease number
+            }
             left_index = v_index;
         }
         // find appropriate right edge
-        while (y <= right_upper_endpoint_y && rem_v_num > 0)
+        while (right_upper_endpoint_y <= y && rem_v_num > 0)
         {
-            rem_v_num--;
             v_index++;
             // go counter-clockwise
             if (v_index >= v_num)
@@ -500,8 +500,10 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace right edge
             if (y < right_upper_endpoint_y)
+            {
                 differenceY(v_list[right_index], v_list[v_index], right_edge, right_edge_delta, y);
-
+                rem_v_num--; // after found the right upper index, decrease number
+            }
             right_index = v_index;
         }
         // while l & r span y (the current scanline)
@@ -528,12 +530,7 @@ void scanX(Vertex& left_edge, Vertex& right_edge, int y)
         differenceX(left_edge, right_edge, s, delta_s, left_x);
         for (int x = left_x; x < right_x; ++x)
         {
-            // random color for test
-            const float r = getRandomNumber();
-            const float g = getRandomNumber();
-            const float b = getRandomNumber();
-
-            pushToPixelRenderQueue({ x, y ,r ,g ,b});
+            pushToPixelRenderQueue({ x, y ,1.0f ,0.25f ,0.5f});
             increment(s, delta_s);
         }
     }
