@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <iomanip>
+#include <random>
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
@@ -167,9 +168,20 @@ void setVertex(const int x, const int y)
 
     if (onCrowbarMode)
     {
-        // TODO get random color
-        const Vertex v = { x, y };
+        // random number generator
+        // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
+        static std::random_device randomDevice;
+        static std::mt19937 generator(randomDevice());
+        static std::normal_distribution<double> normal(0.7, 0.4);
+
+        // random color
+        const auto r = static_cast<float>(normal(generator));
+        const auto g = static_cast<float>(normal(generator));
+        const auto b = static_cast<float>(normal(generator));
+
+        const Vertex v = { x, y , r, g, b };
         pushToVerticesList(v);
+        vertexPainter(v, "v");
     }
     else
     {
@@ -207,12 +219,19 @@ void setVertex(const int x, const int y)
 
 void vertexPainter(const Vertex& v, const std::string& name)
 {
-    // for compatibility
-    const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
+    if (onCrowbarMode)
+    {
+        colorGrid.SetPixel(v.x, v.y, { v.r, v.g, v.b });
+    }
+    else
+    {
+        // for compatibility
+        const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
 
-    // vertex color: red
-    colorGrid.SetVertexPixel(v_old[0], v_old[1]);
-    printVertexPixelCoordinate(v_old, name);
+        // vertex color: red
+        colorGrid.SetVertexPixel(v_old[0], v_old[1]);
+        printVertexPixelCoordinate(v_old, name);
+    }
 }
 
 void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
@@ -642,12 +661,12 @@ void switchCrowbarMode()
     onCrowbarMode = !onCrowbarMode;
     if (onCrowbarMode)
     {
-        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[92mon\033[92m!" << std::endl;
+        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[92mon\033[0m!" << std::endl;
         colorGrid.RemoveAllPixel();
     }
     else
     {
-        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[91moff\033[91m!" << std::endl;
+        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[91moff\033[0m!" << std::endl;
         colorGrid.RemoveAllPixel();
         currentVertex = CURRENT_VERTEX::V1;
         vList = {};
