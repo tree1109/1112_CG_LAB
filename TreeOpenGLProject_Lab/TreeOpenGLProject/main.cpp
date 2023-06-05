@@ -570,6 +570,85 @@ void increment(Vertex& edge, const Vertex& delta)
     edge.b += delta.b;
 }
 
+// draw edge with color
+// TODO interpolating with color
+void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
+{
+    // is m > 1 ?
+    // translate with y=x to make m <= 1
+    const bool steep = abs(v2.y - v1.y) > abs(v2.x - v1.x);
+    if (steep) {
+        std::swap(v1.x, v1.y);
+        std::swap(v2.x, v2.y);
+    }
+    // is right to left ?
+    // always draw line from left to right
+    if (v1.x > v2.x) {
+        std::swap(v1.x, v2.x);
+        std::swap(v1.y, v2.y);
+    }
+
+    const int dx = v2.x - v1.x;
+    const int dy = v2.y - v1.y;
+    const int deltaE = 2 * dy;         // 2* (a)
+    const int deltaNE = 2 * (dy - dx); // 2* (a+b) for m >= 0
+    const int deltaSE = 2 * (dy + dx); // 2* (a-b) for m < 0
+    int decision;
+    int x = v1.x;
+    int y = v1.y;
+
+    // draw pixel according to steep
+    auto drawPixel = [&]() {
+        if (steep) {
+            pushToPixelRenderQueue({ y, x, v1.r, v1.g, v1.b });
+            // TODO push to vector for print coordinate
+        }
+        else {
+            pushToPixelRenderQueue({ x, y, v1.r, v1.g, v1.b });
+            // TODO push to vector for print coordinate
+
+        }
+    };
+
+    // top to bottom
+    if (v1.y > v2.y) {
+        decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
+        while (x < v2.x - 1) {
+            if (decision >= 0) {
+                // E
+                decision += deltaE;
+                ++x;
+            }
+            else {
+                // SE
+                decision += deltaSE;
+                ++x;
+                --y;
+            }
+            drawPixel();
+        }
+    }
+    // bottom to top
+    else {
+        decision = 2 * dy - dx; // 2* (a+b/2) for m >= 0
+        while (x < v2.x - 1) {
+            if (decision <= 0) {
+                // E
+                decision += deltaE;
+                ++x;
+            }
+            else {
+                // NE
+                decision += deltaNE;
+                ++x;
+                ++y;
+            }
+            drawPixel();
+        }
+    }
+
+}
+
 // animation
 void myTimer(int index)
 {
@@ -654,10 +733,19 @@ void drawEdges()
         return;
     }
 
-    std::cout << "[info] Start draw polygon." << std::endl;
+    std::cout << "[info] Start draw edges." << std::endl;
 
-    // TODO 連線產生線段
-    // TODO 線段根據端點顏色插植
+    for (int i = 0; i < vList.size(); ++i)
+    {
+        const Vertex& v1 = vList.at(i);
+        const Vertex& v2 = vList.at((i+1) % vList.size());
+
+        drawEdgeMidpointAlgorithm(v1, v2);
+    }
+
+    // start rendering
+    isRendering = true;
+    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
 }
 
 void drawPolygon()

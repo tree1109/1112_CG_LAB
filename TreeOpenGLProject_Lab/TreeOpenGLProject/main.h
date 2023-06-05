@@ -52,6 +52,9 @@ void differenceY(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta
 void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int x);
 void increment(Vertex& edge, const Vertex& delta);
 
+// draw edge with color
+void drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2);
+
 // animation
 void myTimer(int index);
 
