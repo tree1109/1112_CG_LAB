@@ -168,16 +168,13 @@ void setVertex(const int x, const int y)
 
     if (onCrowbarMode)
     {
-        // random number generator
-        // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
-        static std::random_device randomDevice;
-        static std::mt19937 generator(randomDevice());
-        static std::normal_distribution<double> normal(0.7, 0.4);
+        if (vList.empty())
+            colorGrid.RemoveAllPixel();
 
         // random color
-        const auto r = static_cast<float>(normal(generator));
-        const auto g = static_cast<float>(normal(generator));
-        const auto b = static_cast<float>(normal(generator));
+        const float r = getRandomNumber();
+        const float g = getRandomNumber();
+        const float b = getRandomNumber();
 
         const Vertex v = { x, y , r, g, b };
         pushToVerticesList(v);
@@ -219,15 +216,16 @@ void setVertex(const int x, const int y)
 
 void vertexPainter(const Vertex& v, const std::string& name)
 {
+    // for compatibility
+    const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
+
     if (onCrowbarMode)
     {
         colorGrid.SetPixel(v.x, v.y, { v.r, v.g, v.b });
+        printVertexPixelCoordinate(v_old, "v");
     }
     else
     {
-        // for compatibility
-        const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
-
         // vertex color: red
         colorGrid.SetVertexPixel(v_old[0], v_old[1]);
         printVertexPixelCoordinate(v_old, name);
@@ -240,9 +238,18 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
     const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
     const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
 
-    // line color: green(E) or blue(NE)
-    midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
-    printLineRegion(v1_old, v2_old, name);
+    if (onCrowbarMode)
+    {
+        
+    }
+    else
+    {
+        // line color: green(E) or blue(NE)
+        midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
+        printLineRegion(v1_old, v2_old, name);
+    }
+
+    
 }
 
 void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
@@ -418,47 +425,55 @@ void pushToPixelRenderQueue(const Vertex& v)
     renderPixel.push_back(v);
 }
 
-// crowbar
-void crow(const std::vector<Vec2i>& v_list, int v_num)
+float getRandomNumber()
 {
-    std::vector<Vertex> v_list_float = {};
+    // random number generator
+    // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
+    static std::random_device randomDevice;
+    static std::mt19937 generator(randomDevice());
+    static std::normal_distribution<double> normal(0.7, 0.4);
+
+    return static_cast<float>(normal(generator));
+}
+
+// crowbar
+// not working
+void crow(const std::vector<Vertex>& v_list, int v_num)
+{
     int index_min = 0;
-
-    // copy v_list
-    for (auto& v : v_list)
-    {
-        Vertex v_float = {static_cast<float>(v[0]) , static_cast<float>(v[1])};
-        v_list_float.push_back(v_float);
-    }
-
     // find bottom vertex index
     for (int i=1; i<v_num; ++i)
-        if (v_list_float[index_min].y > v_list_float[i].y)
+        if (v_list[index_min].y > v_list[i].y)
             index_min = i;
 
-    scanY(v_list_float, v_num, index_min);
+    scanY(v_list, v_num, index_min);
 }
 
 void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
 {
-    int left_upper_endpoint_index;
-    int right_upper_endpoint_index;
+    // upper endpoint index
+    int left_index;
+    int right_index;
+    // upper endpoint y
     int left_upper_endpoint_y;
     int right_upper_endpoint_y;
+    // current edge and delta
     Vertex left_edge;
     Vertex left_edge_delta;
     Vertex right_edge;
     Vertex right_edge_delta;
+    // number of remaining vertices
     int rem_v_num;
+    // current scan line
     int y;
 
-    left_upper_endpoint_index = right_upper_endpoint_index = v_index;
+    left_index = right_index = v_index;
     left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index].y));
 
     for (rem_v_num = v_num; rem_v_num > 0;)
     {
         // find appropriate left edge
-        while (y >= left_upper_endpoint_y && rem_v_num > 0)
+        while (left_upper_endpoint_y <= y && rem_v_num > 0)
         {
             rem_v_num--;
             v_index--;
@@ -469,25 +484,25 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace left edge
             if (y < left_upper_endpoint_y)
-                differenceY(v_list[left_upper_endpoint_index], v_list[v_index], left_edge, left_edge_delta, y);
+                differenceY(v_list[left_index], v_list[v_index], left_edge, left_edge_delta, y);
 
-        	left_upper_endpoint_index = v_index;
+            left_index = v_index;
         }
         // find appropriate right edge
-        while (y >= right_upper_endpoint_y && rem_v_num > 0)
+        while (y <= right_upper_endpoint_y && rem_v_num > 0)
         {
             rem_v_num--;
             v_index++;
             // go counter-clockwise
-            if (v_index = v_num)
+            if (v_index >= v_num)
                 v_index = 0;
 
             right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace right edge
             if (y < right_upper_endpoint_y)
-                differenceY(v_list[right_upper_endpoint_index], v_list[v_index], right_edge, right_edge_delta, y);
+                differenceY(v_list[right_index], v_list[v_index], right_edge, right_edge_delta, y);
 
-            right_upper_endpoint_index = v_index;
+            right_index = v_index;
         }
         // while l & r span y (the current scanline)
         // draw the span
@@ -513,7 +528,12 @@ void scanX(Vertex& left_edge, Vertex& right_edge, int y)
         differenceX(left_edge, right_edge, s, delta_s, left_x);
         for (int x = left_x; x < right_x; ++x)
         {
-            pushToPixelRenderQueue({ x, y });
+            // random color for test
+            const float r = getRandomNumber();
+            const float g = getRandomNumber();
+            const float b = getRandomNumber();
+
+            pushToPixelRenderQueue({ x, y ,r ,g ,b});
             increment(s, delta_s);
         }
     }
@@ -558,7 +578,6 @@ void myTimer(int index)
 
     // render current pixel
     const Vertex &pixel = renderPixel.at(index);
-    //colorGrid.SetFacePixel(pixel.x, pixel.y);
     if (!colorGrid.isPixelColorFilledAt(pixel.x, pixel.y))
         colorGrid.SetPixel(pixel.x, pixel.y, { pixel.r, pixel.g, pixel.b });
     glutPostRedisplay();
@@ -629,6 +648,8 @@ void drawEdges()
         return;
     }
 
+    std::cout << "[info] Start draw polygon." << std::endl;
+
     // TODO 連線產生線段
     // TODO 線段根據端點顏色插植
 }
@@ -647,7 +668,17 @@ void drawPolygon()
         return;
     }
 
-    // TODO 使用crowAlgorithm
+    if (vList.empty())
+        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 1." << std::endl;
+
+    std::cout << "[info] Start draw polygon." << std::endl;
+
+    crow(vList, vList.size());
+    vList = {};
+
+    // start rendering
+    isRendering = true;
+    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
 }
 
 void switchCrowbarMode()

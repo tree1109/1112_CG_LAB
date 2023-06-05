@@ -41,6 +41,7 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2);
 void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3);
 void pushToVerticesList(const Vertex& v);
 void pushToPixelRenderQueue(const Vertex& v);
+float getRandomNumber();
 
 // crowbar
 void crow(const std::vector<Vertex>& v_list, int v_num);
