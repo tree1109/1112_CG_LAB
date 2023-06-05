@@ -221,7 +221,7 @@ void vertexPainter(const Vertex& v, const std::string& name)
 
     if (onCrowbarMode)
     {
-        colorGrid.SetPixel(v.x, v.y, { v.r, v.g, v.b });
+        colorGrid.SetPixel(v_old[0], v_old[1], {v.r, v.g, v.b});
         printVertexPixelCoordinate(v_old, "v");
     }
     else
@@ -238,18 +238,9 @@ void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
     const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
     const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
 
-    if (onCrowbarMode)
-    {
-        
-    }
-    else
-    {
-        // line color: green(E) or blue(NE)
-        midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
-        printLineRegion(v1_old, v2_old, name);
-    }
-
-    
+    // line color: green(E) or blue(NE)
+    midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
+    printLineRegion(v1_old, v2_old, name);
 }
 
 void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
@@ -591,14 +582,14 @@ std::vector<Vertex> drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
         std::swap(v1.b, v2.b);
     }
 
-    const int dx = v2.x - v1.x;
-    const int dy = v2.y - v1.y;
+    const int dx = static_cast<int>(v2.x - v1.x);
+    const int dy = static_cast<int>(v2.y - v1.y);
     const int deltaE = 2 * dy;         // 2* (a)
     const int deltaNE = 2 * (dy - dx); // 2* (a+b) for m >= 0
     const int deltaSE = 2 * (dy + dx); // 2* (a-b) for m < 0
     int decision;
-    int x = v1.x;
-    int y = v1.y;
+    int x = static_cast<int>(v1.x);
+    int y = static_cast<int>(v1.y);
 
     // color
     const float vertex_count = v2.x - v1.x + 1;
@@ -680,8 +671,8 @@ void myTimer(int index)
 
     // render current pixel
     const Vertex &pixel = renderPixel.at(index);
-    if (!colorGrid.isPixelColorFilledAt(pixel.x, pixel.y))
-        colorGrid.SetPixel(pixel.x, pixel.y, { pixel.r, pixel.g, pixel.b });
+    if (!colorGrid.isPixelColorFilledAt(static_cast<int>(pixel.x), static_cast<int>(pixel.y)))
+        colorGrid.SetPixel(static_cast<int>(pixel.x), static_cast<int>(pixel.y), { pixel.r, pixel.g, pixel.b });
     glutPostRedisplay();
 
     // render next pixel
@@ -709,12 +700,9 @@ void printLineRegion(const Vec2i& v1, const Vec2i& v2, const std::string& name)
 
 void printEdgeCoordinate(const std::vector<Vertex>& v_list, int edge_code)
 {
-    std::cout << "[info] Edge " << edge_code << ": ";
+    std::cout << "[info] \033[92mEdge " << edge_code << "\033[0m pixel:" << std::endl;
     for (auto& v: v_list)
-    {
-        std::cout << "(" << v.x << ", " << v.y << ") ";
-    }
-    std::cout << std::endl;
+        std::cout << "[info] -> \033[92m(" << v.x << ", " << v.y << ")\033[0m" << std::endl;
 }
 
 // for popup menu
@@ -762,7 +750,7 @@ void drawEdges()
 
     std::cout << "[info] Start draw edges." << std::endl;
 
-    for (int i = 0; i < vList.size(); ++i)
+    for (int i = 0; static_cast<unsigned>(i) < vList.size(); ++i)
     {
         const Vertex& v1 = vList.at(i);
         const Vertex& v2 = vList.at((i+1) % vList.size());
