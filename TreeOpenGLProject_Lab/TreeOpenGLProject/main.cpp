@@ -473,7 +473,7 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
 
             left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace left edge
-            if (y < left_upper_endpoint_y)
+            if (y <= left_upper_endpoint_y)
             {
                 differenceY(v_list[left_index], v_list[v_index], left_edge, left_edge_delta, y);
                 rem_v_num--; // after found the right upper index, decrease number
@@ -490,7 +490,7 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
 
             right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace right edge
-            if (y < right_upper_endpoint_y)
+            if (y <= right_upper_endpoint_y)
             {
                 differenceY(v_list[right_index], v_list[v_index], right_edge, right_edge_delta, y);
                 rem_v_num--; // after found the right upper index, decrease number
