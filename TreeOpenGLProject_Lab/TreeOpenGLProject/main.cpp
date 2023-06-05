@@ -11,14 +11,16 @@
 
 MyGrid colorGrid;
 
+// only for non Crowbar Mode
 Vertex v1;
 Vertex v2;
 Vertex v3;
 
+// only for Crowbar Mode
 // vertices list
 std::vector<Vertex> vList = {};
 
-// only for non crowbar mode
+// only for non Crowbar Mode
 // Normal mode: only show vertex
 // Debug mode: show vertex and line
 bool onDebugMode = false;
