@@ -13,9 +13,9 @@
 
 MyGrid colorGrid;
 
-Vertex v1 = {3,3};
-Vertex v2 = {3,-3};
-Vertex v3 = {-3,-3};
+Vec2i v1 = {3,3};
+Vec2i v2 = {3,-3};
+Vec2i v3 = {-3,-3};
 
 // Normal mode: only show vertex
 // Debug mode: show vertex and line
@@ -25,7 +25,7 @@ bool onDebugMode = false;
 CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
 
 // pixels needs to be rendered
-std::vector<Vertex> renderPixel = {};
+std::vector<Vec2i> renderPixel = {};
 
 // animation
 const int TIME_INTERVAL = 13;
@@ -187,21 +187,21 @@ void setVertex(const int x, const int y)
     }
 }
 
-void vertexPainter(const Vertex& v, const std::string& name)
+void vertexPainter(const Vec2i& v, const std::string& name)
 {
     // vertex color: red
     colorGrid.SetVertexPixel(v[0], v[1]);
     printVertexPixelCoordinate(v, name);
 }
 
-void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
+void linePainter(const Vec2i& v1, const Vec2i& v2, const std::string& name)
 {
     // line color: green(E) or blue(NE)
     midpointAlgorithm(v1[0], v1[1], v2[0], v2[1]);
     printLineRegion(v1, v2, name);
 }
 
-void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
+void facePainter(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3, const std::string& name)
 {
     halfSpaceTest(v1, v2, v3);
     if (isRendering)
@@ -214,7 +214,7 @@ void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std
     glutTimerFunc(TIME_INTERVAL, myTimer, 0);
 }
 
-int getRegion(const Vertex& v1, const Vertex& v2)
+int getRegion(const Vec2i& v1, const Vec2i& v2)
 {
     const bool steep = abs(v2[1] - v1[1]) > abs(v2[0] - v1[0]); // is m > 1?
     const bool isLeft2Right = v1[0] < v2[0];
@@ -314,7 +314,7 @@ void midpointAlgorithm(int x1, int y1, int x2, int y2)
     }
 }
 
-void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
+void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3)
 {
     // get bounding box
     int xMin = std::min({ v1[0], v2[0], v3[0] });
@@ -323,7 +323,7 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
     int yMax = std::max({ v1[1], v2[1], v3[1] });
 
     // equation
-    auto lineEquation = [&](const Vertex& v1, const Vertex& v2, int x, int y) -> float
+    auto lineEquation = [&](const Vec2i& v1, const Vec2i& v2, int x, int y) -> float
     {
         int a = v2[1] - v1[1];
         int b = v1[0] - v2[0];
@@ -359,9 +359,136 @@ void halfSpaceTest(const Vertex& v1, const Vertex& v2, const Vertex& v3)
     }
 }
 
-void pushToPixelRenderQueue(const Vertex& v)
+void pushToPixelRenderQueue(const Vec2i& v)
 {
     renderPixel.push_back(v);
+}
+
+// crowbar
+// TODO fix std::vector error
+void crow(const std::vector<Vec2i>& v_list, int v_num)
+{
+    std::vector<Vec2f> v_list_float ={};
+    int index_min = 0;
+
+    // copy v_list
+    for (auto v : v_list)
+    {
+        Vec2f v_float = { v[0] * 1.0f, v[1] * 1.0f };
+        v_list_float.push_back(v_float);
+    }
+
+    // find bottom vertex index
+    for (int i=1; i<v_num; ++i)
+        if (v_list_float[index_min][1] > v_list_float[i][1])
+            index_min = i;
+
+    scanY(v_list_float, v_num, index_min);
+}
+
+void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index)
+{
+    int left_upper_endpoint_index;
+    int right_upper_endpoint_index;
+    int left_upper_endpoint_y;
+    int right_upper_endpoint_y;
+    Vec2f left_edge;
+    Vec2f left_edge_delta;
+    Vec2f right_edge;
+    Vec2f right_edge_delta;
+    int rem_v_num;
+    int y;
+
+    left_upper_endpoint_index = right_upper_endpoint_index = v_index;
+    left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index][1]));
+
+    for (rem_v_num = v_num; rem_v_num > 0;)
+    {
+        // find appropriate left edge
+        while (y >= left_upper_endpoint_y && rem_v_num > 0)
+        {
+            rem_v_num--;
+            v_index--;
+            // go clockwise
+            if (v_index < 0)
+                v_index = v_num - 1;
+
+            left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index][1]));
+            // replace left edge
+            if (y < left_upper_endpoint_y)
+                differenceY(v_list[left_upper_endpoint_index], v_list[v_index], left_edge, left_edge_delta, y);
+
+        	left_upper_endpoint_index = v_index;
+        }
+        // find appropriate right edge
+        while (y >= right_upper_endpoint_y && rem_v_num > 0)
+        {
+            rem_v_num--;
+            v_index++;
+            // go counter-clockwise
+            if (v_index = v_num)
+                v_index = 0;
+
+            right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index][1]));
+            // replace right edge
+            if (y < right_upper_endpoint_y)
+                differenceY(v_list[right_upper_endpoint_index], v_list[v_index], right_edge, right_edge_delta, y);
+
+            right_upper_endpoint_index = v_index;
+        }
+        // while l & r span y (the current scanline)
+        // draw the span
+        for (; y < left_upper_endpoint_y && y < right_upper_endpoint_y; ++y)
+        {
+            // scan and interpolate edges
+            scanX(left_edge, right_edge, y);
+            increment(left_edge, left_edge_delta);
+            increment(right_edge, right_edge_delta);
+        }
+    }
+}
+
+void scanX(Vec2f& left_edge, Vec2f& right_edge, int y)
+{
+    const int left_x = static_cast<int>(ceil(left_edge[0]));
+    const int right_x = static_cast<int>(ceil(right_edge[0]));
+    Vec2f s;
+    Vec2f delta_s;
+
+    if (left_x < right_x)
+    {
+        differenceX(left_edge, right_edge, s, delta_s, left_x);
+        for (int x = left_x; x < right_x; ++x)
+        {
+            pushToPixelRenderQueue({ x, y });
+            increment(s, delta_s);
+        }
+    }
+}
+
+void difference(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, float distance, float fix)
+{
+    delta_edge[0] = (v2[0] - v1[0]) / distance;
+    edge[0] = v1[0] + fix * delta_edge[0];
+}
+
+void differenceY(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int y)
+{
+    const float distance_y = v2[1] - v1[1];
+    const float fix_y = y - v1[1];
+    difference(v1, v2, edge, delta_edge, distance_y, fix_y);
+}
+
+void differenceX(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int x)
+{
+    const float distance_x = v2[0] - v1[0];
+    const float fix_x = x - v1[0];
+    difference(v1, v2, edge, delta_edge, distance_x, fix_x);
+}
+
+void increment(Vec2f& edge, const Vec2f& delta)
+{
+    edge[0] += delta[0];
 }
 
 // animation
@@ -377,7 +504,7 @@ void myTimer(int index)
     }
 
     // render current pixel
-    const Vertex &pixel = renderPixel.at(index);
+    const Vec2i &pixel = renderPixel.at(index);
     colorGrid.SetFacePixel(pixel.at(0), pixel.at(1));
     glutPostRedisplay();
 
@@ -386,12 +513,12 @@ void myTimer(int index)
 }
 
 // message printer
-void printVertexPixelCoordinate(const Vertex& vertex, const std::string& name)
+void printVertexPixelCoordinate(const Vec2i& vertex, const std::string& name)
 {
     std::cout << "[info] Vertex \033[91m" << name << "\033[0m at \033[91m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
 }
 
-void printLinePixelCoordinate(const Vertex& vertex, const bool isE)
+void printLinePixelCoordinate(const Vec2i& vertex, const bool isE)
 {
     if (isE)
         std::cout << "\033[93m[debug]\033[0m Line pixel \033[92mE\033[0m at \033[92m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
@@ -399,7 +526,7 @@ void printLinePixelCoordinate(const Vertex& vertex, const bool isE)
         std::cout << "\033[93m[debug]\033[0m Line pixel \033[94mNE\033[0m at \033[94m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
 }
 
-void printLineRegion(const Vertex& v1, const Vertex& v2, const std::string& name)
+void printLineRegion(const Vec2i& v1, const Vec2i& v2, const std::string& name)
 {
     std::cout << "\033[93m[debug]\033[0m Line \033[96m" << name << "\033[0m is \033[96mregion " << getRegion(v1, v2) << "\033[0m" << std::endl;
 }
