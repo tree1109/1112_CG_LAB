@@ -669,7 +669,10 @@ void drawPolygon()
     }
 
     if (vList.empty())
+    {
         std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 1." << std::endl;
+        return;
+    }
 
     std::cout << "[info] Start draw polygon." << std::endl;
 
