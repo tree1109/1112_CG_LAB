@@ -1,7 +1,5 @@
 ﻿#include <iostream>
 #include <iomanip>
-#include <array>
-#include <vector>
 #include "GL\freeglut.h" // freeglut
 #include "main.h"
 #include "myPopupMenu.h"
@@ -365,42 +363,41 @@ void pushToPixelRenderQueue(const Vec2i& v)
 }
 
 // crowbar
-// TODO fix std::vector error
 void crow(const std::vector<Vec2i>& v_list, int v_num)
 {
-    std::vector<Vec2f> v_list_float ={};
+    std::vector<Vertex> v_list_float = {};
     int index_min = 0;
 
     // copy v_list
     for (auto v : v_list)
     {
-        Vec2f v_float = { v[0] * 1.0f, v[1] * 1.0f };
+        Vertex v_float = {static_cast<float>(v[0]) , static_cast<float>(v[1])};
         v_list_float.push_back(v_float);
     }
 
     // find bottom vertex index
     for (int i=1; i<v_num; ++i)
-        if (v_list_float[index_min][1] > v_list_float[i][1])
+        if (v_list_float[index_min].y > v_list_float[i].y)
             index_min = i;
 
     scanY(v_list_float, v_num, index_min);
 }
 
-void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index)
+void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
 {
     int left_upper_endpoint_index;
     int right_upper_endpoint_index;
     int left_upper_endpoint_y;
     int right_upper_endpoint_y;
-    Vec2f left_edge;
-    Vec2f left_edge_delta;
-    Vec2f right_edge;
-    Vec2f right_edge_delta;
+    Vertex left_edge;
+    Vertex left_edge_delta;
+    Vertex right_edge;
+    Vertex right_edge_delta;
     int rem_v_num;
     int y;
 
     left_upper_endpoint_index = right_upper_endpoint_index = v_index;
-    left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index][1]));
+    left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index].y));
 
     for (rem_v_num = v_num; rem_v_num > 0;)
     {
@@ -413,7 +410,7 @@ void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index)
             if (v_index < 0)
                 v_index = v_num - 1;
 
-            left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index][1]));
+            left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace left edge
             if (y < left_upper_endpoint_y)
                 differenceY(v_list[left_upper_endpoint_index], v_list[v_index], left_edge, left_edge_delta, y);
@@ -429,7 +426,7 @@ void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index)
             if (v_index = v_num)
                 v_index = 0;
 
-            right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index][1]));
+            right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
             // replace right edge
             if (y < right_upper_endpoint_y)
                 differenceY(v_list[right_upper_endpoint_index], v_list[v_index], right_edge, right_edge_delta, y);
@@ -448,12 +445,12 @@ void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index)
     }
 }
 
-void scanX(Vec2f& left_edge, Vec2f& right_edge, int y)
+void scanX(Vertex& left_edge, Vertex& right_edge, int y)
 {
-    const int left_x = static_cast<int>(ceil(left_edge[0]));
-    const int right_x = static_cast<int>(ceil(right_edge[0]));
-    Vec2f s;
-    Vec2f delta_s;
+    const int left_x = static_cast<int>(ceil(left_edge.x));
+    const int right_x = static_cast<int>(ceil(right_edge.x));
+    Vertex s;
+    Vertex delta_s;
 
     if (left_x < right_x)
     {
@@ -466,29 +463,29 @@ void scanX(Vec2f& left_edge, Vec2f& right_edge, int y)
     }
 }
 
-void difference(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, float distance, float fix)
+void difference(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, float distance, float fix)
 {
-    delta_edge[0] = (v2[0] - v1[0]) / distance;
-    edge[0] = v1[0] + fix * delta_edge[0];
+    delta_edge.x = (v2.x - v1.x) / distance;
+    edge.x = v1.x + fix * delta_edge.x;
 }
 
-void differenceY(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int y)
+void differenceY(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int y)
 {
-    const float distance_y = v2[1] - v1[1];
-    const float fix_y = y - v1[1];
+    const float distance_y = v2.y - v1.y;
+    const float fix_y = y - v1.y;
     difference(v1, v2, edge, delta_edge, distance_y, fix_y);
 }
 
-void differenceX(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int x)
+void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int x)
 {
-    const float distance_x = v2[0] - v1[0];
-    const float fix_x = x - v1[0];
+    const float distance_x = v2.x - v1.x;
+    const float fix_x = x - v1.x;
     difference(v1, v2, edge, delta_edge, distance_x, fix_x);
 }
 
-void increment(Vec2f& edge, const Vec2f& delta)
+void increment(Vertex& edge, const Vertex& delta)
 {
-    edge[0] += delta[0];
+    edge.x += delta.x;
 }
 
 // animation

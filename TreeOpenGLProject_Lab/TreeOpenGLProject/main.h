@@ -1,7 +1,16 @@
 #pragma once
+#include <vector>
+#include <array>
+
 using Vec2i = std::array<int, 2>;
-using Vec2f = std::array<float, 2>;
-// TODO 新增包含x, y, r, g, b 的結構
+struct Vertex
+{
+    float x;
+    float y;
+    float r = 1.0f;
+    float g = 0.25f;
+    float b = 0.5f;
+};
 
 // FSM for setting vertex
 enum class CURRENT_VERTEX
@@ -27,13 +36,13 @@ void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3);
 void pushToPixelRenderQueue(const Vec2i& v);
 
 // crowbar
-void crow(const std::vector<Vec2i>& v_list, int v_num);
-void scanY(const std::vector<Vec2f>& v_list, int v_num, int v_index);
-void scanX(Vec2f& left_edge, Vec2f& right_edge, int y);
-void difference(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, float distance, float fix);
-void differenceY(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int y);
-void differenceX(const Vec2f& v1, const Vec2f& v2, Vec2f& edge, Vec2f& delta_edge, int x);
-void increment(Vec2f& edge,const Vec2f& delta);
+void crow(const std::vector<Vertex>& v_list, int v_num);
+void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index);
+void scanX(Vertex& left_edge, Vertex& right_edge, int y);
+void difference(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, float distance, float fix);
+void differenceY(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int y);
+void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int x);
+void increment(Vertex& edge, const Vertex& delta);
 
 // animation
 void myTimer(int index);
