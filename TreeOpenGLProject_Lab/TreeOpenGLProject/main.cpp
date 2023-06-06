@@ -2,848 +2,229 @@
 #include <iomanip>
 #include <random>
 #include "GL\freeglut.h" // freeglut
-#include "main.h"
-#include "myPopupMenu.h"
-#include "myGrid.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
-// ~~~key map~~~
-// [r] : clean up grid and vertex
-// ~~~key map~~~
+// Lighting data
+GLfloat lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+GLfloat lightDiffuse[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+GLfloat lightSpecular[] = { 0.9f, 0.9f, 0.9f };
+GLfloat materialColor[] = { 0.8f, 0.0f, 0.0f };
+GLfloat vLightPos[] = { -80.0f, 120.0f, 100.0f, 0.0f };
+GLfloat ground[3][3] = { { 0.0f, -25.0f, 0.0f },
+                        { 10.0f, -25.0f, 0.0f },
+                        { 10.0f, -25.0f, -10.0f } };
 
-// ~~~popup menu feature explain~~~
-// Normal / Debug Mode : Only available on Non Crowbar Mode
-// Draw edges          : Only available on Crowbar Mode
-// Draw polygon        : Only available on Crowbar Mode
-// Crowbar Mode        : Switch on or off Crowbar Mode
-// ~~~popup menu explain~~~
+GLuint textures[4];
 
-MyGrid colorGrid;
+int nStep = 0;
 
-// only for non Crowbar Mode
-Vertex v1;
-Vertex v2;
-Vertex v3;
+void MyKeyboard(unsigned char key, int x, int y) {
+    switch (key) {
+    case 'r':
+        if (nStep < 4)
+            nStep++;
+        else
+            nStep = 0;
+        break;
+    default:
+        break;
+    }
 
-// only for Crowbar Mode
-// vertices list
-std::vector<Vertex> vList = {};
-
-// only for non Crowbar Mode
-// Normal mode: only show vertex
-// Debug mode: show vertex and line
-bool onDebugMode = false;
-
-// is crowbar mode???
-bool onCrowbarMode = false;
-
-// FSM for setting vertex
-CURRENT_VERTEX currentVertex = CURRENT_VERTEX::V1;
-
-// pixels needs to be rendered
-std::vector<Vertex> renderPixel = {};
-
-// animation
-const int TIME_INTERVAL = 13;
-bool isRendering = false;
-
-int main(int argc, char** argv)
-{
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(400, 400);
-    glutInitWindowPosition(600, 80);
-    glutCreateWindow("this is my grid");
-    SetupRC();
-
-    // Register callbacks for GLUT
-    glutReshapeFunc(ChangeSize);
-    glutDisplayFunc(RenderScene);
-    glutKeyboardFunc(myKeyboard);
-    glutMouseFunc(myMouse);
-
-    myPopupMenu::CreatePopupMenu();
-
-    glutMainLoop();
-    return 0;
+    glutPostRedisplay();
 }
 
-void ChangeSize(const int w, const int h)
+// Called to draw scene
+void RenderScene(void)
 {
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION); // load the projection matrix
-    glLoadIdentity();
-    glOrtho(-10, 10, -10, 10, -10, 20);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}
-
-void RenderScene()
-{
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    // Clear the window with current clearing color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW); // load the model view matrix
-    glLoadIdentity(); // reset model matrix
-    gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_NORMALIZE);
 
-    colorGrid.RenderGrid();
+    glPushMatrix();
 
+    // Draw plane that the cube rests on
+    glDisable(GL_LIGHTING);
+    glColor3ub(255, 255, 255);
+    if (nStep >= 1)
+    {
+        glEnable(GL_TEXTURE_2D); // 啟動openGL的2D材質填充模式
+
+        // 將textures[0]中所儲存的材質貼在四邊形上
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-100.0f, -25.3f, -100.0f);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-100.0f, -25.3f, 100.0f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(100.0f, -25.3f, 100.0f);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(100.0f, -25.3f, -100.0f);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glColor3f(0.0f, 0.0f, 0.90f); // Blue
+        glBegin(GL_QUADS);
+        glVertex3f(-100.0f, -25.3f, -100.0f);
+        glVertex3f(-100.0f, -25.3f, 100.0f);
+        glVertex3f(100.0f, -25.3f, 100.0f);
+        glVertex3f(100.0f, -25.3f, -100.0f);
+        glEnd();
+    }
+
+
+    // Set drawing color to Red
+    glColor3f(1.0f, 0.0f, 0.0f);
+
+    // Move the cube slightly forward and to the left
+    glTranslatef(-10.0f, 0.0f, 10.0f);
+
+    glColor3ub(255, 255, 255);
+
+    if (nStep >= 2)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    // Front Face (before rotation)
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
+    glBegin(GL_QUADS);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(25.0f, 25.0f, 25.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(25.0f, -25.0f, 25.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-25.0f, -25.0f, 25.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-25.0f, 25.0f, 25.0f);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    if (nStep >= 3)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    // Top of cube
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    glBegin(GL_QUADS);
+    // Front Face
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(25.0f, 25.0f, 25.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(25.0f, 25.0f, -25.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-25.0f, 25.0f, -25.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-25.0f, 25.0f, 25.0f);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    if (nStep >= 4)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
+    // Last two segments for effect
+    glBindTexture(GL_TEXTURE_2D, textures[3]);
+    glBegin(GL_QUADS);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(25.0f, 25.0f, -25.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(25.0f, -25.0f, -25.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(25.0f, -25.0f, 25.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(25.0f, 25.0f, 25.0f);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    glTranslatef(-10.0f, 0.0f, 10.0f);
+
+    glPopMatrix();
+
+    // Flush drawing commands
     glutSwapBuffers();
 }
 
+// This function does any needed initialization on the rendering
+// context. 
 void SetupRC()
 {
-    // Light values and coordinates
-    GLfloat whiteLight[] = { 0.45f, 0.45f, 0.45f, 1.0f };
-    GLfloat sourceLight[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-    GLfloat lightPos[] = { 0.f, 25.0f, 20.0f, 0.0f };
-    // Enable lighting
-    glEnable(GL_LIGHTING);
-    // Setup and enable light 0
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, whiteLight);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, sourceLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, sourceLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-    glEnable(GL_LIGHT0);
-    // Enable color tracking
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_DEPTH_TEST);
-}
+    GLbyte* pBytes;
+    GLint nWidth, nHeight, nComponents;
+    GLenum format;
 
-void myKeyboard(const unsigned char key, int x, int y)
-{
-    switch (key)
-    {
-    case 'r':
-        if (isRendering)
-        {
-            std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-            return;
-        }
-        // clean up grid and vertex
-        colorGrid.RemoveAllPixel();
-        currentVertex = CURRENT_VERTEX::V1;
-        vList = {};
-        break;
-    default:
-        break;
+    // Black background
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // 設定openGL材質紋理的參數和材質的組合模式
+    glGenTextures(4, textures); // 註冊一個大小為4的陣列讓openGL儲存材質，名稱為textures
+
+    // Load the texture objects
+    cv::Mat floorImage = cv::imread("C:\\NTUT\\2022S\\CG\\block\\floor.jpg"); // 利用openCV讀取圖片檔案
+    if (floorImage.empty()) {
+        std::cout << "Floor empty\n";
     }
-    glutPostRedisplay();
-}
-
-void myMouse(const int button, const int state, const int x, const int y)
-{
-    // screen space:
-    // o---→ x
-    // |
-    // ↓ y
-    // 
-    // world space:
-    // ↑ y
-    // |
-    // o--→ x
-    // 
-    // more at: https://learnopengl.com/Getting-started/Coordinate-Systems
-    // 
-    // transform screen coordinate to world coordinate
-    const GLfloat clipX = static_cast<GLfloat>(x) / glutGet(GLUT_WINDOW_WIDTH) * 2 - 1;
-    const GLfloat clipY = (1 - static_cast<GLfloat>(y) / glutGet(GLUT_WINDOW_HEIGHT)) * 2 - 1;
-    const GLfloat halfOfCellSize = 0.5f;
-    const GLfloat translateToGrid = static_cast<GLfloat>(colorGrid.GetGridDimension()) + halfOfCellSize;
-    const int gridX = static_cast<int>(round(clipX * translateToGrid));
-    const int gridY = static_cast<int>(round(clipY * translateToGrid));
-    switch (button)
-    {
-    case GLUT_LEFT_BUTTON:
-        if (state == GLUT_DOWN) {
-            setVertex(gridX, gridY);
-        }
-        break;
-    default:
-        break;
-    }
-    glutPostRedisplay();
-}
-
-void setVertex(const int x, const int y)
-{
-    static bool debug_mode_flag;
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-
-    if (onCrowbarMode)
-    {
-        if (vList.empty())
-            colorGrid.RemoveAllPixel();
-
-        // random color
-        const float r = getRandomNumber();
-        const float g = getRandomNumber();
-        const float b = getRandomNumber();
-
-        const Vertex v = { x, y , r, g, b };
-        pushToVerticesList(v);
-        vertexPainter(v, "v");
-    }
-    else
-    {
-        switch (currentVertex)
-        {
-        case CURRENT_VERTEX::V1:
-            colorGrid.RemoveAllPixel();
-            v1 = { x, y };
-            vertexPainter(v1, "v1");
-            currentVertex = CURRENT_VERTEX::V2;
-            debug_mode_flag = onDebugMode;
-            break;
-        case CURRENT_VERTEX::V2:
-            v2 = { x, y };
-            vertexPainter(v2, "v2");
-            if (debug_mode_flag) {
-                linePainter(v1, v2, "v1v2");
-            }
-            currentVertex = CURRENT_VERTEX::V3;
-            break;
-        case CURRENT_VERTEX::V3:
-            v3 = { x, y };
-            vertexPainter(v3, "v3");
-            if (debug_mode_flag)
-            {
-                linePainter(v2, v3, "v2v3");
-                linePainter(v3, v1, "v3v1");
-                facePainter(v1, v2, v3, "v1v2v3");
-            }
-            currentVertex = CURRENT_VERTEX::V1;
-            break;
-        }
-    }
-}
-
-void vertexPainter(const Vertex& v, const std::string& name)
-{
-    // for compatibility
-    const Vec2i v_old = { static_cast<int>(v.x), static_cast<int>(v.y) };
-
-    if (onCrowbarMode)
-    {
-        colorGrid.SetPixel(v_old[0], v_old[1], {v.r, v.g, v.b});
-        printVertexPixelCoordinate(v_old, "v");
-    }
-    else
-    {
-        // vertex color: red
-        colorGrid.SetVertexPixel(v_old[0], v_old[1]);
-        printVertexPixelCoordinate(v_old, name);
-    }
-}
-
-void linePainter(const Vertex& v1, const Vertex& v2, const std::string& name)
-{
-    // for compatibility
-    const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
-    const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
-
-    // line color: green(E) or blue(NE)
-    midpointAlgorithm(v1_old[0], v1_old[1], v2_old[0], v2_old[1]);
-    printLineRegion(v1_old, v2_old, name);
-}
-
-void facePainter(const Vertex& v1, const Vertex& v2, const Vertex& v3, const std::string& name)
-{
-    // for compatibility
-    const Vec2i v1_old = { static_cast<int>(v1.x), static_cast<int>(v1.y) };
-    const Vec2i v2_old = { static_cast<int>(v2.x), static_cast<int>(v2.y) };
-    const Vec2i v3_old = { static_cast<int>(v3.x), static_cast<int>(v3.y) };
-
-    halfSpaceTest(v1_old, v2_old, v3_old);
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-    // start rendering
-    isRendering = true;
-    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
-}
-
-int getRegion(const Vec2i& v1, const Vec2i& v2)
-{
-    const bool steep = abs(v2[1] - v1[1]) > abs(v2[0] - v1[0]); // is m > 1?
-    const bool isLeft2Right = v1[0] < v2[0];
-    const bool isBottom2Top = v1[1] < v2[1];
-
-    if (isLeft2Right) {
-        // I
-        if (isBottom2Top)
-            return steep ? 2 : 1;
-        // IV
-        return steep ? 7 : 8;
-    }
-    // II
-    if (isBottom2Top)
-        return steep ? 3 : 4;
-    // III
-    return steep ? 6 : 5;
-}
-
-// Bresenham Algorithm
-void midpointAlgorithm(int x1, int y1, int x2, int y2)
-{
-    // is m > 1 ?
-    // translate with y=x to make m <= 1
-    const bool steep = abs(y2 - y1) > abs(x2 - x1);
-    if (steep) {
-        std::swap(x1, y1);
-        std::swap(x2, y2);
-    }
-    // is right to left ?
-    // always draw line from left to right
-    if (x1 > x2) {
-        std::swap(x1, x2);
-        std::swap(y1, y2);
-    }
-
-    const int dx = x2 - x1;
-    const int dy = y2 - y1;
-    const int deltaE = 2 * dy;         // 2* (a)
-    const int deltaNE = 2 * (dy - dx); // 2* (a+b) for m >= 0
-    const int deltaSE = 2 * (dy + dx); // 2* (a-b) for m < 0
-    int decision;
-    int x = x1;
-    int y = y1;
-
-    // draw E or NE(SE) pixel according to steep
-    auto drawPixel = [&](const bool isE) {
-        if (steep) {
-            if (isE) colorGrid.SetEPixel(y, x);
-            else colorGrid.SetNEPixel(y, x);
-            printLinePixelCoordinate({ y, x }, isE);
-        }
-        else {
-            if (isE) colorGrid.SetEPixel(x, y);
-            else colorGrid.SetNEPixel(x, y);
-            printLinePixelCoordinate({ x, y }, isE);
-        }
-    };
-
-    // top to bottom
-    if (y1 > y2) {
-        decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
-        while (x < x2 - 1) {
-            if (decision >= 0) {
-                // E
-                decision += deltaE;
-                ++x;
-                drawPixel(true);
-            }
-            else {
-                // SE
-                decision += deltaSE;
-                ++x;
-                --y;
-                drawPixel(false);
-            }
-        }
-    }
-    // bottom to top
     else {
-        decision = 2 * dy - dx; // 2* (a+b/2) for m >= 0
-        while (x < x2 - 1) {
-            if (decision <= 0) {
-                // E
-                decision += deltaE;
-                ++x;
-                drawPixel(true);
-            }
-            else {
-                // NE
-                decision += deltaNE;
-                ++x;
-                ++y;
-                drawPixel(false);
-            }
-        }
-    }
-}
+        // 將讀取進來的圖片檔案當作材質存進textures中
+        cv::flip(floorImage, floorImage, 0);
+        glGenTextures(1, &textures[0]);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
 
-void halfSpaceTest(const Vec2i& v1, const Vec2i& v2, const Vec2i& v3)
-{
-    // get bounding box
-    int xMin = std::min({ v1[0], v2[0], v3[0] });
-    int xMax = std::max({ v1[0], v2[0], v3[0] });
-    int yMin = std::min({ v1[1], v2[1], v3[1] });
-    int yMax = std::max({ v1[1], v2[1], v3[1] });
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-    // equation
-    auto lineEquation = [&](const Vec2i& v1, const Vec2i& v2, int x, int y) -> float
-    {
-        int a = v2[1] - v1[1];
-        int b = v1[0] - v2[0];
-        int c = v2[0] * v1[1] - v2[1] * v1[0];
-        return static_cast<float>(a * x + b * y + c);
-    };
-
-    int a1 = v2[1] - v1[1];
-    int a2 = v3[1] - v2[1];
-    int a3 = v1[1] - v3[1];
-    int b1 = v1[0] - v2[0];
-    int b2 = v2[0] - v3[0];
-    int b3 = v3[0] - v1[0];
-    float e1 = lineEquation(v1, v2, xMin, yMin);
-    float e2 = lineEquation(v2, v3, xMin, yMin);
-    float e3 = lineEquation(v3, v1, xMin, yMin);
-    int xDim = xMax - xMin + 1;
-
-    // draw pixel
-    for (int y = yMin; y <= yMax; ++y) {
-        for (int x = xMin; x <= xMax; ++x) {
-            if (e1 < 0 && e2 < 0 && e3 < 0) {
-                // push to list for later rendering
-                pushToPixelRenderQueue({ x, y , 1.0f, 1.0f, 0.5f });
-            }
-            e1 += a1;
-            e2 += a2;
-            e3 += a3;
-        }
-        e1 += -xDim * a1 + b1;
-        e2 += -xDim * a2 + b2;
-        e3 += -xDim * a3 + b3;
-    }
-}
-
-void pushToVerticesList(const Vertex& v)
-{
-    vList.push_back(v);
-}
-
-void pushToPixelRenderQueue(const Vertex& v)
-{
-    renderPixel.push_back(v);
-}
-
-float getRandomNumber()
-{
-    // random number generator
-    // more at https://blog.gtwang.org/programming/cpp-random-number-generator-and-probability-distribution-tutorial/
-    static std::random_device randomDevice;
-    static std::mt19937 generator(randomDevice());
-    static std::normal_distribution<double> normal(0.7, 0.4);
-
-    return static_cast<float>(normal(generator));
-}
-
-// crowbar
-// only convex polygon
-void crow(const std::vector<Vertex>& v_list, int v_num)
-{
-    int index_min = 0;
-    // find bottom vertex index
-    for (int i=1; i<v_num; ++i)
-        if (v_list[index_min].y > v_list[i].y)
-            index_min = i;
-
-    scanY(v_list, v_num, index_min);
-}
-
-void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
-{
-    // upper endpoint index
-    int left_index;
-    int right_index;
-    // upper endpoint y
-    int left_upper_endpoint_y;
-    int right_upper_endpoint_y;
-    // current edge and delta
-    Vertex left_edge;
-    Vertex left_edge_delta;
-    Vertex right_edge;
-    Vertex right_edge_delta;
-    // number of remaining vertices
-    int rem_v_num;
-    // current scan line
-    int y;
-
-    left_index = right_index = v_index;
-    left_upper_endpoint_y = right_upper_endpoint_y = y = static_cast<int>(ceil(v_list[v_index].y));
-    
-    for (rem_v_num = v_num; rem_v_num > 0;)
-    {
-        // find appropriate left edge
-        while (left_upper_endpoint_y <= y && rem_v_num > 0)
-        {
-            v_index--;
-            // go clockwise
-            if (v_index < 0)
-                v_index = v_num - 1;
-
-            left_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
-            // replace left edge
-            if (y <= left_upper_endpoint_y)
-            {
-                differenceY(v_list[left_index], v_list[v_index], left_edge, left_edge_delta, y);
-                rem_v_num--; // after found the right upper index, decrease number
-            }
-            left_index = v_index;
-        }
-
-        // find appropriate right edge
-        while (right_upper_endpoint_y <= y && rem_v_num > 0)
-        {
-            v_index++;
-            // go counter-clockwise
-            if (v_index >= v_num)
-                v_index = 0;
-
-            right_upper_endpoint_y = static_cast<int>(ceil(v_list[v_index].y));
-            // replace right edge
-            if (y <= right_upper_endpoint_y)
-            {
-                differenceY(v_list[right_index], v_list[v_index], right_edge, right_edge_delta, y);
-                rem_v_num--; // after found the right upper index, decrease number
-            }
-            right_index = v_index;
-        }
-
-        // add highlight endpoint
-        pushToPixelRenderQueue({ v_list[left_index].x, v_list[left_index].y, 1.0f, 0.25f, 0.25f });
-        pushToPixelRenderQueue({ v_list[right_index].x, v_list[right_index].y, 1.0f, 0.25f, 0.25f });
-
-        // while l & r span y (the current scanline)
-        // draw the span
-        for (; y < left_upper_endpoint_y && y < right_upper_endpoint_y; ++y)
-        {
-            // scan and interpolate edges
-            scanX(left_edge, right_edge, y);
-            increment(left_edge, left_edge_delta);
-            increment(right_edge, right_edge_delta);
-        }
-
-        // fix it just work!!
-        if (y < left_upper_endpoint_y)
-            ++rem_v_num;
-        if (y < right_upper_endpoint_y)
-            ++rem_v_num;
-
-        // remove highlight endpoint
-        pushToPixelRenderQueue(v_list[left_index]);
-        pushToPixelRenderQueue(v_list[right_index]);
-
-    }
-}
-
-void scanX(Vertex& left_edge, Vertex& right_edge, int y)
-{
-    const int left_x = static_cast<int>(ceil(left_edge.x));
-    const int right_x = static_cast<int>(ceil(right_edge.x));
-    Vertex s;
-    Vertex delta_s;
-
-    if (left_x < right_x)
-    {
-        differenceX(left_edge, right_edge, s, delta_s, left_x);
-        for (int x = left_x; x < right_x; ++x)
-        {
-            pushToPixelRenderQueue({x, y, s.r, s.g, s.b});
-            increment(s, delta_s);
-        }
-    }
-}
-
-void difference(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, float distance, float fix)
-{
-    delta_edge.x = (v2.x - v1.x) / distance;
-    edge.x = v1.x + fix * delta_edge.x;
-    delta_edge.r = (v2.r - v1.r) / distance;
-    edge.r = v1.r + fix * delta_edge.r;
-    delta_edge.g = (v2.g - v1.g) / distance;
-    edge.g = v1.g + fix * delta_edge.g;
-    delta_edge.b = (v2.b - v1.b) / distance;
-    edge.b = v1.b + fix * delta_edge.b;
-}
-
-void differenceY(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int y)
-{
-    const float distance_y = v2.y - v1.y;
-    const float fix_y = y - v1.y;
-    difference(v1, v2, edge, delta_edge, distance_y, fix_y);
-}
-
-void differenceX(const Vertex& v1, const Vertex& v2, Vertex& edge, Vertex& delta_edge, int x)
-{
-    const float distance_x = v2.x - v1.x;
-    const float fix_x = x - v1.x;
-    difference(v1, v2, edge, delta_edge, distance_x, fix_x);
-}
-
-void increment(Vertex& edge, const Vertex& delta)
-{
-    edge.x += delta.x;
-    edge.r += delta.r;
-    edge.g += delta.g;
-    edge.b += delta.b;
-}
-
-// draw edge with color
-std::vector<Vertex> drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
-{
-    // is m > 1 ?
-    // translate with y=x to make m <= 1
-    const bool steep = abs(v2.y - v1.y) > abs(v2.x - v1.x);
-    if (steep) {
-        std::swap(v1.x, v1.y);
-        std::swap(v2.x, v2.y);
-    }
-    // is right to left ?
-    // always draw line from left to right
-    if (v1.x > v2.x) {
-        std::swap(v1.x, v2.x);
-        std::swap(v1.y, v2.y);
-        std::swap(v1.r, v2.r);
-        std::swap(v1.g, v2.g);
-        std::swap(v1.b, v2.b);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, floorImage.cols, floorImage.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, floorImage.ptr());
     }
 
-    const int dx = static_cast<int>(v2.x - v1.x);
-    const int dy = static_cast<int>(v2.y - v1.y);
-    const int deltaE = 2 * dy;         // 2* (a)
-    const int deltaNE = 2 * (dy - dx); // 2* (a+b) for m >= 0
-    const int deltaSE = 2 * (dy + dx); // 2* (a-b) for m < 0
-    int decision;
-    int x = static_cast<int>(v1.x);
-    int y = static_cast<int>(v1.y);
-
-    // color
-    const float vertex_count = v2.x - v1.x + 1;
-    const float dr = (v2.r - v1.r) / vertex_count;
-    const float dg = (v2.g - v1.g) / vertex_count;
-    const float db = (v2.b - v1.b) / vertex_count;
-    float r = v1.r;
-    float g = v1.g;
-    float b = v1.b;
-
-    // all edge vertex
-    std::vector<Vertex> edges_vertex = {};
-
-    // draw pixel according to steep
-    auto drawPixel = [&]() {
-        if (steep)
-            edges_vertex.push_back({ y, x, r, g, b });
-        else
-            edges_vertex.push_back({ x, y, r, g, b });
-    };
-
-    // top to bottom
-    if (v1.y > v2.y) {
-        decision = 2 * dy + dx; // 2* (a-b/2) for m < 0
-        while (x < v2.x - 1) {
-            if (decision >= 0) {
-                // E
-                decision += deltaE;
-                ++x;
-            }
-            else {
-                // SE
-                decision += deltaSE;
-                ++x;
-                --y;
-            }
-            r += dr;
-            g += dg;
-            b += db;
-            drawPixel();
-        }
-    }
-    // bottom to top
-    else {
-        decision = 2 * dy - dx; // 2* (a+b/2) for m >= 0
-        while (x < v2.x - 1) {
-            if (decision <= 0) {
-                // E
-                decision += deltaE;
-                ++x;
-            }
-            else {
-                // NE
-                decision += deltaNE;
-                ++x;
-                ++y;
-            }
-            r += dr;
-            g += dg;
-            b += db;
-            drawPixel();
-        }
-    }
-
-    return edges_vertex;
+    // 下面要設定剩下的三種材質
+    // ...
 }
 
-// animation
-void myTimer(int index)
+void ChangeSize(int w, int h)
 {
-    // check if all pixel rendered
-    if (index == renderPixel.size())
-    {
-        // reset after render all pixel
-        renderPixel = {};
-        isRendering = false;
-        return;
-    }
+    // Calculate new clipping volume
+    GLfloat windowWidth = 100.f;
+    GLfloat windowHeight = 100.f;
 
-    // render current pixel
-    const Vertex &pixel = renderPixel.at(index);
-    //if (!colorGrid.isPixelColorFilledAt(static_cast<int>(pixel.x), static_cast<int>(pixel.y)))
-    colorGrid.SetPixel(static_cast<int>(pixel.x), static_cast<int>(pixel.y), { pixel.r, pixel.g, pixel.b });
-    glutPostRedisplay();
+    // Set the viewport to be the entire window
+    glViewport(0, 0, w, h);
 
-    // render next pixel
-    glutTimerFunc(TIME_INTERVAL, myTimer, ++index);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    // Set the clipping volume
+    glOrtho(-100.0f, windowWidth, -100.0f, windowHeight, -200.0f, 200.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glLightfv(GL_LIGHT0, GL_POSITION, vLightPos);
+
+    glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
+    glRotatef(330.0f, 0.0f, 1.0f, 0.0f);
 }
 
-// message printer
-void printVertexPixelCoordinate(const Vec2i& vertex, const std::string& name)
+int main(int argc, char* argv[])
 {
-    std::cout << "[info] Vertex \033[91m" << name << "\033[0m at \033[91m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
-}
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Textures");
+    SetupRC();
+    glutReshapeFunc(ChangeSize);
+    glutDisplayFunc(RenderScene);
+    glutKeyboardFunc(MyKeyboard);
 
-void printLinePixelCoordinate(const Vec2i& vertex, const bool isE)
-{
-    if (isE)
-        std::cout << "\033[93m[debug]\033[0m Line pixel \033[92mE\033[0m at \033[92m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
-    else
-        std::cout << "\033[93m[debug]\033[0m Line pixel \033[94mNE\033[0m at \033[94m(" << vertex[0] << ", " << vertex[1] << ")\033[0m" << std::endl;
-}
-
-void printLineRegion(const Vec2i& v1, const Vec2i& v2, const std::string& name)
-{
-    std::cout << "\033[93m[debug]\033[0m Line \033[96m" << name << "\033[0m is \033[96mregion " << getRegion(v1, v2) << "\033[0m" << std::endl;
-}
-
-void printEdgeCoordinate(const std::vector<Vertex>& v_list, int edge_code)
-{
-    std::cout << "[info] \033[92mEdge " << edge_code << "\033[0m pixel:" << std::endl;
-    for (auto& v: v_list)
-        std::cout << "[info] -> \033[92m(" << v.x << ", " << v.y << ")\033[0m" << std::endl;
-}
-
-// for popup menu
-void setGridDimension(const int dim)
-{
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-    colorGrid.SetDimension(dim);
-    currentVertex = CURRENT_VERTEX::V1;
-    glutPostRedisplay();
-}
-
-void switchDebugMode()
-{
-    if (onCrowbarMode)
-    {
-        std::cout << "\033[91m[error]\033[0m Only for Non Crowbar Mode !!" << std::endl;
-        return;
-    }
-
-    onDebugMode = !onDebugMode;
-    if (onDebugMode)
-        std::cout << "[info] Switch to \033[93mDebug Mode\033[0m" << std::endl;
-    else
-        std::cout << "[info] Switch to \033[92mNormal Mode\033[0m" << std::endl;
-    glutPostRedisplay();
-}
-
-void drawEdges()
-{
-    if (!onCrowbarMode)
-    {
-        std::cout << "\033[91m[error]\033[0m Only for Crowbar Mode!!" << std::endl;
-        return;
-    }
-
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-
-    if (vList.size() < 2)
-    {
-        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 2." << std::endl;
-        return;
-    }
-
-    std::cout << "[info] Start draw edges." << std::endl;
-
-    for (int i = 0; static_cast<unsigned>(i) < vList.size(); ++i)
-    {
-        const Vertex& v1 = vList.at(i);
-        const Vertex& v2 = vList.at((i+1) % vList.size());
-
-        std::vector<Vertex> edge_vertex = drawEdgeMidpointAlgorithm(v1, v2);
-        printEdgeCoordinate(edge_vertex, i + 1); // print all vertices coordinate of edges
-        renderPixel.insert(renderPixel.end(), edge_vertex.begin(), edge_vertex.end()); // add all vertices to renderPixel
-    }
-
-    // start rendering
-    isRendering = true;
-    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
-}
-
-void drawPolygon()
-{
-    if (!onCrowbarMode)
-    {
-        std::cout << "\033[91m[error]\033[0m Only for Crowbar Mode!!" << std::endl;
-        return;
-    }
-
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-
-    if (vList.size() < 3)
-    {
-        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 3." << std::endl;
-        return;
-    }
-
-    std::cout << "[info] Start draw polygon." << std::endl;
-
-    crow(vList, vList.size());
-    vList = {};
-
-    // start rendering
-    isRendering = true;
-    glutTimerFunc(TIME_INTERVAL, myTimer, 0);
-}
-
-void switchCrowbarMode()
-{
-    if (isRendering)
-    {
-        std::cout << "\033[91m[error]\033[0m Pixels are rendering!!" << std::endl;
-        return;
-    }
-
-    onCrowbarMode = !onCrowbarMode;
-    if (onCrowbarMode)
-    {
-        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[92mon\033[0m!" << std::endl;
-        colorGrid.RemoveAllPixel();
-    }
-    else
-    {
-        std::cout << "[info] \033[96mCrowbar Mode\033[0m switch \033[91moff\033[0m!" << std::endl;
-        colorGrid.RemoveAllPixel();
-        currentVertex = CURRENT_VERTEX::V1;
-        vList = {};
-    }
-    glutPostRedisplay();
+    glutMainLoop();
+    glDeleteTextures(4, textures);
+    return 0;
 }

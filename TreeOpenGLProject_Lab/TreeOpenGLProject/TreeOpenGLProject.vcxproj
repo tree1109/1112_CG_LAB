@@ -20,13 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="myGrid.cpp" />
-    <ClCompile Include="myPopupMenu.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="main.h" />
-    <ClInclude Include="myGrid.h" />
-    <ClInclude Include="myPopupMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" />
