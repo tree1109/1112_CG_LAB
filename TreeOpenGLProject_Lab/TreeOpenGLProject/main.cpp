@@ -1,26 +1,30 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include <random>
-#include "GL\freeglut.h" // freeglut
+#include "GL/freeglut.h" // freeglut
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 // Lighting data
-GLfloat lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-GLfloat lightDiffuse[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-GLfloat lightSpecular[] = { 0.9f, 0.9f, 0.9f };
-GLfloat materialColor[] = { 0.8f, 0.0f, 0.0f };
-GLfloat vLightPos[] = { -80.0f, 120.0f, 100.0f, 0.0f };
-GLfloat ground[3][3] = { { 0.0f, -25.0f, 0.0f },
-                        { 10.0f, -25.0f, 0.0f },
-                        { 10.0f, -25.0f, -10.0f } };
+GLfloat lightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+GLfloat lightDiffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+GLfloat lightSpecular[] = {0.9f, 0.9f, 0.9f};
+GLfloat materialColor[] = {0.8f, 0.0f, 0.0f};
+GLfloat vLightPos[] = {-80.0f, 120.0f, 100.0f, 0.0f};
+GLfloat ground[3][3] = {
+    {0.0f, -25.0f, 0.0f},
+    {10.0f, -25.0f, 0.0f},
+    {10.0f, -25.0f, -10.0f}
+};
 
 GLuint textures[4];
 
 int nStep = 0;
 
-void MyKeyboard(unsigned char key, int x, int y) {
-    switch (key) {
+void MyKeyboard(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
     case 'r':
         if (nStep < 4)
             nStep++;
@@ -156,9 +160,9 @@ void RenderScene(void)
 // context. 
 void SetupRC()
 {
-    GLbyte* pBytes;
-    GLint nWidth, nHeight, nComponents;
-    GLenum format;
+    //GLbyte* pBytes;
+    //GLint nWidth, nHeight, nComponents;
+    //GLenum format;
 
     // Black background
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -166,27 +170,39 @@ void SetupRC()
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // 設定openGL材質紋理的參數和材質的組合模式
     glGenTextures(4, textures); // 註冊一個大小為4的陣列讓openGL儲存材質，名稱為textures
 
-    // Load the texture objects
-    cv::Mat floorImage = cv::imread("C:\\NTUT\\2022S\\CG\\block\\floor.jpg"); // 利用openCV讀取圖片檔案
-    if (floorImage.empty()) {
-        std::cout << "Floor empty\n";
-    }
-    else {
-        // 將讀取進來的圖片檔案當作材質存進textures中
-        cv::flip(floorImage, floorImage, 0);
-        glGenTextures(1, &textures[0]);
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
+    // texturesFileName : 存放於textures資料夾中的材質檔案名稱
+    // pos              : 存放於textures陣列中的位置
+    auto loadTextures = [](std::string textureFileName, int pos)
+    {
+        // Load the texture objects
+        cv::Mat image = cv::imread("textures\\" + textureFileName + ".jpg"); // 利用openCV讀取圖片檔案
+        if (image.empty())
+        {
+            std::cout << "\033[91m[error]\033[0m Texture \"" << textureFileName << "\" is empty.\n";
+        }
+        else
+        {
+            // 將讀取進來的圖片檔案當作材質存進textures中
+            cv::flip(image, image, 0);
+            // 將材質存到textures[0]中
+            glGenTextures(1, &textures[pos]);
+            glBindTexture(GL_TEXTURE_2D, textures[pos]);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, floorImage.cols, floorImage.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, floorImage.ptr());
-    }
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0,
+                GL_BGR_EXT, GL_UNSIGNED_BYTE, image.ptr());
+        }
+    };
 
-    // 下面要設定剩下的三種材質
-    // ...
+    // 載入材質
+    loadTextures("floor", 0);
+    loadTextures("Block4", 1);
+    loadTextures("Block5", 2);
+    loadTextures("Block6", 3);
 }
 
 void ChangeSize(int w, int h)
