@@ -484,13 +484,9 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             {
                 differenceY(v_list[left_index], v_list[v_index], left_edge, left_edge_delta, y);
                 rem_v_num--; // after found the right upper index, decrease number
-                // TODO show highlight endpoint with red box
             }
             left_index = v_index;
         }
-
-        // fix error, it just work!
-        ++rem_v_num;
 
         // find appropriate right edge
         while (right_upper_endpoint_y <= y && rem_v_num > 0)
@@ -506,10 +502,14 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             {
                 differenceY(v_list[right_index], v_list[v_index], right_edge, right_edge_delta, y);
                 rem_v_num--; // after found the right upper index, decrease number
-                // TODO show highlight endpoint with red box
             }
             right_index = v_index;
         }
+
+        // add highlight endpoint
+        pushToPixelRenderQueue({ v_list[left_index].x, v_list[left_index].y, 1.0f, 0.25f, 0.25f });
+        pushToPixelRenderQueue({ v_list[right_index].x, v_list[right_index].y, 1.0f, 0.25f, 0.25f });
+
         // while l & r span y (the current scanline)
         // draw the span
         for (; y < left_upper_endpoint_y && y < right_upper_endpoint_y; ++y)
@@ -519,6 +519,17 @@ void scanY(const std::vector<Vertex>& v_list, int v_num, int v_index)
             increment(left_edge, left_edge_delta);
             increment(right_edge, right_edge_delta);
         }
+
+        // fix it just work!!
+        if (y < left_upper_endpoint_y)
+            ++rem_v_num;
+        if (y < right_upper_endpoint_y)
+            ++rem_v_num;
+
+        // remove highlight endpoint
+        pushToPixelRenderQueue(v_list[left_index]);
+        pushToPixelRenderQueue(v_list[right_index]);
+
     }
 }
 
@@ -575,7 +586,6 @@ void increment(Vertex& edge, const Vertex& delta)
 }
 
 // draw edge with color
-// TODO interpolating with color
 std::vector<Vertex> drawEdgeMidpointAlgorithm(Vertex v1, Vertex v2)
 {
     // is m > 1 ?
@@ -684,8 +694,8 @@ void myTimer(int index)
 
     // render current pixel
     const Vertex &pixel = renderPixel.at(index);
-    if (!colorGrid.isPixelColorFilledAt(static_cast<int>(pixel.x), static_cast<int>(pixel.y)))
-        colorGrid.SetPixel(static_cast<int>(pixel.x), static_cast<int>(pixel.y), { pixel.r, pixel.g, pixel.b });
+    //if (!colorGrid.isPixelColorFilledAt(static_cast<int>(pixel.x), static_cast<int>(pixel.y)))
+    colorGrid.SetPixel(static_cast<int>(pixel.x), static_cast<int>(pixel.y), { pixel.r, pixel.g, pixel.b });
     glutPostRedisplay();
 
     // render next pixel

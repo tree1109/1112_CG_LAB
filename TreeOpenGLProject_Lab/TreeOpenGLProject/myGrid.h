@@ -21,15 +21,12 @@ public:
     Color& GetPixelColorAt(int x, int y);
     bool isPixelColorFilledAt(int x, int y);
     void RemoveAllPixel();
-    void addHighlightPoint(int x, int y);
-    //void removeHighlightPoint(int x, int y);
 
 private:
     GLfloat grid_size_x_;
     GLfloat grid_size_y_;
     int dimensions_;
     std::vector<Color> pixel_grid_;
-    std::vector<std::array<int, 2>> highlight_point_;
 
     void InitializePixelGrid();
 };
