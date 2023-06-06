@@ -8,6 +8,7 @@
 - `lab8-Half-Space` : Lab 8.
 - `lab9-Animation` : Lab 9.
 - `lab10-Crows-Algorithm` : Lab 10.
+- `lab11-Texture` : Lab 11.
 
 ## Midterm project task lists
 Read Obj file and render
