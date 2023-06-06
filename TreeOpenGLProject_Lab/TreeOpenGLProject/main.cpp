@@ -10,6 +10,13 @@
 // [r] : clean up grid and vertex
 // ~~~key map~~~
 
+// ~~~popup menu feature explain~~~
+// Normal / Debug Mode : Only available on Non Crowbar Mode
+// Draw edges          : Only available on Crowbar Mode
+// Draw polygon        : Only available on Crowbar Mode
+// Crowbar Mode        : Switch on or off Crowbar Mode
+// ~~~popup menu explain~~~
+
 MyGrid colorGrid;
 
 // only for non Crowbar Mode
@@ -754,6 +761,12 @@ void drawEdges()
         return;
     }
 
+    if (vList.size() < 2)
+    {
+        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 2." << std::endl;
+        return;
+    }
+
     std::cout << "[info] Start draw edges." << std::endl;
 
     for (int i = 0; static_cast<unsigned>(i) < vList.size(); ++i)
@@ -785,9 +798,9 @@ void drawPolygon()
         return;
     }
 
-    if (vList.empty())
+    if (vList.size() < 3)
     {
-        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 1." << std::endl;
+        std::cout << "\033[91m[error]\033[0m Too few vertices!! At least 3." << std::endl;
         return;
     }
 
