@@ -18,6 +18,20 @@ void MyGrid::RenderGrid() const
     glTranslatef(-grid_size_x_ / 2.0f, -grid_size_y_ / 2.0f, 0);
     glScalef(grid_size_x_ / static_cast<GLfloat>(pixel_grid_size), grid_size_y_ / static_cast<GLfloat>(pixel_grid_size), 1.0f);
 
+    // draw highlight point
+    glBegin(GL_LINES);
+    for (auto& point : highlight_point_)
+    {
+        const auto x = point[0];
+        const auto y = point[1];
+        glColor3f(1.0f, 0.25f, 0.25f);
+        glVertex2i(x, y);
+        glVertex2i(x, y + 1);
+        glVertex2i(x + 1, y + 1);
+        glVertex2i(x + 1, y);
+    }
+    glEnd();
+
     // draw grid
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -123,6 +137,18 @@ void MyGrid::RemoveAllPixel()
 {
     InitializePixelGrid();
 }
+
+void MyGrid::addHighlightPoint(int x, int y)
+{
+    highlight_point_.push_back({ x, y });
+}
+
+//void MyGrid::removeHighlightPoint(int x, int y)
+//{
+//    // TODO find point and remove
+//    auto it = std::find(highlight_point_.)
+//    highlight_point_.fin
+//}
 
 void MyGrid::InitializePixelGrid()
 {
