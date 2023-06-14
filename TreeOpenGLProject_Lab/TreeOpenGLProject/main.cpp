@@ -1,35 +1,35 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include <random>
+#include <array>
 #include "GL/freeglut.h" // freeglut
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-// Lighting data
-GLfloat lightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
-GLfloat lightDiffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat lightSpecular[] = {0.9f, 0.9f, 0.9f};
-GLfloat materialColor[] = {0.8f, 0.0f, 0.0f};
-GLfloat vLightPos[] = {-80.0f, 120.0f, 100.0f, 0.0f};
-GLfloat ground[3][3] = {
-    {0.0f, -25.0f, 0.0f},
-    {10.0f, -25.0f, 0.0f},
-    {10.0f, -25.0f, -10.0f}
-};
+#define X .525731112119133606
+#define Z .850650808352039932
+static std::array<std::array<GLfloat, 3>, 12> vdata = {{
+    {-X, 0.0, Z}, {X, 0.0, Z}, {-X, 0.0, -Z}, {X, 0.0, -Z},
+    {0.0, Z, X}, {0.0, Z, -X}, {0.0, -Z, X}, {0.0, -Z, -X},
+    {Z, X, 0.0}, {-Z, X, 0.0}, {Z, -X, 0.0}, {-Z, -X, 0.0}
+}};
 
-GLuint textures[4];
+static std::array<std::array<GLuint, 3>, 20> triangles = {{
+    {1,4,0}, {4,9,0}, {4,9,5}, {8,5,4}, {1,8,4},
+    {1,10,8}, {10,3,8}, {8,3,5}, {3,2,5}, {3,7,2},
+    {3,10,7}, {10,6,7}, {6,11,7}, {6,0,11}, {6,1,0},
+    {10,1,6}, {11,0,9}, {2,11,9}, {5,2,9}, {11,2,7}
+}};
 
-int nStep = 0;
+GLfloat material_color[] = { 0.8f, 0.2f, 0.4f };
+
 
 void MyKeyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
     case 'r':
-        if (nStep < 4)
-            nStep++;
-        else
-            nStep = 0;
+        std::cout << "You click r\n";
         break;
     default:
         break;
@@ -41,116 +41,39 @@ void MyKeyboard(unsigned char key, int x, int y)
 // Called to draw scene
 void RenderScene(void)
 {
+    const int WIDTH = glutGet(GLUT_WINDOW_WIDTH);
+    const int HEIGHT = glutGet(GLUT_WINDOW_HEIGHT);
+
+    // Black background
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
     // Clear the window with current clearing color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_NORMALIZE);
 
-    glPushMatrix();
+    // Flat
+    glViewport(0, 0, WIDTH / 3, HEIGHT);
 
-    // Draw plane that the cube rests on
-    glDisable(GL_LIGHTING);
-    glColor3ub(255, 255, 255);
-    if (nStep >= 1)
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.0f, 0.25f, 0.5f);
+    for (auto& tri_vertexs : triangles)
     {
-        glEnable(GL_TEXTURE_2D); // 啟動openGL的2D材質填充模式
-
-        // 將textures[0]中所儲存的材質貼在四邊形上
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3f(-100.0f, -25.3f, -100.0f);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3f(-100.0f, -25.3f, 100.0f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3f(100.0f, -25.3f, 100.0f);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3f(100.0f, -25.3f, -100.0f);
-        glEnd();
-
-        glDisable(GL_TEXTURE_2D);
+        for (auto& vertex_index: tri_vertexs)
+        {
+            auto& v = vdata.at(vertex_index);
+            glVertex3f(v.at(0), v.at(1), v.at(2));
+        }
     }
-    else
-    {
-        glColor3f(0.0f, 0.0f, 0.90f); // Blue
-        glBegin(GL_QUADS);
-        glVertex3f(-100.0f, -25.3f, -100.0f);
-        glVertex3f(-100.0f, -25.3f, 100.0f);
-        glVertex3f(100.0f, -25.3f, 100.0f);
-        glVertex3f(100.0f, -25.3f, -100.0f);
-        glEnd();
-    }
-
-
-    // Set drawing color to Red
-    glColor3f(1.0f, 0.0f, 0.0f);
-
-    // Move the cube slightly forward and to the left
-    glTranslatef(-10.0f, 0.0f, 10.0f);
-
-    glColor3ub(255, 255, 255);
-
-    if (nStep >= 2)
-    {
-        glEnable(GL_TEXTURE_2D);
-    }
-    // Front Face (before rotation)
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
-    glBegin(GL_QUADS);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(25.0f, 25.0f, 25.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(25.0f, -25.0f, 25.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-25.0f, -25.0f, 25.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-25.0f, 25.0f, 25.0f);
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
 
-    if (nStep >= 3)
-    {
-        glEnable(GL_TEXTURE_2D);
-    }
-    // Top of cube
-    glBindTexture(GL_TEXTURE_2D, textures[2]);
-    glBegin(GL_QUADS);
-    // Front Face
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(25.0f, 25.0f, 25.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(25.0f, 25.0f, -25.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(-25.0f, 25.0f, -25.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-25.0f, 25.0f, 25.0f);
-    glEnd();
+    // Interpolate
+    glViewport(WIDTH / 3, 0, WIDTH / 3, HEIGHT);
 
-    glDisable(GL_TEXTURE_2D);
+    // Subdivide
+    glViewport(WIDTH / 3 * 2, 0, WIDTH / 3, HEIGHT);
 
-    if (nStep >= 4)
-    {
-        glEnable(GL_TEXTURE_2D);
-    }
-    // Last two segments for effect
-    glBindTexture(GL_TEXTURE_2D, textures[3]);
-    glBegin(GL_QUADS);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(25.0f, 25.0f, -25.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(25.0f, -25.0f, -25.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(25.0f, -25.0f, 25.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(25.0f, 25.0f, 25.0f);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-
-    glTranslatef(-10.0f, 0.0f, 10.0f);
-
-    glPopMatrix();
 
     // Flush drawing commands
     glutSwapBuffers();
@@ -160,87 +83,45 @@ void RenderScene(void)
 // context. 
 void SetupRC()
 {
-    //GLbyte* pBytes;
-    //GLint nWidth, nHeight, nComponents;
-    //GLenum format;
+    // Lighting data
+    GLfloat light_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat light_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+    GLfloat light_specular[] = {0.9f, 0.9f, 0.9f};
+    GLfloat light_position[] = { -80.0f, 120.0f, 100.0f, 0.0f };
 
-    // Black background
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
 
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // 設定openGL材質紋理的參數和材質的組合模式
-    glGenTextures(4, textures); // 註冊一個大小為4的陣列讓openGL儲存材質，名稱為textures
+    // Enable lighting
+    glEnable(GL_LIGHTING);
+    // Setup and enable light 0
+    glEnable(GL_LIGHT0);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    // texturesFileName : 存放於textures資料夾中的材質檔案名稱
-    // pos              : 存放於textures陣列中的位置
-    auto loadTextures = [](std::string textureFileName, int pos)
-    {
-        // Load the texture objects
-        cv::Mat image = cv::imread("textures\\" + textureFileName + ".jpg"); // 利用openCV讀取圖片檔案
-        if (image.empty())
-        {
-            std::cout << "\033[91m[error]\033[0m Texture \"" << textureFileName << "\" is empty.\n";
-        }
-        else
-        {
-            // 將讀取進來的圖片檔案當作材質存進textures中
-            cv::flip(image, image, 0);
-            // 將材質存到textures[0]中
-            glGenTextures(1, &textures[pos]);
-            glBindTexture(GL_TEXTURE_2D, textures[pos]);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0,
-                GL_BGR_EXT, GL_UNSIGNED_BYTE, image.ptr());
-        }
-    };
-
-    // 載入材質
-    loadTextures("floor", 0);
-    loadTextures("Block4", 1);
-    loadTextures("Block5", 2);
-    loadTextures("Block6", 3);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_DIFFUSE);
 }
 
 void ChangeSize(int w, int h)
 {
-    // Calculate new clipping volume
-    GLfloat windowWidth = 100.f;
-    GLfloat windowHeight = 100.f;
-
-    // Set the viewport to be the entire window
-    glViewport(0, 0, w, h);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    // Set the clipping volume
-    glOrtho(-100.0f, windowWidth, -100.0f, windowHeight, -200.0f, 200.0f);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glLightfv(GL_LIGHT0, GL_POSITION, vLightPos);
-
-    glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
-    glRotatef(330.0f, 0.0f, 1.0f, 0.0f);
 }
 
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Textures");
+    glutInitWindowSize(1200, 400);
+    glutCreateWindow("Lab12");
     SetupRC();
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
     glutKeyboardFunc(MyKeyboard);
 
     glutMainLoop();
-    glDeleteTextures(4, textures);
     return 0;
 }
