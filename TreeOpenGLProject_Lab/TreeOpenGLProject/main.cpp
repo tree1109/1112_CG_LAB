@@ -1,13 +1,9 @@
 ﻿#include <iostream>
-#include <iomanip>
-#include <random>
 #include <array>
-#include "GL/freeglut.h" // freeglut
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include "GL/freeglut.h"
 
-#define X .525731112119133606
-#define Z .850650808352039932
+#define X 0.525731112119133606f
+#define Z 0.850650808352039932f
 
 const std::array<std::array<GLfloat, 3>, 12> V_DATA = {{
     {-X, 0.0f, Z}, {X, 0.0f, Z}, {-X, 0.0f, -Z}, {X, 0.0f, -Z},
@@ -27,7 +23,7 @@ const std::array<GLfloat, 3> material_color = { 1.0f, 0.25f, 0.5f };
 GLfloat rotate_angle_x = 0.0f;
 GLfloat rotate_angle_y = 0.0f;
 
-enum class POLYGON_MODE { FILL, LINE } polygon_mode = POLYGON_MODE::FILL;
+enum class PolygonMode { FILL, LINE } polygon_mode;
 
 int subdivide_depth = 0;
 
@@ -41,7 +37,7 @@ int subdivide_depth = 0;
 // Switch polygon mode:
 // [C] : switch polygon mode between Line and Fill
 //
-// Subdivide Depth:
+// Subdivide Depth (max depth is 5):
 // [Z] : decrease depth by 1
 // [X] : increase depth by 1
 //
@@ -60,8 +56,8 @@ void MyKeyboard(unsigned char key, int x, int y)
         break;
     case 'c':
         // switch polygon mode between Line and Fill mode
-        polygon_mode = (polygon_mode == POLYGON_MODE::FILL) ? POLYGON_MODE::LINE : POLYGON_MODE::FILL;
-        std::cout << "[info] polygon mode: " << ((polygon_mode == POLYGON_MODE::FILL) ? "Fill" : "Line") << "\n";
+        polygon_mode = (polygon_mode == PolygonMode::FILL) ? PolygonMode::LINE : PolygonMode::FILL;
+        std::cout << "[info] polygon mode: " << ((polygon_mode == PolygonMode::FILL) ? "Fill" : "Line") << "\n";
         break;
     case 'z':
         subdivide_depth = std::max(0, subdivide_depth - 1);
@@ -104,75 +100,105 @@ void subdivide_triangle(int remain_depth, const std::array<GLfloat, 3>& v1, cons
 {
     if (remain_depth == 0)
     {
-        glNormal3fv(v1.data());
-        glVertex3fv(v1.data());
-        glNormal3fv(v2.data());
-        glVertex3fv(v2.data());
-        glNormal3fv(v3.data());
-        glVertex3fv(v3.data());
-    }
-    else
-    {
-        std::array<GLfloat, 3> v4 = { v1.at(0) + v2.at(0) + v3.at(0), v1.at(1) + v2.at(1) + v3.at(1), v1.at(2) + v2.at(2) + v3.at(2) };
-        // normalize v4
-        GLfloat v4_length = sqrtf(v4.at(0) * v4.at(0) + v4.at(1) * v4.at(1) + v4.at(2) * v4.at(2));
-        v4.at(0) /= v4_length;
-        v4.at(1) /= v4_length;
-        v4.at(2) /= v4_length;
-        subdivide_triangle(remain_depth - 1, v4, v1, v2);
-        subdivide_triangle(remain_depth - 1, v4, v2, v3);
-        subdivide_triangle(remain_depth - 1, v4, v3, v1);
-    }
-}
-
-void drawIcosahedron(bool smooth)
-{
-    if (smooth)
-    {
-        for (auto& tri_vertices : TRIANGLES)
+        // draw triangle
+        if (polygon_mode == PolygonMode::FILL)
         {
-            glBegin((polygon_mode == POLYGON_MODE::FILL) ? GL_TRIANGLES : GL_LINE_STRIP);
-            if (subdivide_depth == 0)
-            {
-                for (auto& vertex_index : tri_vertices)
-                {
-                    auto& v = V_DATA.at(vertex_index);
-                    glNormal3fv(v.data());
-                    glVertex3fv(v.data());
-                }
-            }
-            else
-            {
-                auto& v1 = V_DATA.at(tri_vertices[0]);
-                auto& v2 = V_DATA.at(tri_vertices[1]);
-                auto& v3 = V_DATA.at(tri_vertices[2]);
-                subdivide_triangle(subdivide_depth, v1, v2, v3);
-            }
-
-            glEnd();
+            glNormal3fv(v1.data());
+            glVertex3fv(v1.data());
+            glNormal3fv(v2.data());
+            glVertex3fv(v2.data());
+            glNormal3fv(v3.data());
+            glVertex3fv(v3.data());
+        }
+        // draw line
+        else
+        {
+            // line v1v2
+            glNormal3fv(v1.data());
+            glVertex3fv(v1.data());
+            glNormal3fv(v2.data());
+            glVertex3fv(v2.data());
+            // line v2v3
+            glNormal3fv(v2.data());
+            glVertex3fv(v2.data());
+            glNormal3fv(v3.data());
+            glVertex3fv(v3.data());
+            // line v3v1
+            glNormal3fv(v3.data());
+            glVertex3fv(v3.data());
+            glNormal3fv(v1.data());
+            glVertex3fv(v1.data());
         }
     }
     else
     {
-        glBegin((polygon_mode == POLYGON_MODE::FILL) ? GL_TRIANGLES : GL_LINES);
-        for (auto& tri_vertices : TRIANGLES)
+        // calculate 3 new vertex by v1, v2, v3
+        std::array<GLfloat, 3> v12 = { v1.at(0) + v2.at(0), v1.at(1) + v2.at(1), v1.at(2) + v2.at(2) };
+        std::array<GLfloat, 3> v23 = { v2.at(0) + v3.at(0), v2.at(1) + v3.at(1), v2.at(2) + v3.at(2) };
+        std::array<GLfloat, 3> v31 = { v3.at(0) + v1.at(0), v3.at(1) + v1.at(1), v3.at(2) + v1.at(2) };
+        // normalize v12, v23, v31
+        const GLfloat v12_length = sqrtf(powf(v12.at(0), 2) + powf(v12.at(1), 2) + powf(v12.at(2), 2));
+        const GLfloat v23_length = sqrtf(powf(v23.at(0), 2) + powf(v23.at(1), 2) + powf(v23.at(2), 2));
+        const GLfloat v31_length = sqrtf(powf(v31.at(0), 2) + powf(v31.at(1), 2) + powf(v31.at(2), 2));
+        v12 = { v12.at(0) / v12_length, v12.at(1) / v12_length, v12.at(2) / v12_length };
+        v23 = { v23.at(0) / v23_length, v23.at(1) / v23_length, v23.at(2) / v23_length };
+        v31 = { v31.at(0) / v31_length, v31.at(1) / v31_length, v31.at(2) / v31_length };
+        // recursive call
+        subdivide_triangle(remain_depth - 1, v1, v12, v31);
+        subdivide_triangle(remain_depth - 1, v2, v23, v12);
+        subdivide_triangle(remain_depth - 1, v3, v31, v23);
+        subdivide_triangle(remain_depth - 1, v12, v23, v31);
+    }
+}
+
+void drawIcosahedron(bool smooth, bool subdivide)
+{
+    glBegin((polygon_mode == PolygonMode::FILL) ? GL_TRIANGLES : GL_LINES);
+    // smooth shading
+    if (smooth)
+    {
+        for (auto& triangle_vertices : TRIANGLES)
         {
-            auto& v1 = V_DATA.at(tri_vertices[0]);
-            auto& v2 = V_DATA.at(tri_vertices[1]);
-            auto& v3 = V_DATA.at(tri_vertices[2]);
-            if (polygon_mode == POLYGON_MODE::FILL)
+            auto& v1 = V_DATA.at(triangle_vertices.at(0));
+            auto& v2 = V_DATA.at(triangle_vertices.at(1));
+            auto& v3 = V_DATA.at(triangle_vertices.at(2));
+            if (subdivide)
+                subdivide_triangle(subdivide_depth, v1, v2, v3);
+            else
+                subdivide_triangle(0, v1, v2, v3);
+        }
+    }
+    // flat shading
+    else
+    {
+        if (polygon_mode == PolygonMode::FILL)
+        {
+            for (auto& triangle_vertices : TRIANGLES)
             {
-                std::array<GLfloat, 3>&& n = { v1[0] + v2[0] + v3[0], v1[1] + v2[1] + v3[1], v1[2] + v2[2] + v3[2] };
+                auto& v1 = V_DATA.at(triangle_vertices.at(0));
+                auto& v2 = V_DATA.at(triangle_vertices.at(1));
+                auto& v3 = V_DATA.at(triangle_vertices.at(2));
+                // calculate face normal vector
+                const std::array<GLfloat, 3>& n = { v1.at(0) + v2.at(0) + v3.at(0), v1.at(1) + v2.at(1) + v3.at(1), v1.at(2) + v2.at(2) + v3.at(2) };
+                // draw triangle
                 glNormal3fv(n.data());
                 glVertex3fv(v1.data());
                 glVertex3fv(v2.data());
                 glVertex3fv(v3.data());
             }
-            else
+        }
+        else
+        {
+            for (auto& triangle_vertices : TRIANGLES)
             {
-                std::array<GLfloat, 3>&& n1 = { v1[0] + v2[0] , v1[1] + v2[1] , v1[2] + v2[2] };
-                std::array<GLfloat, 3>&& n2 = { v2[0] + v3[0] , v2[1] + v3[1] , v2[2] + v3[2] };
-                std::array<GLfloat, 3>&& n3 = { v3[0] + v1[0] , v3[1] + v1[1] , v3[2] + v1[2] };
+                auto& v1 = V_DATA.at(triangle_vertices.at(0));
+                auto& v2 = V_DATA.at(triangle_vertices.at(1));
+                auto& v3 = V_DATA.at(triangle_vertices.at(2));
+                // calculate line normal vector
+                const std::array<GLfloat, 3>& n1 = { v1.at(0) + v2.at(0) , v1.at(1) + v2.at(1) , v1.at(2) + v2.at(2) };
+                const std::array<GLfloat, 3>& n2 = { v2.at(0) + v3.at(0) , v2.at(1) + v3.at(1) , v2.at(2) + v3.at(2) };
+                const std::array<GLfloat, 3>& n3 = { v3.at(0) + v1.at(0) , v3.at(1) + v1.at(1) , v3.at(2) + v1.at(2) };
+                // draw line
                 glNormal3fv(n1.data());
                 glVertex3fv(v1.data());
                 glVertex3fv(v2.data());
@@ -184,14 +210,17 @@ void drawIcosahedron(bool smooth)
                 glVertex3fv(v1.data());
             }
         }
-        glEnd();
     }
+    glEnd();
 }
 
 void RenderScene(void)
 {
     const int WIDTH = glutGet(GLUT_WINDOW_WIDTH);
     const int HEIGHT = glutGet(GLUT_WINDOW_HEIGHT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     // Black background
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -200,43 +229,44 @@ void RenderScene(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_NORMALIZE);
 
-    // Rotate
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glRotatef(rotate_angle_y, 0.0f, 1.0f, 0.0f);
-    glRotatef(rotate_angle_x, 1.0f, 0.0f, 0.0f);
-
     // Color
     glColor3fv(material_color.data());
 
+    // Rotate
+    glRotatef(rotate_angle_x, 1.0f, 0.0f, 0.0f);
+    glRotatef(rotate_angle_y, 0.0f, 1.0f, 0.0f);
+    
     // Viewport 1 : Flat
     glViewport(0, 0, WIDTH / 3, HEIGHT);
     glShadeModel(GL_FLAT);
-    drawIcosahedron(false);
+    drawIcosahedron(false, true);
 
     // Viewport 2 : Interpolate
     glViewport(WIDTH / 3, 0, WIDTH / 3, HEIGHT);
     glShadeModel(GL_SMOOTH);
-    drawIcosahedron(true);
+    drawIcosahedron(true, false);
 
     // Viewport 3 : Subdivide
     glViewport(WIDTH / 3 * 2, 0, WIDTH / 3, HEIGHT);
     glShadeModel(GL_SMOOTH);
-    drawIcosahedron(true);
+    drawIcosahedron(true, true);
 
     // Flush drawing commands
     glutSwapBuffers();
 }
 
 // This function does any needed initialization on the rendering
-// context. 
+// context.
 void SetupRC()
 {
     // Lighting data
-    GLfloat light_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    GLfloat light_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
-    GLfloat light_specular[] = {0.9f, 0.9f, 0.9f};
-    GLfloat light_position[] = { 10.0f, 10.0f, -10.0f, 0.0f };
+    const GLfloat light_ambient[] = { 0.12f, 0.12f, 0.2f, 1.0f };
+    const GLfloat light_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+    const GLfloat light_specular[] = { 0.9f, 0.9f, 0.9f };
+    const GLfloat light_position[] = { 10.0f, 10.0f, -10.0f, 0.0f };
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     // Enable lighting
     glEnable(GL_LIGHTING);
@@ -255,6 +285,9 @@ void SetupRC()
 
 void ChangeSize(int w, int h)
 {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1.1, 1.1, -1.1, 1.1, 1.1, -1.1);
 }
 
 int main(int argc, char* argv[])
@@ -262,7 +295,7 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(1200, 400);
-    glutCreateWindow("Lab12");
+    glutCreateWindow("Lab12 :3");
     SetupRC();
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
