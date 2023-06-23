@@ -24,6 +24,11 @@
   <ItemGroup>
     <None Include="..\..\README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glframe.h" />
+    <ClInclude Include="gltools.h" />
+    <ClInclude Include="math3d.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

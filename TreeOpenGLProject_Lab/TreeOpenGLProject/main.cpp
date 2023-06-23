@@ -1,6 +1,8 @@
 ﻿#include <iostream>
 #include <array>
 #include "GL/freeglut.h"
+#include "glframe.h"
+#include "gltools.h"
 
 // ~~~key map~~~
 // Reset button:

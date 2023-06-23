@@ -22,4 +22,15 @@
   <ItemGroup>
     <None Include="..\..\README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glframe.h">
+      <Filter>來源檔案</Filter>
+    </ClInclude>
+    <ClInclude Include="gltools.h">
+      <Filter>來源檔案</Filter>
+    </ClInclude>
+    <ClInclude Include="math3d.h">
+      <Filter>來源檔案</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
