@@ -241,7 +241,8 @@ void AnimationTimerFunction(int tick)
     	return;
     }
 
-    // 物件動畫 ????
+    // 物件動畫
+    // 內容: 大概是海龜和小魚一起往右方游泳，像是在競速?
     constexpr double d_deg = 120.0 / 50;
     constexpr double d_rad = m3dDegToRad(d_deg);
     constexpr double rotate_radius = 100;
