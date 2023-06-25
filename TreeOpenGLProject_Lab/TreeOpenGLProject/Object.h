@@ -85,6 +85,7 @@ public:
                 std::array<int, 4> face_v = {};
                 std::array<int, 4> face_vt = {};
                 std::array<int, 4> face_vn = {};
+                // NOTE: 這是為了將面的資料讀入，因為面的資料格式為 -> f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 v4/vt4/vn4
                 {
                     lineSS >> temp;
                     std::replace(temp.begin(), temp.end(), '/', ' ');
@@ -120,7 +121,7 @@ public:
     void LoadTexture()
     {
         // 圖片使用帶有透明度的PNG影像
-        cv::Mat image = cv::imread(texturePath_, cv::IMREAD_UNCHANGED);
+        cv::Mat image = cv::imread(texturePath_);
         if (image.empty())
         {
             Log::Error("Fail to load texture \"" + texturePath_ + "\".");
