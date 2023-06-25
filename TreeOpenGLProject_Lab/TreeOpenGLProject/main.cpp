@@ -2,13 +2,13 @@
 #include <array>
 #include <random>
 #include <cmath>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include "GL/freeglut.h"
 #include "glframe.h"
 
-#define MILLISECOND_PER_FRAME 16
-#define MILLISECOND_PER_TICK 20
+#include "Object.h"
+#include "Log.h"
+
+#define MILLISECOND_PER_FRAME 20
 
 // ~~~key map~~~
 // Reset button:
@@ -27,26 +27,30 @@ bool isPlaying = false;
 const GLfloat light_ambient[] = { 0.12f, 0.12f, 0.2f, 1.0f };
 const GLfloat light_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
 const GLfloat light_specular[] = { 0.9f, 0.9f, 0.9f };
-const GLfloat light_position[] = { -75.0f, 150.0f, 70.0f, 0.0f };
+GLfloat light_position[] = { -75.0f, 150.0f, 70.0f, 0.0f };
 const GLfloat specref[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // Transformation matrix to project shadow
 M3DMatrix44f shadowMat;
 
+// 物件模型
+Object ObjectA("Sea_Turtle");
+Object ObjectB("fish");
+Object ObjectC("crab");
+
 void RenderScene()
 {
     // Clear the window with current clearing color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Draw the ground, we do manual shading to a darker green
+    // Set Material properties to follow glColor values
     // in the background to give the illusion of depth
     glBegin(GL_QUADS);
         glColor3ub(0, 32, 0); //light green ground
-        glVertex3f(400.0f, -150.0f, -200.0f);
-        glVertex3f(-400.0f, -150.0f, -200.0f);
+        glVertex3f(400.0f, -200.0f, -200.0f);
+        glVertex3f(-400.0f, -200.0f, -200.0f);
         glColor3ub(0, 255, 0);  // make it in green gradient
-        glVertex3f(-400.0f, -150.0f, 200.0f);
-        glVertex3f(400.0f, -150.0f, 200.0f);
+        glVertex3f(-400.0f, -200.0f, 200.0f);
+        glVertex3f(400.0f, -200.0f, 200.0f);
     glEnd();
 
     // Draw object
@@ -57,22 +61,13 @@ void RenderScene()
     {
         // 海龜
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        // TODO 海龜 translate
-        // TODO 畫海龜
-        // TEST
-        glColor3d(1, 0.25, 0.5);
-        glutSolidCube(100);
+        ObjectA.Draw();
 
         // 繞海龜旋轉的魚
         glPushMatrix();
         {
             glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-            // TODO 魚 translate
-            // TODO 畫魚
-            // TEST
-            glTranslated(200, 0, 0);
-            glColor3d(1, 0.25, 0.5);
-            glutSolidCube(70);
+            ObjectB.Draw();
         }
         glPopMatrix();
     }
@@ -82,8 +77,7 @@ void RenderScene()
     glPushMatrix();
     {
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        // TODO 其他物體 translate
-        // TODO 畫其他物體
+        ObjectC.Draw();
     }
     glPopMatrix();
 
@@ -95,23 +89,14 @@ void RenderScene()
     glPushMatrix();
     {
         // Multiply by shadow projection matrix
-        glMultMatrixf((GLfloat*)shadowMat);
-        // TODO 海龜 translate
-        // TODO 畫海龜的陰影
-        // TEST
-        glColor3d(0, 0, 0);
-        glutSolidCube(100);
+        glMultMatrixf(shadowMat);
+        ObjectA.Draw(true);
 
         // 繞海龜旋轉的魚
         glPushMatrix();
         {
             glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-            // TODO 魚 translate
-            // TODO 畫魚的陰影
-            // TEST
-            glTranslated(200, 0, 0);
-            glColor3d(0, 0, 0);
-            glutSolidCube(70);
+            ObjectB.Draw(true);
         }
         glPopMatrix();
     }
@@ -121,19 +106,18 @@ void RenderScene()
     glPushMatrix();
     {
         // Multiply by shadow projection matrix
-        glMultMatrixf((GLfloat*)shadowMat);
+        glMultMatrixf(shadowMat);
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        // TODO 其他物體 translate
-        // TODO 畫其他物體
+        ObjectC.Draw(true);
     }
     glPopMatrix();
 
     // Draw the light source
-    glPushMatrix();
-    glTranslatef(light_position[0], light_position[1], light_position[2]);
-    glColor3ub(255, 255, 0);
-    glutSolidSphere(5.0f, 10, 10);
-    glPopMatrix();
+    //glPushMatrix();
+    //glTranslatef(light_position[0], light_position[1], light_position[2]);
+    //glColor3ub(255, 255, 0);
+    //glutSolidSphere(5.0f, 10, 10);
+    //glPopMatrix();
 
     // Restore lighting state variables
     glEnable(GL_DEPTH_TEST);
@@ -146,9 +130,9 @@ void SetupRC()
 {
     // Any three points on the ground (counter clockwise order)
     M3DVector3f points[3] = {
-        {-30.0f, -149.0f, -20.0f},
-        {-30.0f, -149.0f, 20.0f},
-        {40.0f, -149.0f, 20.0f}
+        {-30.0f, -200.0f, -20.0f},
+        {-30.0f, -200.0f, 20.0f},
+        {40.0f, -200.0f, 20.0f}
     };
 
     // Hidden surface removal
@@ -186,6 +170,37 @@ void SetupRC()
     m3dMakePlanarShadowMatrix(shadowMat, vPlaneEquation, light_position);
 
     glEnable(GL_NORMALIZE);
+
+    // 載入每個物件的 object
+    ObjectA.LoadObject();
+    ObjectB.LoadObject();
+    ObjectC.LoadObject();
+    //ObjectC.LoadObject();
+    // 載入每個物件的 texture
+    ObjectA.LoadTexture();
+    ObjectB.LoadTexture();
+    ObjectC.LoadTexture();
+
+    // 調整物件
+    ObjectA.SetScale(3);
+    ObjectB.SetScale(3);
+    ObjectC.SetScale(3);
+
+    // 設定起始位置
+    ObjectA.SetPosition({ 0,0,0 });
+    ObjectA.SetRotationDeg({ -90,0,-30 });
+    ObjectB.SetPosition({ 0,0,0 });
+    ObjectB.SetRotationDeg({ -90,0,-30 });
+    ObjectC.SetPosition({ 0,0,-100 });
+    ObjectC.SetRotationDeg({ 0,0,0 });
+}
+
+void ShutdownRC(void)
+{
+    // 刪除每個物件的 texture
+    ObjectA.DeleteTexture();
+    ObjectB.DeleteTexture();
+    ObjectC.DeleteTexture();
 }
 
 void ChangeSize(int w, int h)
@@ -204,7 +219,7 @@ void ChangeSize(int w, int h)
     glLoadIdentity();
 
     fAspect = (GLfloat)w / (GLfloat)h;
-    gluPerspective(60.0f, fAspect, 200.0, 500.0);
+    gluPerspective(60.0f, fAspect, 200.0, 3000.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -213,29 +228,65 @@ void ChangeSize(int w, int h)
     glTranslatef(0.0f, 0.0f, -400.0f);
 }
 
-// 更新所有物件位置
+// 更新所有物件位置並更新畫面 50fps
 void AnimationTimerFunction(int tick)
 {
     if (!isPlaying)
-        // TODO 重置所有物件的狀態
-        return;
+    {
+        ObjectA.SetPosition({ 0,0,0 });
+        ObjectA.SetRotationDeg({ -90,0,-30 });
+        ObjectB.SetPosition({ 0,0,0 });
+        ObjectB.SetRotationDeg({ -90,0,-30 });
+        ObjectC.SetPosition({ 0,0,-100 });
+        ObjectC.SetRotationDeg({ 0,0,0 });
+    	return;
+    }
 
-    // tick counter
-    tick = (tick >= 500) ? 0 : tick;
-    std::cout << "AnimationTimerFunction: " << tick << std::endl;
+    // 物件動畫 ????
+    constexpr double d_deg = 120.0 / 50;
+    constexpr double d_rad = m3dDegToRad(d_deg);
+    constexpr double rotate_radius = 100;
+    M3DVector3d a_pos = {
+    cos(0.1 * tick) * -100,
+    cos(0.5 * tick) * 10,
+    cos(0.1 * tick) * -100
+    };
+    M3DVector3d a_rot = {
+    d_deg * tick,
+    0,
+    0
+    };
+    ObjectA.SetPosition(a_pos);
+    ObjectA.SetRotationDeg(a_rot);
 
-    // TODO 對海龜位置做增量
-    // TODO 對魚位置做增量
+    M3DVector3d b_pos = {
+        cos(d_rad * tick) * rotate_radius,
+        cos(0.12 * tick) * 20,
+        sin(d_rad * tick) * rotate_radius
+    };
+    M3DVector3d b_rot = {
+        0,
+        -d_deg * tick + M3D_PI/2,
+        0
+    };
+    ObjectB.SetPosition(b_pos);
+    ObjectB.SetRotationDeg(b_rot);
 
-    glutTimerFunc(MILLISECOND_PER_TICK, AnimationTimerFunction, ++tick);
-}
+    M3DVector3d c_pos = {
+    cos(d_rad * tick*5)* 100,
+    sin(d_rad * tick*3)* 100,
+    -100
+    };
+    M3DVector3d c_rot = {
+        180,
+        0,
+        d_deg * tick
+    };
+    ObjectC.SetPosition(c_pos);
+    ObjectC.SetRotationDeg(c_rot);
 
-// 根據最新物件位置資訊更新畫面
-void TimerFunction(int value)
-{
-    // Redraw the scene with new coordinates
     glutPostRedisplay();
-    glutTimerFunc(MILLISECOND_PER_FRAME, TimerFunction, value);
+    glutTimerFunc(MILLISECOND_PER_FRAME, AnimationTimerFunction, ++tick);
 }
 
 void Keyboard(unsigned char key, int x, int y)
@@ -244,18 +295,18 @@ void Keyboard(unsigned char key, int x, int y)
     {
     case 'r':
         // 重置所有物件位置
-        std::cout << "[info] Key [R] pressed.\n";
+        Log::Info("Key [R] pressed.");
         isPlaying = false;
         break;
     case ' ':
         // 開始播放動畫
-        std::cout << "[info] Key [SPACE] pressed.\n";
+        Log::Info("Key [SPACE] pressed.");
         if (isPlaying)
-            std::cout << "[info] Animation is already playing.\n";
+            Log::Error("Animation is already playing!!");
         else
         {
             isPlaying = true;
-            glutTimerFunc(MILLISECOND_PER_TICK, AnimationTimerFunction, 0);
+            glutTimerFunc(MILLISECOND_PER_FRAME, AnimationTimerFunction, 0);
         }
         break;
     default:
@@ -274,7 +325,7 @@ int main(int argc, char* argv[])
     glutDisplayFunc(RenderScene);
     glutKeyboardFunc(Keyboard);
     SetupRC();
-    glutTimerFunc(32, TimerFunction, 1);
     glutMainLoop();
+    ShutdownRC();
     return 0;
 }

@@ -32,5 +32,11 @@
     <ClInclude Include="math3d.h">
       <Filter>來源檔案</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
