@@ -1,12 +1,12 @@
 ﻿#include <iostream>
-#include <array>
 #include <random>
 #include <cmath>
 #include "GL/freeglut.h"
-#include "glframe.h"
+#include "glframe.h" // not use
 
 #include "Object.h"
 #include "Log.h"
+#include "math3d.h" // math3d.cpp is missing, not really helpful
 
 #define MILLISECOND_PER_FRAME 20
 
@@ -34,9 +34,9 @@ const GLfloat specref[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 M3DMatrix44f shadowMat;
 
 // 物件模型
-Object ObjectA("Sea_Turtle");
-Object ObjectB("fish");
-Object ObjectC("crab");
+Object happy_sea_turtle("Sea_Turtle");
+Object fish("fish");
+Object just_a_crab("crab");
 
 void RenderScene()
 {
@@ -45,10 +45,10 @@ void RenderScene()
     // Set Material properties to follow glColor values
     // in the background to give the illusion of depth
     glBegin(GL_QUADS);
-        glColor3ub(0, 32, 0); //light green ground
+        glColor3ub(100, 138, 158);
         glVertex3f(400.0f, -200.0f, -200.0f);
         glVertex3f(-400.0f, -200.0f, -200.0f);
-        glColor3ub(0, 255, 0);  // make it in green gradient
+        glColor3ub(250, 232, 92);
         glVertex3f(-400.0f, -200.0f, 200.0f);
         glVertex3f(400.0f, -200.0f, 200.0f);
     glEnd();
@@ -61,13 +61,13 @@ void RenderScene()
     {
         // 海龜
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        ObjectA.Draw();
+        happy_sea_turtle.Draw();
 
         // 繞海龜旋轉的魚
         glPushMatrix();
         {
             glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-            ObjectB.Draw();
+            fish.Draw();
         }
         glPopMatrix();
     }
@@ -77,7 +77,7 @@ void RenderScene()
     glPushMatrix();
     {
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        ObjectC.Draw();
+        just_a_crab.Draw();
     }
     glPopMatrix();
 
@@ -90,13 +90,13 @@ void RenderScene()
     {
         // Multiply by shadow projection matrix
         glMultMatrixf(shadowMat);
-        ObjectA.Draw(true);
+        happy_sea_turtle.Draw(true);
 
         // 繞海龜旋轉的魚
         glPushMatrix();
         {
             glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-            ObjectB.Draw(true);
+            fish.Draw(true);
         }
         glPopMatrix();
     }
@@ -108,7 +108,7 @@ void RenderScene()
         // Multiply by shadow projection matrix
         glMultMatrixf(shadowMat);
         glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-        ObjectC.Draw(true);
+        just_a_crab.Draw(true);
     }
     glPopMatrix();
 
@@ -172,35 +172,34 @@ void SetupRC()
     glEnable(GL_NORMALIZE);
 
     // 載入每個物件的 object
-    ObjectA.LoadObject();
-    ObjectB.LoadObject();
-    ObjectC.LoadObject();
-    //ObjectC.LoadObject();
+    happy_sea_turtle.LoadObject();
+    fish.LoadObject();
+    just_a_crab.LoadObject();
     // 載入每個物件的 texture
-    ObjectA.LoadTexture();
-    ObjectB.LoadTexture();
-    ObjectC.LoadTexture();
+    happy_sea_turtle.LoadTexture();
+    fish.LoadTexture();
+    just_a_crab.LoadTexture();
 
     // 調整物件
-    ObjectA.SetScale(3);
-    ObjectB.SetScale(3);
-    ObjectC.SetScale(3);
+    happy_sea_turtle.SetScale(3);
+    fish.SetScale(3);
+    just_a_crab.SetScale(3);
 
     // 設定起始位置
-    ObjectA.SetPosition({ 0,0,0 });
-    ObjectA.SetRotationDeg({ -90,0,-30 });
-    ObjectB.SetPosition({ 0,0,0 });
-    ObjectB.SetRotationDeg({ -90,0,-30 });
-    ObjectC.SetPosition({ 0,0,-100 });
-    ObjectC.SetRotationDeg({ 0,0,0 });
+    happy_sea_turtle.SetPosition({ 0,0,0 });
+    happy_sea_turtle.SetRotationDeg({ -90,0,-30 });
+    fish.SetPosition({ 0,0,0 });
+    fish.SetRotationDeg({ 0,180,0 });
+    just_a_crab.SetPosition({ 100,0,-100 });
+    just_a_crab.SetRotationDeg({ 180,0,0 });
 }
 
 void ShutdownRC(void)
 {
     // 刪除每個物件的 texture
-    ObjectA.DeleteTexture();
-    ObjectB.DeleteTexture();
-    ObjectC.DeleteTexture();
+    happy_sea_turtle.DeleteTexture();
+    fish.DeleteTexture();
+    just_a_crab.DeleteTexture();
 }
 
 void ChangeSize(int w, int h)
@@ -233,12 +232,12 @@ void AnimationTimerFunction(int tick)
 {
     if (!isPlaying)
     {
-        ObjectA.SetPosition({ 0,0,0 });
-        ObjectA.SetRotationDeg({ -90,0,-30 });
-        ObjectB.SetPosition({ 0,0,0 });
-        ObjectB.SetRotationDeg({ -90,0,-30 });
-        ObjectC.SetPosition({ 0,0,-100 });
-        ObjectC.SetRotationDeg({ 0,0,0 });
+        happy_sea_turtle.SetPosition({ 0,0,0 });
+        happy_sea_turtle.SetRotationDeg({ -90,0,-30 });
+        fish.SetPosition({ 0,0,0 });
+        fish.SetRotationDeg({ -90,0,-30 });
+        just_a_crab.SetPosition({ 0,0,-100 });
+        just_a_crab.SetRotationDeg({ 0,0,0 });
     	return;
     }
 
@@ -256,25 +255,25 @@ void AnimationTimerFunction(int tick)
     0,
     0
     };
-    ObjectA.SetPosition(a_pos);
-    ObjectA.SetRotationDeg(a_rot);
+    happy_sea_turtle.SetPosition(a_pos);
+    happy_sea_turtle.SetRotationDeg(a_rot);
 
     M3DVector3d b_pos = {
-        cos(d_rad * tick) * rotate_radius,
-        cos(0.12 * tick) * 20,
-        sin(d_rad * tick) * rotate_radius
-    };
-    M3DVector3d b_rot = {
-        0,
-        -d_deg * tick + M3D_PI/2,
+        cos(tick * d_deg * 0.2) * 50,
+        77,
         0
     };
-    ObjectB.SetPosition(b_pos);
-    ObjectB.SetRotationDeg(b_rot);
+    M3DVector3d b_rot = {
+        -d_deg * tick*4,
+        180,
+        0
+    };
+    fish.SetPosition(b_pos);
+    fish.SetRotationDeg(b_rot);
 
     M3DVector3d c_pos = {
-    cos(d_rad * tick*5)* 100,
-    sin(d_rad * tick*3)* 100,
+    cos(d_rad * tick * 5) * 100,
+    sin(d_rad * tick * 3) * 100,
     -100
     };
     M3DVector3d c_rot = {
@@ -282,8 +281,8 @@ void AnimationTimerFunction(int tick)
         0,
         d_deg * tick
     };
-    ObjectC.SetPosition(c_pos);
-    ObjectC.SetRotationDeg(c_rot);
+    just_a_crab.SetPosition(c_pos);
+    just_a_crab.SetRotationDeg(c_rot);
 
     glutPostRedisplay();
     glutTimerFunc(MILLISECOND_PER_FRAME, AnimationTimerFunction, ++tick);

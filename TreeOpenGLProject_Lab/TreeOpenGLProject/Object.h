@@ -3,10 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <array>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "GL/freeglut.h"
-#include "math3d.h"
 #include "Log.h"
 
 class Object
