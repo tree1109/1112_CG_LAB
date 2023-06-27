@@ -34,9 +34,9 @@ const GLfloat specref[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 M3DMatrix44f shadowMat;
 
 // 物件模型
-Object happy_sea_turtle("Sea_Turtle");
-Object fish("fish");
-Object just_a_crab("crab");
+Object happy_sea_turtle("Model\\Sea_Turtle_obj", "Model\\Sea_Turtle.png");
+Object fish("Model\\fish_obj", "Model\\fish.png");
+Object just_a_crab("Model\\crab_obj", "Model\\crab.png");
 
 void RenderScene()
 {

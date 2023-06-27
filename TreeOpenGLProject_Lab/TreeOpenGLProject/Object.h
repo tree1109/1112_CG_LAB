@@ -13,7 +13,7 @@ class Object
 {
 private:
     M3DVector3d position_;
-    M3DVector3d rotation_; // in radian
+    M3DVector3d rotation_; // in degree
     double scale_;
     GLuint textureIndex_;
     std::string objPath_;
@@ -29,11 +29,11 @@ private:
     bool is_paper_;
 
 public:
-    Object(const std::string& model_name) :
+    Object(const std::string& objFilePath, const std::string& textureFilePath) :
         position_{ 0.0, 0.0, 0.0 }, rotation_{ 0.0, 0.0, 0.0 }, scale_{ 1.0 },
         textureIndex_(0),
-        objPath_("Model\\"+model_name+".obj"),
-        texturePath_("Model\\" + model_name + ".png"),
+        objPath_(objFilePath),
+        texturePath_(textureFilePath),
         cull_face_(true),
         is_paper_(false)
     {}
@@ -121,14 +121,14 @@ public:
     void LoadTexture()
     {
         // 圖片使用帶有透明度的PNG影像
-        cv::Mat image = cv::imread(texturePath_);
+        cv::Mat image = cv::imread(texturePath_, CV_LOAD_IMAGE_UNCHANGED);
         if (image.empty())
         {
             Log::Error("Fail to load texture \"" + texturePath_ + "\".");
             return;
         }
         // 上下翻轉
-        cv::flip(image, image, 0);
+        flip(image, image, 0);
         // 由各個物件保管紋理索引
         glGenTextures(1, &textureIndex_);
         glBindTexture(GL_TEXTURE_2D, textureIndex_);
