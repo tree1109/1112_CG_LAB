@@ -1,6 +1,10 @@
 # 1112_CG_LAB
 1112 電腦圖學
 
+## 環境需求
+- OpenCV
+- freeglut (I use freeglut 3.0.0 MSVC Package)
+
 ## Branchs status
 - `main` : Lab 1~5 and Midterm project, all finish.
 - `lab6-2D-Grid` : Lab 6.
