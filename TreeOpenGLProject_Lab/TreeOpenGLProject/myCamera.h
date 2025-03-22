@@ -1,5 +1,6 @@
 #pragma once
-#include "vec3.h"
+
+#include "Math.h"
 
 class myCamera
 {
@@ -14,9 +15,9 @@ public:
     void reset();
 
 private:
-    vec3 _eyePosition;
-    vec3 _lookDirection;
-    const vec3 _upVector;
-    vec3 _rightVector;
+    Vector3 _eyePosition;
+    Vector3 _lookDirection;
+    const Vector3 _upVector;
+    Vector3 _rightVector;
     const GLfloat _deltaT;
 };

@@ -12,7 +12,7 @@ myCamera::myCamera() :
 
 void myCamera::work()
 {
-    const vec3 lookAt= _eyePosition + _lookDirection;
+    const Vector3 lookAt= _eyePosition + _lookDirection;
     gluLookAt(
         _eyePosition.x, _eyePosition.y, _eyePosition.z,
         lookAt.x, lookAt.y, lookAt.z,
@@ -21,22 +21,22 @@ void myCamera::work()
 
 void myCamera::moveForward()
 {
-    _eyePosition += _lookDirection.normalize() * _deltaT;
+    _eyePosition += math::Normalize(_lookDirection) * _deltaT;
 }
 
 void myCamera::moveBackward()
 {
-    _eyePosition -= _lookDirection.normalize() * _deltaT;
+    _eyePosition -= math::Normalize(_lookDirection) * _deltaT;
 }
 
 void myCamera::moveLeft()
 {
-    _eyePosition -= _lookDirection.cross(_upVector).normalize() * _deltaT;
+    _eyePosition -= math::Normalize(math::Cross(_lookDirection, _upVector)) * _deltaT;
 }
 
 void myCamera::moveRight()
 {
-    _eyePosition += _lookDirection.cross(_upVector).normalize() * _deltaT;
+    _eyePosition += math::Normalize(math::Cross(_lookDirection, _upVector)) * _deltaT;
 }
 
 void myCamera::setViewAngle(GLfloat pitch, GLfloat yaw)

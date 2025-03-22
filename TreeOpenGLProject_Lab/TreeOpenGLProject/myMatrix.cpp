@@ -36,9 +36,9 @@ myMatrix myMatrix::mult(const myMatrix& rightM) const
     return resultM;
 }
 
-vec3 myMatrix::mult(const vec3& rightV) const
+Vector3 myMatrix::mult(const Vector3& rightV) const
 {
-    vec3 resultV;
+    Vector3 resultV;
 
     resultV.x = matrix[0] * rightV.x + matrix[4] * rightV.y + matrix[8] * rightV.z;
     resultV.y = matrix[1] * rightV.x + matrix[5] * rightV.y + matrix[9] * rightV.z;
@@ -109,10 +109,10 @@ void myMatrix::doRotate(GLfloat angle, GLfloat ux, GLfloat uy, GLfloat uz)
     glMultMatrixf(matrix);
 }
 
-void myMatrix::doArbitraryRotate(GLfloat angle, vec3 v1, vec3 v2)
+void myMatrix::doArbitraryRotate(GLfloat angle, Vector3 v1, Vector3 v2)
 {
     // get unit vector
-    vec3 unitV = (v2 - v1).normalize();
+    Vector3 unitV = math::Normalize(v2 - v1);
 
     doTranslate(v1.x, v1.y, v1.z);    // move origin of model space to origin of unit vector
     doRotate(angle, unitV.x, unitV.y, unitV.z);      // rotate at origin of unit vector

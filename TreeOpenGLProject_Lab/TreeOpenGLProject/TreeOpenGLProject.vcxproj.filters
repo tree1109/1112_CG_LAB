@@ -30,6 +30,12 @@
     <ClCompile Include="myCamera.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Math.h">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myPopupMenu.h">
@@ -47,10 +53,10 @@
     <ClInclude Include="face3.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="vec3.h">
+    <ClInclude Include="myCamera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="myCamera.h">
+    <ClInclude Include="Vector3.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

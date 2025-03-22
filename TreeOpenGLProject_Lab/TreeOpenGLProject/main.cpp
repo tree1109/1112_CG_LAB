@@ -5,7 +5,8 @@
 #include "myPopupMenu.h"
 #include "myObject.h"
 #include "myCamera.h"
-#include "vec3.h"
+
+#include "Math.h"
 
 #define SHOW_DEBUG_INFO false
 
@@ -61,12 +62,12 @@ COLOR_MODE currentColorMode = COLOR_MODE::SINGLE;
 // These are variable that you will need
 // to move your cube
 // basic
-vec3 translate = { 0.0f, 0.0f, 0.0f };
-vec3 rotate = { 0.0f, 0.0f, 0.0f };
+Vector3 translate = { 0.0f, 0.0f, 0.0f };
+Vector3 rotate = { 0.0f, 0.0f, 0.0f };
 GLfloat scale = 1.0f;
 // arbitrary
-vec3 v1 = { -5, -5, -5 };
-vec3 v2 = { 5, 5, 5 };
+Vector3 v1 = { -5, -5, -5 };
+Vector3 v2 = { 5, 5, 5 };
 GLfloat arbitraryTheta = 0.0f;
 
 // change rate of Translate and Rotate

@@ -65,7 +65,7 @@ void myObject::loadObjectFile(std::string filePath)
 
     // create local vectors to store the data then
     // add a dummy vertex to the vertices vector
-    std::vector<vec3> vertices;
+    std::vector<Vector3> vertices;
     std::vector<face3> faces;
     vertices.push_back({ 0.0f, 0.0f, 0.0f });
 
@@ -78,7 +78,7 @@ void myObject::loadObjectFile(std::string filePath)
         lineSS >> token;
         if (token == "v") {
             // read the vertex data
-            vec3 vertex = {};
+            Vector3 vertex = {};
             lineSS >> vertex.x >> vertex.y >> vertex.z;
             vertices.push_back(vertex);
         }
@@ -112,7 +112,7 @@ void myObject::doTransformation()
     _transformationMatrix.doArbitraryRotate(_arbitraryTheta, _v1, _v2);
 }
 
-void myObject::setTransformation(vec3 position, vec3 rotation, GLfloat scaling = 1.0f)
+void myObject::setTransformation(Vector3 position, Vector3 rotation, GLfloat scaling = 1.0f)
 {
     _position = position;
     _rotation = rotation;
@@ -160,7 +160,7 @@ void myObject::fitToWindow()
     _scaling *= getScalingCoefficient();
 }
 
-void myObject::setArbitraryRotate(GLfloat theta, vec3 v1, vec3 v2)
+void myObject::setArbitraryRotate(GLfloat theta, Vector3 v1, Vector3 v2)
 {
     _arbitraryTheta = theta;
     _v1 = v1;
@@ -170,10 +170,10 @@ void myObject::setArbitraryRotate(GLfloat theta, vec3 v1, vec3 v2)
 void myObject::drawPoints()
 {
     for (auto& face : _faces) {
-        vec3 v1 = _vertices[face.v1];
-        vec3 v2 = _vertices[face.v2];
-        vec3 v3 = _vertices[face.v3];
-        vec3 normal = getNormalVector(v1, v2, v3);
+        Vector3 v1 = _vertices[face.v1];
+        Vector3 v2 = _vertices[face.v2];
+        Vector3 v3 = _vertices[face.v3];
+        Vector3 normal = getNormalVector(v1, v2, v3);
 
         glBegin(GL_POINTS);
         glNormal3f(normal.x, normal.y, normal.z);
@@ -190,10 +190,10 @@ void myObject::drawPoints()
 void myObject::drawLines()
 {
     for (auto& face : _faces) {
-        vec3 v1 = _vertices[face.v1];
-        vec3 v2 = _vertices[face.v2];
-        vec3 v3 = _vertices[face.v3];
-        vec3 normal = getNormalVector(v1, v2, v3);
+        Vector3 v1 = _vertices[face.v1];
+        Vector3 v2 = _vertices[face.v2];
+        Vector3 v3 = _vertices[face.v3];
+        Vector3 normal = getNormalVector(v1, v2, v3);
 
         glBegin(GL_LINE_LOOP);
         glNormal3f(normal.x, normal.y, normal.z);
@@ -208,10 +208,10 @@ void myObject::drawLines()
 void myObject::drawFaces()
 {
     for (auto &face : _faces) {
-        vec3 v1 = _vertices[face.v1];
-        vec3 v2 = _vertices[face.v2];
-        vec3 v3 = _vertices[face.v3];
-        vec3 normal = getNormalVector(v1, v2, v3);
+        Vector3 v1 = _vertices[face.v1];
+        Vector3 v2 = _vertices[face.v2];
+        Vector3 v3 = _vertices[face.v3];
+        Vector3 normal = getNormalVector(v1, v2, v3);
 
         glBegin(GL_TRIANGLES);
         glNormal3f(normal.x, normal.y, normal.z);
@@ -308,7 +308,7 @@ void myObject::drawArbitraryAxis()
     drawCross(_v2);
 }
 
-void myObject::drawCross(vec3 v)
+void myObject::drawCross(Vector3 v)
 {
     GLfloat length = 1 / _scaling; // cross length
 
@@ -330,15 +330,14 @@ void myObject::drawCross(vec3 v)
 
 void myObject::fixPositionVector()
 {
-    _position /= _scaling;
-    _v1 /= _scaling;
-    _v2 /= _scaling;
+    _position = _position / _scaling;
+    _v1 = _v1 / _scaling;
+    _v2 = _v2 / _scaling;
 }
 
-vec3 myObject::getNormalVector(vec3 v1, vec3 v2, vec3 v3)
+Vector3 myObject::getNormalVector(Vector3 v1, Vector3 v2, Vector3 v3)
 {
-    vec3 u = v3 - v1;
-    vec3 v = v2 - v1;
-    vec3 normal = u.cross(v);
-    return normal.normalize();
+    Vector3 u = v3 - v1;
+    Vector3 v = v2 - v1;
+    return math::Normalize(math::Cross(u, v));
 }

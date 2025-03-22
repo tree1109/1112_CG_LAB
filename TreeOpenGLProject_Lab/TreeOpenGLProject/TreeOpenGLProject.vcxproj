@@ -20,11 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Math.h" />
     <ClCompile Include="myCamera.cpp" />
     <ClCompile Include="myMatrix.cpp" />
     <ClCompile Include="myObject.cpp" />
     <ClCompile Include="myPopupMenu.cpp" />
-    <ClCompile Include="vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="face3.h" />
@@ -33,7 +34,7 @@
     <ClInclude Include="myMatrix.h" />
     <ClInclude Include="myObject.h" />
     <ClInclude Include="myPopupMenu.h" />
-    <ClInclude Include="vec3.h" />
+    <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" />
